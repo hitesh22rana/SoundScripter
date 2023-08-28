@@ -1,8 +1,6 @@
 # Purpose: Upload service to handle file upload related tasks
 # Path: backend/app/services/files/upload.py
 
-from datetime import datetime
-from uuid import uuid4
 
 from fastapi import File, HTTPException, UploadFile, status
 
@@ -22,27 +20,21 @@ class UploadService(FileService):
         """
         super().__init__()
 
-        self.file = file
-        self.file_name = self.get_unique_file_name(self.file.filename)
-        self.file_path = self.get_file_path(self.file_name)
+        self.file: UploadFile = file
+        self.file_name: str = self.get_unique_file_name()
+        self.file_extension: str = self.get_file_extension(file_name=self.file.filename)
+        self.file_path: str = self.generate_file_path(
+            file_name=self.file_name, file_extension=self.file_extension
+        )
 
-        if not self.validate_file_type(self.file.content_type):
+        if (
+            not self.validate_file_type(self.file.content_type)
+            or self.file_extension == ""
+        ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Error: Bad Request",
             )
-
-    def get_unique_file_name(self, file_name: str) -> str:
-        """
-        Generate a unique file name
-        :param file_name: str
-        :return: str
-        """
-        return (
-            datetime.now().strftime("%Y%m-%d%H-%M%S-")
-            + str(uuid4())
-            + file_name.strip().replace(" ", "_")
-        )
 
     async def upload(self) -> Accepted | HTTPException:
         """
@@ -53,12 +45,12 @@ class UploadService(FileService):
 
         try:
             with open(self.file_path, "wb") as f:
-                while contents := await self.file.read(self.chunk_size_bytes):
+                while contents := await self.file.read(
+                    self.chunk_size_bytes * self.chunk_size_bytes
+                ):
                     f.write(contents)
 
-            return Accepted(
-                content={"message": f"File {self.file_name} uploaded successfully"}
-            )
+            return Accepted({"details": f"File {self.file_name} uploaded successfully"})
 
         except Exception as e:
             status_code = status.HTTP_400_BAD_REQUEST

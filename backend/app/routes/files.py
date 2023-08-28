@@ -16,6 +16,6 @@ async def upload(file: UploadFile = File(...)):
     return await UploadService(file=file).upload()
 
 
-@router.get("/download/{file_name}", response_description="Download file")
-async def download(file_name: str):
-    return await DownloadService(file_name=file_name).download()
+@router.get("/download/{file_id}", response_description="Download file")
+async def download(file_id: str):
+    return await DownloadService(file_id=file_id).download()
