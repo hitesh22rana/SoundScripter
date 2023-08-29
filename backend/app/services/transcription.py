@@ -11,13 +11,13 @@ from app.utils.responses import OK
 
 class TranscriptionService:
     def __init__(self, transcription_details: TranscriptionSchema) -> None:
-        self.file_service = FileService()
+        self.file_service: FileService = FileService()
 
-        self.file_id = transcription_details.file_id
-        self.language = transcription_details.language
-        self.file_extension = transcription_details.file_extension
+        self.file_id: str = transcription_details.file_id
+        self.language: str = transcription_details.language
+        self.file_extension: str = transcription_details.file_extension
 
-        self.file_path = self.file_service.get_file_path(
+        self.file_path: str = self.file_service.get_file_path(
             file_id=self.file_id, file_extension=self.file_extension
         )
 
@@ -32,7 +32,7 @@ class TranscriptionService:
                 language=self.language,
             )
 
-            return OK({"detail": "File is added to transcription queue"})
+            return OK({"detail": "Success: File is added to transcription queue"})
 
         except Exception as e:
             status_code = status.HTTP_400_BAD_REQUEST

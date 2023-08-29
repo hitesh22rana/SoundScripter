@@ -2,6 +2,7 @@
 # Path: backend/app/services/files/upload.py
 
 
+import aiofiles
 from fastapi import File, HTTPException, UploadFile, status
 
 from app.services.files import FileService
@@ -44,11 +45,11 @@ class UploadService(FileService):
         """
 
         try:
-            with open(self.file_path, "wb") as f:
-                while contents := await self.file.read(
+            async with aiofiles.open(self.file_path, "wb") as f:
+                while chunk := await self.file.read(
                     self.chunk_size_bytes * self.chunk_size_bytes
                 ):
-                    f.write(contents)
+                    await f.write(chunk)
 
             return Accepted({"details": f"File {self.file_name} uploaded successfully"})
 
@@ -61,6 +62,3 @@ class UploadService(FileService):
                 detail = e.args[0].get("detail")
 
             raise HTTPException(status_code=status_code, detail=detail) from e
-
-        finally:
-            self.file.file.close()
