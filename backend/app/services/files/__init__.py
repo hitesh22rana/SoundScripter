@@ -12,8 +12,32 @@ class FileService:
     filename: str = "file"
     transcripted_files: str = "transcriptions"
     output_directory: str = "zips"
-    valid_file_types: list[str] = [
-        # Audio file types
+
+    audio_file_extensions: list[str] = [
+        "aac",
+        "mid",
+        "mp3",
+        "m4a",
+        "ogg",
+        "flac",
+        "amr",
+        "aiff",
+        "mpeg",
+    ]
+    video_file_extensions: list[str] = [
+        "3gp",
+        "mp4",
+        "m4v",
+        "mkv",
+        "webm",
+        "mov",
+        "avi",
+        "wmv",
+        "mpg",
+        "flv",
+    ]
+
+    audio_file_types: list[str] = [
         "audio/aac",
         "audio/midi",
         "audio/mpeg",
@@ -23,7 +47,8 @@ class FileService:
         "audio/x-wav",
         "audio/amr",
         "audio/x-aiff",
-        # Video file types
+    ]
+    video_file_types: list[str] = [
         "video/3gpp",
         "video/mp4",
         "video/x-m4v",
@@ -45,13 +70,60 @@ class FileService:
             os.makedirs(cls.output_directory)
 
     @classmethod
+    def is_audio_file_extension(cls, file_extension: str) -> bool:
+        """
+        Get file type
+        :param file_path: str
+        :return: bool
+        """
+        return file_extension in cls.audio_file_extensions
+
+    @classmethod
+    def is_video_file_extension(cls, file_extension: str) -> bool:
+        """
+        Get file type
+        :param file_path: str
+        :return: bool
+        """
+        return file_extension in cls.video_file_extensions
+
+    @classmethod
+    def is_valid_file_extension(cls, file_extension: str) -> bool:
+        """
+        Get file type
+        :param file_path: str
+        :return: bool
+        """
+        return cls.is_audio_file_extension(
+            file_extension
+        ) or cls.is_video_file_extension(file_extension)
+
+    @classmethod
+    def is_audio_file(cls, file_type: str) -> bool:
+        """
+        Get file type
+        :param file_path: str
+        :return: bool
+        """
+        return file_type in cls.audio_file_types
+
+    @classmethod
+    def is_video_file(cls, file_type: str) -> bool:
+        """
+        Get file type
+        :param file_path: str
+        :return: bool
+        """
+        return file_type in cls.video_file_types
+
+    @classmethod
     def validate_file_type(cls, file_type: str) -> bool:
         """
         Validate file type
         :param file_type: str
         :return: bool
         """
-        return file_type in cls.valid_file_types
+        return cls.is_audio_file(file_type) or cls.is_video_file(file_type)
 
     @classmethod
     def get_unique_file_name(self) -> str:
@@ -71,6 +143,28 @@ class FileService:
         """
         indx: int = file_name.rfind(".")
         return file_name[indx:] if indx != -1 else ""
+
+    @classmethod
+    def get_file_path_from_id(cls, file_id: str) -> str:
+        """
+        Get file path
+        :param file_name: str
+        return: str
+        """
+        folder: str = cls.directory + "/" + file_id
+
+        try:
+            for file in os.listdir(folder):
+                file_extension: str = cls.get_file_extension(file_name=file)
+                if file_extension != "" and cls.is_valid_file_extension(
+                    file_extension=file_extension[1:]
+                ):
+                    return folder + "/" + file
+
+            return ""
+
+        except FileNotFoundError:
+            return ""
 
     @classmethod
     def generate_file_path(cls, file_name: str, file_extension: str) -> str:

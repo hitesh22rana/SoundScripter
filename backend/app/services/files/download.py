@@ -40,8 +40,6 @@ class DownloadService(FileService):
         """
         zip_stream = io.BytesIO()
 
-        print(self.file_path)
-
         with zipfile.ZipFile(zip_stream, "w", zipfile.ZIP_DEFLATED) as zipf:
             for file in self.file_path.glob("**/*"):
                 if file.is_file():

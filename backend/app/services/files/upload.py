@@ -30,7 +30,7 @@ class UploadService(FileService):
 
         if (
             not self.validate_file_type(self.file.content_type)
-            or self.file_extension == ""
+            or not self.file_extension
         ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

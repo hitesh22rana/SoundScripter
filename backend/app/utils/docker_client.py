@@ -39,8 +39,8 @@ class DockerClient:
             )
 
     @classmethod
-    def get_file_path(cls, file_extension: str) -> str:
-        return f"{cls.container_base_path}/file{file_extension}"
+    def get_file_path(cls) -> str:
+        return f"{cls.container_base_path}/file.mp3"
 
     @classmethod
     def get_output_folder_path(cls) -> str:
@@ -64,9 +64,7 @@ class DockerClient:
         return container_config
 
     @classmethod
-    def run_transcription_service(
-        cls, file_id: str, file_extension: str, language: str
-    ):
+    def run_transcription_service(cls, file_id: str, language: str):
         container_config: dict = cls.get_container_config(file_id=file_id)
 
         try:
@@ -74,7 +72,7 @@ class DockerClient:
                 **container_config,
                 detach=True,
                 remove=True,
-                command=f"whisper {cls.get_file_path(file_extension=file_extension)} --language {language} -o {cls.get_output_folder_path()} --threads 2",
+                command=f"whisper {cls.get_file_path()} --language {language} -o {cls.get_output_folder_path()} --threads 2",
             )
 
         except docker.errors.ContainerError as e:
