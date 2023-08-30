@@ -58,7 +58,7 @@ class DockerClient:
         return container_config
 
     @classmethod
-    def run_transcription_service(cls, file_id: str, language: str):
+    def run_transcription_service(cls, file_id: str, language: str) -> None | Exception:
         # TODO: Provide the model name as a parameter based on language to boost the performance
         container_config: dict = cls.get_container_config(file_id=file_id)
 

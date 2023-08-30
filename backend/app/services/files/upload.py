@@ -14,10 +14,11 @@ class UploadService(FileService):
     Upload service
     """
 
-    def __init__(self, file: UploadFile = File(...)) -> None:
+    def __init__(self, file: UploadFile = File(...)) -> None | HTTPException:
         """
         Upload service
         :param file: UploadFile
+        :return None | HTTPException
         """
         super().__init__()
 

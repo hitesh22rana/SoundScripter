@@ -15,7 +15,7 @@ class TranscriptionService:
         self,
         background_tasks: BackgroundTasks,
         transcription_details: TranscriptionSchema,
-    ) -> None:
+    ) -> None | HTTPException:
         self.file_service: FileService = FileService()
 
         self.file_id: str = transcription_details.file_id
@@ -25,7 +25,9 @@ class TranscriptionService:
         )
 
         if not self.file_path:
-            raise HTTPException(status_code=404, detail="File not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+            )
 
         self.file_extension: str = self.file_service.get_file_extension(
             file_name=self.file_path
@@ -41,7 +43,7 @@ class TranscriptionService:
             )
             background_tasks.add_task(self.video_to_audio.convert)
 
-    async def transcribe(self):
+    async def transcribe(self) -> OK | HTTPException:
         try:
             docker_client.run_transcription_service(
                 file_id=self.file_id,

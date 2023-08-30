@@ -14,7 +14,7 @@ class VideoToAudio:
         self.video_path = video_path
         self.audio_path = self.video_path.replace(video_extension, audio_extension)
 
-    def convert(self):
+    def convert(self) -> OK | HTTPException:
         try:
             video_file: VideoFileClip = VideoFileClip(self.video_path)
             audio_file: AudioFileClip = video_file.audio
