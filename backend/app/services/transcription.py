@@ -1,13 +1,13 @@
 # Purpose: Transcription service for handling transcriptions related tasks.
 # Path: backend\app\services\transcriptions.py
 
-from fastapi import HTTPException, status, BackgroundTasks
+from fastapi import BackgroundTasks, HTTPException, status
 
 from app.schemas import TranscriptionSchema
 from app.services.files import FileService
 from app.utils.docker_client import docker_client
-from app.utils.video_to_audio import VideoToAudio
 from app.utils.responses import OK
+from app.utils.video_to_audio import VideoToAudio
 
 
 class TranscriptionService:

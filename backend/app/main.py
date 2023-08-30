@@ -34,6 +34,9 @@ app.include_router(transcriptions.router)
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     return JSONResponse(
-        content={"status_code": "422", "detail": "Error: Unprocessable Entity"},
+        content={
+            "status_code": "422",
+            "detail": f"Error: Unprocessable Entity",
+        },
         status_code=422,
     )

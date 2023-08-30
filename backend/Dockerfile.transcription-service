@@ -4,10 +4,18 @@ FROM python:3.11-slim-buster
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    axel \
     && rm -rf /var/lib/apt/lists/*
+
+# Download the model and save it to the specified directory
+RUN mkdir -p ~/.cache/whisper && \
+    axel -o ~/.cache/whisper/small.pt https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir openai-whisper setuptools-rust
+
+# Remove axel to reduce image size
+RUN apt-get purge -y axel && apt-get autoremove -y
 
 # Set the entrypoint
 CMD ["bash"]

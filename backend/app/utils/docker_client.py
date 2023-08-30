@@ -31,12 +31,6 @@ class DockerClient:
 
         except docker.errors.DockerException:
             logger.error("Docker client could not be initialized")
-            raise Exception(
-                {
-                    "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "detail": "Internal server error",
-                }
-            )
 
     @classmethod
     def get_file_path(cls) -> str:
@@ -65,6 +59,7 @@ class DockerClient:
 
     @classmethod
     def run_transcription_service(cls, file_id: str, language: str):
+        # TODO: Provide the model name as a parameter based on language to boost the performance
         container_config: dict = cls.get_container_config(file_id=file_id)
 
         try:
@@ -72,7 +67,7 @@ class DockerClient:
                 **container_config,
                 detach=True,
                 remove=True,
-                command=f"whisper {cls.get_file_path()} --language {language} -o {cls.get_output_folder_path()} --threads 2",
+                command=f"whisper {cls.get_file_path()} --fp16 False --language {language} --task transcribe --output_dir {cls.get_output_folder_path()} --threads 2 --verbose False",
             )
 
         except docker.errors.ContainerError as e:

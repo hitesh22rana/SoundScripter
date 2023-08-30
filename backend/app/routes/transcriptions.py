@@ -1,7 +1,7 @@
 # Purpose: Transcription router for handling transcriptions related operations.
 # Path: backend\app\routers\transcriptions.py
 
-from fastapi import APIRouter, Body, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Body
 
 from app.schemas import TranscriptionSchema
 from app.services import TranscriptionService
