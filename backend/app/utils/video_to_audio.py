@@ -9,10 +9,15 @@ from app.utils.responses import OK
 
 class VideoToAudio:
     def __init__(
-        self, video_path: str, video_extension: str, audio_extension: str = ".mp3"
+        self,
+        video_path: str,
+        video_extension: str,
+        audio_extension: str = ".mp3",
+        delete_original_file: bool = False,
     ) -> None:
         self.video_path = video_path
         self.audio_path = self.video_path.replace(video_extension, audio_extension)
+        self.delete_original_file = delete_original_file
 
     def convert(self) -> OK | HTTPException:
         try:
@@ -26,6 +31,23 @@ class VideoToAudio:
                 verbose=False,
                 logger=None,
             )
+
+            video_file.close()
+            audio_file.close()
+
+            if self.delete_original_file:
+                # Lazy import FileService
+                from app.services.files import FileService
+
+                file_service: FileService = FileService()
+
+                try:
+                    file_service.delete_file(self.video_path)
+                except Exception as e:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Error: Bad Request",
+                    ) from e
 
             return OK({"detail": "Success: File converted"})
 

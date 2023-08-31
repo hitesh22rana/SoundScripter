@@ -24,6 +24,8 @@ class DownloadService(FileService):
         :return None | HTTPException
         """
 
+        super().__init__()
+
         self.file_id = file_id
         self.file_path: Path = Path(self.get_transcription_file_path(self.file_id))
 
@@ -33,10 +35,10 @@ class DownloadService(FileService):
                 detail="Error: Bad Request",
             )
 
-    async def generate_zip(self) -> BytesIO | HTTPException:
+    async def generate_zip(self) -> BytesIO | Exception:
         """
         Generate zip file
-        :return: BytesIO
+        :return: BytesIO | Exception
         """
 
         try:
@@ -62,7 +64,7 @@ class DownloadService(FileService):
         """
         Download file
         :param file: UploadFile
-        :return: FileResponse
+        :return: StreamingResponse | HTTPException
         """
 
         try:

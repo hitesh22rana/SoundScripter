@@ -1,7 +1,7 @@
 # Purpose: Files router for handling files related operations.
 # Path: backend\app\routers\files.py
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, BackgroundTasks, File, UploadFile
 
 from app.services import DownloadService, UploadService
 
@@ -12,8 +12,8 @@ router = APIRouter(
 
 
 @router.post("/upload", response_description="Upload file")
-async def upload(file: UploadFile = File(...)):
-    return await UploadService(file=file).upload()
+async def upload(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+    return await UploadService(file=file).upload(background_tasks=background_tasks)
 
 
 @router.get("/download/{file_id}", response_description="Download file")

@@ -3,7 +3,7 @@
 
 
 import aiofiles
-from fastapi import File, HTTPException, UploadFile, status
+from fastapi import BackgroundTasks, File, HTTPException, UploadFile, status
 
 from app.services.files import FileService
 from app.utils.responses import Accepted
@@ -20,6 +20,7 @@ class UploadService(FileService):
         :param file: UploadFile
         :return None | HTTPException
         """
+
         super().__init__()
 
         self.file: UploadFile = file
@@ -38,7 +39,7 @@ class UploadService(FileService):
                 detail="Error: Bad Request",
             )
 
-    async def upload(self) -> Accepted | HTTPException:
+    async def upload(self, background_tasks: BackgroundTasks) -> None | HTTPException:
         """
         Upload file
         :param file: UploadFile
@@ -51,6 +52,20 @@ class UploadService(FileService):
                     self.chunk_size_bytes * self.chunk_size_bytes
                 ):
                     await f.write(chunk)
+
+            if not self.is_audio_file_extension(
+                self.file_extension[1:]
+            ) and self.is_video_file_extension(self.file_extension[1:]):
+                # Lazy import VideoToAudio
+                from app.utils.video_to_audio import VideoToAudio
+
+                self.video_to_audio: VideoToAudio = VideoToAudio(
+                    video_path=self.file_path,
+                    video_extension=self.file_extension,
+                    audio_extension=".mp3",
+                    delete_original_file=True,
+                )
+                background_tasks.add_task(self.video_to_audio.convert)
 
             return Accepted({"details": f"File {self.file_name} uploaded successfully"})
 

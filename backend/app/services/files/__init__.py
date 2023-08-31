@@ -11,7 +11,6 @@ class FileService:
     directory: str = "data"
     filename: str = "file"
     transcripted_files: str = "transcriptions"
-    output_directory: str = "zips"
 
     audio_file_extensions: list[str] = [
         "aac",
@@ -66,9 +65,6 @@ class FileService:
         if not os.path.exists(cls.directory):
             os.makedirs(cls.directory)
 
-        if not os.path.exists(cls.output_directory):
-            os.makedirs(cls.output_directory)
-
     @classmethod
     def is_audio_file_extension(cls, file_extension: str) -> bool:
         """
@@ -95,8 +91,8 @@ class FileService:
         :return: bool
         """
         return cls.is_audio_file_extension(
-            file_extension
-        ) or cls.is_video_file_extension(file_extension)
+            file_extension=file_extension
+        ) or cls.is_video_file_extension(file_extension=file_extension)
 
     @classmethod
     def is_audio_file(cls, file_type: str) -> bool:
@@ -123,7 +119,9 @@ class FileService:
         :param file_type: str
         :return: bool
         """
-        return cls.is_audio_file(file_type) or cls.is_video_file(file_type)
+        return cls.is_audio_file(file_type=file_type) or cls.is_video_file(
+            file_type=file_type
+        )
 
     @classmethod
     def get_unique_file_name(self) -> str:
@@ -145,11 +143,11 @@ class FileService:
         return file_name[indx:] if indx != -1 else ""
 
     @classmethod
-    def get_file_path_from_id(cls, file_id: str) -> str:
+    def get_file_path_from_id(cls, file_id: str) -> str | FileNotFoundError:
         """
         Get file path
         :param file_name: str
-        return: str
+        return: str | FileNotFoundError
         """
         folder: str = cls.directory + "/" + file_id
 
@@ -161,10 +159,10 @@ class FileService:
                 ):
                     return folder + "/" + file
 
-            return ""
+            raise FileNotFoundError
 
-        except FileNotFoundError:
-            return ""
+        except FileNotFoundError as e:
+            raise e
 
     @classmethod
     def generate_file_path(cls, file_name: str, file_extension: str) -> str:
@@ -204,3 +202,15 @@ class FileService:
         :return: bool
         """
         return os.path.exists(file_path)
+
+    @classmethod
+    def delete_file(cls, file_path) -> None | FileNotFoundError:
+        """
+        Delete file
+        :param file_path: str
+        :return: bool | FileNotFoundError
+        """
+        if not cls.validate_file_path(file_path):
+            raise FileNotFoundError
+
+        return os.remove(file_path)
