@@ -57,37 +57,22 @@ class TranscriptionService:
     def get_output_folder_path(self) -> str:
         return f"{TranscriptionService.container_base_path}/transcriptions"
 
-    def run_transcription_service_container(self) -> None | Exception:
-        container_config: dict = self.get_container_config()
-
+    async def transcribe(self) -> OK | HTTPException:
         try:
-            return docker_client.client.containers.run(
-                **container_config,
+            docker_client.run_container(
+                container_config=self.get_container_config(),
                 detach=True,
                 remove=True,
                 command=f"whisper {self.get_file_path()} --fp16 False --language {self.language} --model {self.model} --task transcribe --output_dir {self.get_output_folder_path()} --threads 2 --verbose False",
             )
 
-        except Exception as e:
-            raise Exception(
-                {
-                    "status_code": status.HTTP_503_SERVICE_UNAVAILABLE,
-                    "detail": "Transcription service is not available",
-                }
-            ) from e
-
-    async def transcribe(self) -> OK | HTTPException:
-        try:
-            self.run_transcription_service_container()
-
             return OK({"detail": "Success: File is added to transcription queue"})
 
         except Exception as e:
             status_code = status.HTTP_400_BAD_REQUEST
-            detail = "Error: Bad Request"
+            detail = "Error: Transcription service is not available"
 
             if isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
-                detail = e.args[0].get("detail")
 
             raise HTTPException(status_code=status_code, detail=detail) from e
