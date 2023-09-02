@@ -26,9 +26,6 @@ class UploadService(FileService):
         self.file: UploadFile = file
         self.file_name: str = self.get_unique_file_name()
         self.file_extension: str = self.get_file_extension(file_name=self.file.filename)
-        self.file_path: str = self.generate_file_path(
-            file_name=self.file_name, file_extension=self.file_extension
-        )
 
         if (
             not self.validate_file_type(self.file.content_type)
@@ -36,8 +33,12 @@ class UploadService(FileService):
         ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error: Bad Request",
+                detail="Error: Invalid file type",
             )
+
+        self.file_path: str = self.generate_file_path(
+            file_name=self.file_name, file_extension=self.file_extension
+        )
 
     async def upload(self, background_tasks: BackgroundTasks) -> None | HTTPException:
         """

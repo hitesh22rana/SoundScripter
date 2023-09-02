@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Download the model and save it to the specified directory
 RUN mkdir -p ~/.cache/whisper && \
+    axel -o ~/.cache/whisper/small.en.pt https://openaipublic.azureedge.net/main/whisper/models/f953ad0fd29cacd07d5a9eda5624af0f6bcf2258be67c92b79389873d91e0872/small.en.pt && \
     axel -o ~/.cache/whisper/small.pt https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt
 
 # Install Python dependencies
