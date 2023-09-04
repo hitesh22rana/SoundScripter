@@ -23,13 +23,41 @@ class DockerClient:
 
     @classmethod
     def __init__(cls) -> None:
+        cls.connect()
+
+    @classmethod
+    def connect(cls) -> None:
         try:
             if not cls.client:
                 cls.client = docker.from_env()
-                logger.info("Docker client initialized")
+                logger.info("Success: Docker client connected")
 
         except docker.errors.DockerException:
-            logger.error("Docker client could not be initialized")
+            logger.critical("Error: Docker client could not be connected")
+
+    @classmethod
+    def disconnect(cls) -> None:
+        try:
+            if cls.client:
+                cls.client.close()
+                logger.info("Success: Docker client disconnected")
+
+        except docker.errors.DockerException:
+            logger.critical("Error: Docker client could not be disconnected")
+
+    @classmethod
+    def get_client(cls) -> docker.DockerClient | None:
+        if not cls.client:
+            cls.__init__()
+
+        return cls.client
+
+    @classmethod
+    def ping(cls) -> bool:
+        if cls.client:
+            return cls.client.ping()
+
+        return False
 
     @classmethod
     def run_container(
@@ -48,7 +76,7 @@ class DockerClient:
             )
 
         except Exception as e:
-            logger.error("Docker client service unavailable")
+            logger.critical("Error: Docker client service unavailable")
             raise Exception(
                 {
                     "status_code": status.HTTP_503_SERVICE_UNAVAILABLE,
