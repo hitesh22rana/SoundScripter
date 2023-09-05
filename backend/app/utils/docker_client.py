@@ -34,6 +34,7 @@ class DockerClient:
 
         except docker.errors.DockerException:
             logger.critical("Error: Docker client could not be connected")
+            raise Exception()
 
     @classmethod
     def disconnect(cls) -> None:
@@ -44,20 +45,14 @@ class DockerClient:
 
         except docker.errors.DockerException:
             logger.critical("Error: Docker client could not be disconnected")
+            raise Exception()
 
     @classmethod
     def get_client(cls) -> docker.DockerClient | None:
         if not cls.client:
-            cls.__init__()
+            cls.connect()
 
         return cls.client
-
-    @classmethod
-    def ping(cls) -> bool:
-        if cls.client:
-            return cls.client.ping()
-
-        return False
 
     @classmethod
     def run_container(

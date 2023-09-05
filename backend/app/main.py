@@ -8,14 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.routes import files, transcriptions
+from app.utils.celery_client import celery_client
 from app.utils.docker_client import docker_client
-
-# from app.utils.redis_client import redis_client
 
 app = FastAPI(
     title="Transcription service",
-    version="1.0.0",
     description="Transcription service backend",
+    version="1.0.0",
 )
 
 """Middleware"""
@@ -36,17 +35,21 @@ app.include_router(transcriptions.router)
 
 @app.on_event("startup")
 async def startup_event():
-    if not docker_client.ping():
+    try:
+        docker_client.connect()
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Docker client service unavailable. Application cannot start.",
-        )
+            detail="Error: Docker client service unavailable. Application cannot start.",
+        ) from e
 
-    # if not redis_client.ping():
-    #     raise HTTPException(
-    #         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-    #         detail="Redis connection not established. Application cannot start.",
-    #     )
+    try:
+        celery_client.connect()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Error: Celery client service unavailable. Application cannot start.",
+        ) from e
 
 
 @app.on_event("shutdown")
@@ -56,7 +59,15 @@ async def shutdown_event():
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Docker client service unavailable.",
+            detail="Error: Docker client service unavailable.",
+        ) from e
+
+    try:
+        celery_client.disconnect()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Error: Celery client service unavailable.",
         ) from e
 
 
