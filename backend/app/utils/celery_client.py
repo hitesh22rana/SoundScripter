@@ -1,3 +1,6 @@
+# Purpose: Celery client for handling celery tasks.
+# Path: backend\app\utils\celery_client.py
+
 import sys
 
 from celery import Celery
@@ -26,31 +29,24 @@ class CeleryClient:
                 cls.client = Celery(
                     "background_tasks",
                     backend="rpc://",
-                    broker="amqp://guest:guest@localhost:5672//",
+                    broker="pyamqp://guest:guest@localhost:5672//",
+                    include=["app.background_tasks.transcription"],
                 )
                 cls.client.conf.worker_concurrency = 4
 
-                # Create exchanges
-                default_exchange = Exchange("default", type="direct")
-                transcription_exchange = Exchange(
-                    "transcription_task_queue", type="direct"
-                )
-
-                # Define queues
+                # Queues and Exchanges
                 cls.client.conf.task_queues = [
-                    Queue("default", exchange=default_exchange, routing_key="default"),
+                    Queue(
+                        "default",
+                        exchange=Exchange("default", type="direct"),
+                        routing_key="default",
+                    ),
                     Queue(
                         "transcription_task_queue",
-                        exchange=transcription_exchange,
+                        exchange=Exchange("transcription_task_queue", type="direct"),
                         routing_key="transcription_task_queue",
                     ),
                 ]
-
-                cls.client.conf.task_routes = {
-                    "app.background_jobs.transcription.generate_transcriptions": {
-                        "queue": "transcription_task_queue",
-                    },
-                }
 
                 logger.info("Success: Celery client connected")
 

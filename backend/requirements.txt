@@ -8,3 +8,4 @@ moviepy==1.0.3
 aiofiles==23.2.1
 pydantic-settings==2.0.3
 celery==5.3.4
+gevent==23.9.0.post1

@@ -5,7 +5,7 @@ import os
 
 from fastapi import HTTPException, status
 
-from app.background_jobs.transcription import generate_transcriptions
+from app.background_tasks.transcription import generate_transcriptions
 from app.schemas import TranscriptionSchema
 from app.services.files import FileService
 from app.utils.responses import OK
