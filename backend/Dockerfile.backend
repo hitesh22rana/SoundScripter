@@ -1,0 +1,27 @@
+# Use a lightweight base image
+FROM python:3.11-slim-buster
+
+# Set the working directory to /backend
+WORKDIR /backend
+
+# Copy the requirements.txt file
+COPY ./requirements.txt /backend
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /backend/requirements.txt
+
+# Copy the files and folder into the container
+COPY ./app /backend/app
+COPY ./run.sh /backend
+
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
+
+# Make the file executable
+RUN ["chmod", "+x", "./run.sh"]
+
+# Make the enetrypoint as bash
+ENTRYPOINT [ "/bin/sh" ]
+
+# Run FastAPI and Celery-worker
+CMD ["./run.sh"]

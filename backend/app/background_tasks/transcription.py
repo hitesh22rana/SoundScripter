@@ -3,6 +3,7 @@
 
 
 from app.utils.celery_client import celery_client
+from app.utils.docker_client import docker_client
 
 transcription = celery_client.get_client()
 
@@ -15,10 +16,15 @@ transcription = celery_client.get_client()
 )
 def generate_transcriptions(data: dict) -> None:
     try:
-        print("Start")
-        import time
+        docker_client.run_container(
+            container_config=data["container_config"],
+            detach=data["detach"],
+            remove=data["remove"],
+            command=data["command"],
+        )
 
-        time.sleep(10)  # Simulate work
-        print("End")
+        # TODO:- After the transcription is done, notifiy the user.
+        print("Executed successfully")
+
     except Exception as e:
         print(f"Error: {e}")

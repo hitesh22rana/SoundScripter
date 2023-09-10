@@ -7,12 +7,9 @@ import docker
 from fastapi import status
 from loguru import logger
 
-from app.config import settings
-
 
 class DockerClient:
     client = None
-    max_concurrent_containers: int = settings.max_concurrent_containers
 
     logger.configure(
         handlers=[
@@ -71,11 +68,11 @@ class DockerClient:
             )
 
         except Exception as e:
-            logger.critical("Error: Docker client service unavailable")
+            logger.critical("Error: Docker container could not be started")
             raise Exception(
                 {
                     "status_code": status.HTTP_503_SERVICE_UNAVAILABLE,
-                    "detail": "Error: Docker client service unavailable",
+                    "detail": "Error: Docker container could not be started",
                 }
             ) from e
 

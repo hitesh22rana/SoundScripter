@@ -7,9 +7,15 @@ from celery import Celery
 from kombu import Exchange, Queue
 from loguru import logger
 
+from app.config import settings
+
 
 class CeleryClient:
     client: Celery = None
+
+    backend: str = settings.celery_backend
+    broker: str = settings.celery_broker
+    worker_concurrency: str = settings.worker_concurrency
 
     logger.configure(
         handlers=[
@@ -28,11 +34,13 @@ class CeleryClient:
             if not cls.client:
                 cls.client = Celery(
                     "background_tasks",
-                    backend="rpc://",
-                    broker="pyamqp://guest:guest@localhost:5672//",
+                    backend=cls.backend,
+                    broker=cls.broker,
                     include=["app.background_tasks.transcription"],
                 )
-                cls.client.conf.worker_concurrency = 4
+
+                # Worker Concurrency
+                cls.client.conf.worker_concurrency = cls.worker_concurrency
 
                 # Queues and Exchanges
                 cls.client.conf.task_queues = [
@@ -66,7 +74,7 @@ class CeleryClient:
             raise Exception()
 
     @classmethod
-    def get_client(cls) -> Celery:
+    def get_client(cls) -> Celery | None:
         if not cls.client:
             cls.connect()
 

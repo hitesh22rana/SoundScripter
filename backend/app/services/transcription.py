@@ -6,12 +6,15 @@ import os
 from fastapi import HTTPException, status
 
 from app.background_tasks.transcription import generate_transcriptions
+from app.config import settings
 from app.schemas import TranscriptionSchema
 from app.services.files import FileService
 from app.utils.responses import OK
 
 
 class TranscriptionService:
+    data_base_path: str = settings.data_base_path
+
     image: str = "transcription-service"
     container_base_path: str = "home/files"
 
@@ -36,13 +39,12 @@ class TranscriptionService:
             ) from e
 
     def get_container_config(self) -> dict:
-        relative_volume_path: str = f"data/{self.file_id}"
-        absolute_volume_path: str = os.path.abspath(relative_volume_path)
+        bind_volume_path: str = TranscriptionService.data_base_path + "/" + self.file_id
 
         container_config: dict = {
             "image": TranscriptionService.image,
             "volumes": {
-                absolute_volume_path: {
+                bind_volume_path: {
                     "bind": f"/{TranscriptionService.container_base_path}",
                     "mode": "rw",
                 }
@@ -61,7 +63,7 @@ class TranscriptionService:
         try:
             data: dict = {
                 "container_config": self.get_container_config(),
-                "detach": True,
+                "detach": False,
                 "remove": True,
                 "command": f"whisper {self.get_file_path()} --fp16 False --language {self.language} --model {self.model} --task transcribe --output_dir {self.get_output_folder_path()} --threads 2 --verbose False",
             }
@@ -76,7 +78,6 @@ class TranscriptionService:
             )
 
         except Exception as e:
-            print(e)
             status_code = status.HTTP_400_BAD_REQUEST
             detail = "Error: Transcription service is not available"
 

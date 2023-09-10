@@ -5,12 +5,10 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    max_concurrent_containers: int
-    redis_host: str
-    redis_port: int
-    redis_password: str
-    rabbitmq_host: str
-    rabbitmq_port: int
+    worker_concurrency: int
+    celery_backend: str
+    celery_broker: str
+    data_base_path: str
 
     class Config:
         env_file = ".env"
