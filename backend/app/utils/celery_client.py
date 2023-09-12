@@ -36,7 +36,10 @@ class CeleryClient:
                     "background_tasks",
                     backend=cls.backend,
                     broker=cls.broker,
-                    include=["app.background_tasks.transcription"],
+                    include=[
+                        "app.background_tasks.conversion",
+                        "app.background_tasks.transcription",
+                    ],
                 )
 
                 # Worker Concurrency
@@ -48,6 +51,11 @@ class CeleryClient:
                         "default",
                         exchange=Exchange("default", type="direct"),
                         routing_key="default",
+                    ),
+                    Queue(
+                        "conversion_task_queue",
+                        exchange=Exchange("conversion_task_queue", type="direct"),
+                        routing_key="conversion_task_queue",
                     ),
                     Queue(
                         "transcription_task_queue",

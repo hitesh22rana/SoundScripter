@@ -9,10 +9,10 @@ from pathlib import Path
 from fastapi import HTTPException, status
 from fastapi.responses import StreamingResponse
 
-from app.services.files import FileService
+from app.utils.file_manager import FileManager
 
 
-class DownloadService(FileService):
+class DownloadService(FileManager):
     """
     Download service
     """

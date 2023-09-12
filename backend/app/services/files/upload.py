@@ -3,13 +3,14 @@
 
 
 import aiofiles
-from fastapi import BackgroundTasks, File, HTTPException, UploadFile, status
+from fastapi import File, HTTPException, UploadFile, status
 
-from app.services.files import FileService
+from app.background_tasks.conversion import convert_video_to_audio
+from app.utils.file_manager import FileManager
 from app.utils.responses import Accepted
 
 
-class UploadService(FileService):
+class UploadService(FileManager):
     """
     Upload service
     """
@@ -40,7 +41,7 @@ class UploadService(FileService):
             file_name=self.file_name, file_extension=self.file_extension
         )
 
-    async def upload(self, background_tasks: BackgroundTasks) -> None | HTTPException:
+    async def upload(self) -> None | HTTPException:
         """
         Upload file
         :param file: UploadFile
@@ -57,18 +58,18 @@ class UploadService(FileService):
             if not self.is_audio_file_extension(
                 self.file_extension[1:]
             ) and self.is_video_file_extension(self.file_extension[1:]):
-                # Lazy import VideoToAudio
-                from app.utils.video_to_audio import VideoToAudio
+                data: dict = {
+                    "video_path": self.file_path,
+                    "video_extension": self.file_extension[1:],
+                    "audio_format": "mp3",
+                    "delete_original_file": True,
+                }
 
-                self.video_to_audio: VideoToAudio = VideoToAudio(
-                    video_path=self.file_path,
-                    video_extension=self.file_extension,
-                    audio_extension=".mp3",
-                    delete_original_file=True,
-                )
-                background_tasks.add_task(self.video_to_audio.convert)
+                convert_video_to_audio.delay(data=data)
 
-            return Accepted({"details": f"File {self.file_name} uploaded successfully"})
+            return Accepted(
+                {"detail": f"Success: File {self.file_name} uploaded successfully"}
+            )
 
         except Exception as e:
             status_code = status.HTTP_400_BAD_REQUEST

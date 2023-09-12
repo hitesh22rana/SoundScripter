@@ -1,18 +1,20 @@
 # Purpose: Transcription service for handling transcriptions related tasks.
 # Path: backend\app\services\transcriptions.py
 
-import os
-
 from fastapi import HTTPException, status
 
 from app.background_tasks.transcription import generate_transcriptions
 from app.config import settings
 from app.schemas import TranscriptionSchema
-from app.services.files import FileService
+from app.utils.file_manager import FileManager
 from app.utils.responses import OK
 
 
 class TranscriptionService:
+    """
+    Transcription service
+    """
+
     data_base_path: str = settings.data_base_path
 
     image: str = "transcription-service"
@@ -22,14 +24,14 @@ class TranscriptionService:
         self,
         transcription_details: TranscriptionSchema,
     ) -> None | HTTPException:
-        self.file_service: FileService = FileService()
-
         self.file_id: str = transcription_details.file_id
         self.language: str = transcription_details.language
         self.model: str = "small.en" if self.language == "English" else "small"
 
+        self.file_manager: FileManager = FileManager()
+
         try:
-            self.file_path: str = self.file_service.get_file_path_from_id(
+            self.file_path: str = self.file_manager.get_file_path_from_id(
                 file_id=self.file_id
             )
 
