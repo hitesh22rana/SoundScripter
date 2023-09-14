@@ -1,22 +1,45 @@
-# Use a lightweight base image
-FROM python:3.11-slim-buster
+# Base image
+FROM debian:latest AS build
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
-    axel \
+# Upadte and install g++, make and wget
+RUN apt-get update \
+    && apt-get install -y g++ make wget
+
+# Download and extract the files
+RUN mkdir /whisper && \
+    wget -q https://github.com/ggerganov/whisper.cpp/tarball/master -O - | \
+    tar -xz -C /whisper --strip-components 1
+
+# Set the workdir to /whisper
+WORKDIR /whisper
+
+# Download the quantized small.en model
+RUN bash ./models/download-ggml-model.sh small.en-q5_1
+
+# Build the main file
+RUN make main
+
+
+# Production image
+FROM debian:latest AS production
+
+# Update and ckean
+RUN apt-get update \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Download the model and save it to the specified directory
-RUN mkdir -p ~/.cache/whisper && \
-    axel -o ~/.cache/whisper/small.en.pt https://openaipublic.azureedge.net/main/whisper/models/f953ad0fd29cacd07d5a9eda5624af0f6bcf2258be67c92b79389873d91e0872/small.en.pt && \
-    axel -o ~/.cache/whisper/small.pt https://openaipublic.azureedge.net/main/whisper/models/9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt
+# Set the workdirectory
+WORKDIR /root
 
-# Install Python dependencies
-RUN pip install --no-cache-dir openai-whisper setuptools-rust
+# make the models directory
+RUN mkdir /root/models
 
-# Remove axel to reduce image size
-RUN apt-get purge -y axel && apt-get autoremove -y
+# copy the required files from the build image
+COPY --from=build "/whisper/models/ggml-small.en-q5_1.bin" "/root/models/ggml-small.en-q5_1.bin"
+COPY --from=build /whisper/main /usr/local/bin/whisper
 
 # Set the entrypoint
 CMD ["bash"]
+
+# whisper -t 2 -m /root/models/ggml-small.en-q5_1.bin -f /data/202309-1208-3532-462488bf-c3b1-4226-84fa-711b8558a600/file.wav -osrt -of /data/transcriptions
+# whisper -t 2 -m /root/models/ggml-small.en-q5_1.bin -f /data/202309-1417-5012-1bd7022d-c263-4bbb-89a4-9348abdb52ef/file.wav -osrt -of /data/transcriptions

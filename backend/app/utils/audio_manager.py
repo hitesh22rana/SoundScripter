@@ -34,6 +34,61 @@ class AudioManager:
                 }
             )
 
+    def change_sample_rate(
+        self,
+        sample_rate: str,
+        output_path: str,
+        output_format: str,
+        delete_original_file: bool = False,
+    ):
+        if not self.file_manager.is_audio_file_extension(output_format):
+            raise Exception(
+                {
+                    "status_code": status.HTTP_400_BAD_REQUEST,
+                    "detail": "Error: Invalid audio format",
+                }
+            )
+
+        try:
+            audio = AudioSegment.from_file(
+                self.audio_path,
+                format=self.audio_format,
+            )
+
+            audio.export(
+                out_f=output_path,
+                format=output_format,
+                parameters=[
+                    "-ac",
+                    "1",
+                    "-ar",
+                    str(sample_rate),
+                    "-acodec",
+                    "pcm_s16le",
+                ],
+            )
+
+            if delete_original_file and output_path != self.audio_path:
+                try:
+                    self.file_manager.delete_file(self.audio_path)
+                except Exception as e:
+                    raise Exception(
+                        {
+                            "status_code": status.HTTP_404_NOT_FOUND,
+                            "detail": "Error: File not found",
+                        }
+                    ) from e
+
+        except Exception as e:
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            detail = "Error: Internal server error"
+
+            if isinstance(e.args[0], dict):
+                status_code = e.args[0].get("status_code")
+                detail = e.args[0].get("detail")
+
+            raise Exception({"status_code": status_code, "detail": detail}) from e
+
     def split_audio(
         self, part_count: int, delete_original_file: bool = False
     ) -> None | Exception:

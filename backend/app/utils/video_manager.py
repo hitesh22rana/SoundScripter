@@ -5,11 +5,10 @@ from fastapi import status
 from moviepy.editor import AudioFileClip, VideoFileClip
 
 from app.utils.file_manager import FileManager
-from app.utils.responses import OK
 
 
 class VideoManager:
-    def __init__(self, video_path: str, video_extension: str) -> None:
+    def __init__(self, video_path: str, video_extension: str) -> None | Exception:
         self.video_path = video_path
         self.video_extension = video_extension
 
@@ -25,7 +24,7 @@ class VideoManager:
 
     def convert_to_audio(
         self, audio_format: str, delete_original_file: bool = False
-    ) -> OK | Exception:
+    ) -> None | Exception:
         if not self.file_manager.is_audio_file_extension(audio_format):
             raise Exception(
                 {
@@ -42,8 +41,8 @@ class VideoManager:
             audio_file.write_audiofile(
                 filename=audio_path,
                 nbytes=2,
+                codec="pcm_s16le",
                 buffersize=8192,
-                codec="libmp3lame",
                 verbose=False,
                 logger=None,
             )
@@ -57,16 +56,14 @@ class VideoManager:
                 except Exception as e:
                     raise Exception(
                         {
-                            "status_code": status.HTTP_400_BAD_REQUEST,
-                            "detail": "Error: Bad Request",
+                            "status_code": status.HTTP_404_NOT_FOUND,
+                            "detail": "Error: File not found",
                         }
                     ) from e
 
-            return OK({"detail": "Success: File converted"})
-
         except Exception as e:
-            status_code = status.HTTP_400_BAD_REQUEST
-            detail = "Error: Bad Request"
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            detail = "Error: Internal server error"
 
             if isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")

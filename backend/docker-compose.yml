@@ -3,9 +3,9 @@ name: "sound-scripter"
 
 services:
     # RabbitMQ message broker
-    rabbitmq:
+    message-broker:
         image: rabbitmq:latest
-        container_name: rabbitmq
+        container_name: message-broker
         restart: always
         ports:
             - "5672:5672"
@@ -18,12 +18,12 @@ services:
         env_file:
             - ./.env
         environment:
-            - CELERY_BROKER=amqp://rabbitmq
-            - DATA_BASE_PATH=${PWD}/data
+            - CELERY_BROKER=amqp://message-broker
+            - LOCAL_STORAGE_BASE_PATH=${PWD}/data
         ports:
             - "8000:8000"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./data:/backend/data
         depends_on:
-            - rabbitmq
+            - message-broker

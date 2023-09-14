@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     worker_concurrency: int
     celery_backend: str
     celery_broker: str
-    data_base_path: str
+    local_storage_base_path: str
 
     class Config:
         env_file = ".env"

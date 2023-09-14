@@ -17,6 +17,8 @@ class DownloadService(FileManager):
     Download service
     """
 
+    arcname: str = "transcription"
+
     def __init__(self, file_id: str) -> None | HTTPException:
         """
         Download service
@@ -27,13 +29,15 @@ class DownloadService(FileManager):
         super().__init__()
 
         self.file_id = file_id
-        self.file_path: Path = Path(self.get_transcription_file_path(self.file_id))
 
-        if not self.validate_file_path(self.file_path):
+        try:
+            self.files: list[Path] = self.get_transcription_files(file_id=self.file_id)
+
+        except FileNotFoundError as e:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Error: File not found",
-            )
+            ) from e
 
     async def generate_zip(self) -> BytesIO | Exception:
         """
@@ -45,10 +49,8 @@ class DownloadService(FileManager):
             zip_stream = io.BytesIO()
 
             with zipfile.ZipFile(zip_stream, "w", zipfile.ZIP_DEFLATED) as zipf:
-                for file in self.file_path.glob("**/*"):
-                    if file.is_file():
-                        relative_path = file.relative_to(self.file_path)
-                        zipf.write(file, arcname=str(relative_path))
+                for file in self.files:
+                    zipf.write(file, arcname=DownloadService.arcname + file.suffix)
 
             return zip_stream
 
@@ -56,7 +58,7 @@ class DownloadService(FileManager):
             raise Exception(
                 {
                     "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "detail": "Zip file generation failed",
+                    "detail": "Error: Zip file generation failed",
                 }
             ) from e
 

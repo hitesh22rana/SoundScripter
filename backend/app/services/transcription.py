@@ -15,10 +15,10 @@ class TranscriptionService:
     Transcription service
     """
 
-    data_base_path: str = settings.data_base_path
+    local_storage_base_path: str = settings.local_storage_base_path
 
     image: str = "transcription-service"
-    container_base_path: str = "home/files"
+    container_base_path: str = "home/data"
 
     def __init__(
         self,
@@ -26,7 +26,15 @@ class TranscriptionService:
     ) -> None | HTTPException:
         self.file_id: str = transcription_details.file_id
         self.language: str = transcription_details.language
-        self.model: str = "small.en" if self.language == "English" else "small"
+
+        # TODO:- Add support for multiple languages
+        if self.language != "English":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Currently only English is supported",
+            )
+
+        self.model: str = "ggml-small.en-q5_1.bin"
 
         self.file_manager: FileManager = FileManager()
 
@@ -41,7 +49,9 @@ class TranscriptionService:
             ) from e
 
     def get_container_config(self) -> dict:
-        bind_volume_path: str = TranscriptionService.data_base_path + "/" + self.file_id
+        bind_volume_path: str = (
+            TranscriptionService.local_storage_base_path + "/" + self.file_id
+        )
 
         container_config: dict = {
             "image": TranscriptionService.image,
@@ -56,21 +66,24 @@ class TranscriptionService:
         return container_config
 
     def get_file_path(self) -> str:
-        return f"{TranscriptionService.container_base_path}/file.mp3"
+        return f"/{TranscriptionService.container_base_path}/file.wav"
 
     def get_output_folder_path(self) -> str:
-        return f"{TranscriptionService.container_base_path}/transcriptions"
+        return f"/{TranscriptionService.container_base_path}/transcriptions"
+
+    def get_model_path(self) -> str:
+        return f"/root/models/{self.model}"
 
     async def transcribe(self) -> OK | HTTPException:
         try:
-            data: dict = {
-                "container_config": self.get_container_config(),
-                "detach": False,
-                "remove": True,
-                "command": f"whisper {self.get_file_path()} --fp16 False --language {self.language} --model {self.model} --task transcribe --output_dir {self.get_output_folder_path()} --threads 2 --verbose False",
-            }
-
-            task = generate_transcriptions.delay(data=data)
+            task = generate_transcriptions.delay(
+                data={
+                    "container_config": self.get_container_config(),
+                    "detach": False,
+                    "remove": True,
+                    "command": f"whisper -t 2 -m {self.get_model_path()} -f {self.get_file_path()} -osrt -ovtt -of {self.get_output_folder_path()}",
+                }
+            )
 
             return OK(
                 {

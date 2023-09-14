@@ -5,7 +5,10 @@
 import aiofiles
 from fastapi import File, HTTPException, UploadFile, status
 
-from app.background_tasks.conversion import convert_video_to_audio
+from app.background_tasks.conversion import (
+    change_audio_sample_rate,
+    convert_video_to_audio,
+)
 from app.utils.file_manager import FileManager
 from app.utils.responses import Accepted
 
@@ -29,7 +32,7 @@ class UploadService(FileManager):
         self.file_extension: str = self.get_file_extension(file_name=self.file.filename)
 
         if (
-            not self.validate_file_type(self.file.content_type)
+            not self.validate_payload_file_type(self.file.content_type)
             or not self.file_extension
         ):
             raise HTTPException(
@@ -55,20 +58,35 @@ class UploadService(FileManager):
                 ):
                     await f.write(chunk)
 
-            if not self.is_audio_file_extension(
-                self.file_extension[1:]
-            ) and self.is_video_file_extension(self.file_extension[1:]):
-                data: dict = {
-                    "video_path": self.file_path,
-                    "video_extension": self.file_extension[1:],
-                    "audio_format": "mp3",
-                    "delete_original_file": True,
-                }
+            if self.is_audio_file_extension(self.file_extension[1:]):
+                change_audio_sample_rate.delay(
+                    data={
+                        "audio_path": self.file_path,
+                        "audio_format": self.file_extension[1:],
+                        "sample_rate": 16000,  # 16 kHz
+                        "output_path": self.file_path.replace(
+                            self.file_extension[1:], "wav"
+                        ),
+                        "output_format": "wav",
+                        "delete_original_file": True,
+                    }
+                )
 
-                convert_video_to_audio.delay(data=data)
+            elif self.is_video_file_extension(self.file_extension[1:]):
+                convert_video_to_audio.delay(
+                    data={
+                        "video_path": self.file_path,
+                        "video_extension": self.file_extension[1:],
+                        "audio_format": "wav",
+                        "delete_original_file": True,
+                    }
+                )
 
             return Accepted(
-                {"detail": f"Success: File {self.file_name} uploaded successfully"}
+                {
+                    "file_id": self.file_name,
+                    "detail": f"Success: File uploaded successfully",
+                }
             )
 
         except Exception as e:

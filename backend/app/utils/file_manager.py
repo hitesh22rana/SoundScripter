@@ -3,6 +3,7 @@
 
 import os
 from datetime import datetime
+from pathlib import Path
 from uuid import uuid4
 
 
@@ -12,11 +13,13 @@ class FileManager:
     filename: str = "file"
     transcripted_files: str = "transcriptions"
 
+    # file extensions
     audio_file_extensions: list[str] = [
         "aac",
         "mid",
         "mp3",
         "m4a",
+        "wav",
         "ogg",
         "flac",
         "amr",
@@ -35,7 +38,16 @@ class FileManager:
         "mpg",
         "flv",
     ]
+    transcriptions_file_extensions: list[str] = [
+        "txt",
+        "srt",
+        "vtt",
+        "rtf",
+        "json",
+        "csv",
+    ]
 
+    # file mime types
     audio_file_types: list[str] = [
         "audio/aac",
         "audio/midi",
@@ -59,16 +71,33 @@ class FileManager:
         "video/mpeg",
         "video/x-flv",
     ]
+    transcription_file_types: list[str] = [
+        "text/plain",
+        "application/x-subrip",
+        "text/vtt",
+        "application/rtf",
+        "application/json",
+        "text/csv",
+    ]
 
     @classmethod
     def __init__(cls) -> None:
-        if not os.path.exists(cls.directory):
-            os.makedirs(cls.directory)
+        cls.make_directory(directory=cls.directory)
+
+    @classmethod
+    def make_directory(cls, directory: str) -> None:
+        """
+        Make directory
+        :param directory: str
+        :return: None
+        """
+        if not os.path.exists(directory):
+            os.makedirs(directory)
 
     @classmethod
     def is_audio_file_extension(cls, file_extension: str) -> bool:
         """
-        Get file type
+        validate audio file extension
         :param file_path: str
         :return: bool
         """
@@ -77,16 +106,25 @@ class FileManager:
     @classmethod
     def is_video_file_extension(cls, file_extension: str) -> bool:
         """
-        Get file type
+        validate video file extension
         :param file_path: str
         :return: bool
         """
         return file_extension in cls.video_file_extensions
 
     @classmethod
+    def is_transcription_file_extension(cls, file_extension: str) -> bool:
+        """
+        validate transcription file extension
+        :param file_path: str
+        :return: bool
+        """
+        return file_extension in cls.transcriptions_file_extensions
+
+    @classmethod
     def is_valid_file_extension(cls, file_extension: str) -> bool:
         """
-        Get file type
+        validate payload file extension
         :param file_path: str
         :return: bool
         """
@@ -97,7 +135,7 @@ class FileManager:
     @classmethod
     def is_audio_file(cls, file_type: str) -> bool:
         """
-        Get file type
+        validate audio file type
         :param file_path: str
         :return: bool
         """
@@ -106,22 +144,31 @@ class FileManager:
     @classmethod
     def is_video_file(cls, file_type: str) -> bool:
         """
-        Get file type
+        validate video file type
         :param file_path: str
         :return: bool
         """
         return file_type in cls.video_file_types
 
     @classmethod
-    def validate_file_type(cls, file_type: str) -> bool:
+    def validate_payload_file_type(cls, file_type: str) -> bool:
         """
-        Validate file type
+        Validate payload file type
         :param file_type: str
         :return: bool
         """
         return cls.is_audio_file(file_type=file_type) or cls.is_video_file(
             file_type=file_type
         )
+
+    @classmethod
+    def validate_transcription_file_type(cls, file_type: str) -> bool:
+        """
+        Validate transcription file type
+        :param file_type: str
+        :return: bool
+        """
+        return file_type in cls.transcription_file_types
 
     @classmethod
     def get_unique_file_name(self) -> str:
@@ -145,7 +192,7 @@ class FileManager:
     @classmethod
     def get_file_path_from_id(cls, file_id: str) -> str | FileNotFoundError:
         """
-        Get file path
+        Get file path from id
         :param file_name: str
         return: str | FileNotFoundError
         """
@@ -176,13 +223,29 @@ class FileManager:
         return cls.directory + "/" + file_name + "/" + cls.filename + file_extension
 
     @classmethod
-    def get_transcription_file_path(cls, file_id: str) -> str:
+    def get_transcription_files(cls, file_id: str) -> list[Path] | FileNotFoundError:
         """
-        Get file path
-        :param file_name: str
-        :return: str
+        Get transcription files path
+        :param file_id: str
+        :return: list[Path] | FileNotFoundError
         """
-        return cls.directory + "/" + file_id + "/" + cls.transcripted_files
+
+        folder: Path = Path(cls.directory + "/" + file_id)
+
+        if not cls.validate_file_path(file_path=folder):
+            raise FileNotFoundError
+
+        files: list[Path] = []
+        for file in folder.glob("**/*"):
+            if file.is_file() and cls.is_transcription_file_extension(
+                file_extension=file.suffix[1:]
+            ):
+                files.append(Path(file))
+
+        if len(files) == 0:
+            raise FileNotFoundError
+
+        return files
 
     @classmethod
     def get_file_path(cls, file_id: str, file_extension: str) -> str:
