@@ -172,7 +172,6 @@ class FileManager:
         :param file_extension: str
         :return: str
         """
-
         os.makedirs(cls.directory + "/" + file_name, exist_ok=True)
         return cls.directory + "/" + file_name + "/" + cls.filename + file_extension
 

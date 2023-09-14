@@ -19,11 +19,11 @@ class DockerClient:
     )
 
     @classmethod
-    def __init__(cls) -> None:
+    def __init__(cls) -> None | Exception:
         cls.connect()
 
     @classmethod
-    def connect(cls) -> None:
+    def connect(cls) -> None | Exception:
         try:
             if not cls.client:
                 cls.client = docker.from_env()
@@ -34,7 +34,7 @@ class DockerClient:
             raise Exception()
 
     @classmethod
-    def disconnect(cls) -> None:
+    def disconnect(cls) -> None | Exception:
         try:
             if cls.client:
                 cls.client.close()

@@ -25,11 +25,11 @@ class CeleryClient:
     )
 
     @classmethod
-    def __init__(cls) -> None:
+    def __init__(cls) -> None | Exception:
         cls.connect()
 
     @classmethod
-    def connect(cls) -> None:
+    def connect(cls) -> None | Exception:
         try:
             if not cls.client:
                 cls.client = Celery(
@@ -71,7 +71,7 @@ class CeleryClient:
             raise Exception()
 
     @classmethod
-    def disconnect(cls) -> None:
+    def disconnect(cls) -> None | Exception:
         try:
             if cls.client:
                 cls.client.close()
