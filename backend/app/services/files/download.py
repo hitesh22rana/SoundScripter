@@ -13,17 +13,13 @@ from app.utils.file_manager import FileManager
 
 
 class DownloadService(FileManager):
-    """
-    Download service
-    """
-
     arcname: str = "transcription"
 
     def __init__(self, file_id: str) -> None | HTTPException:
         """
         Download service
-        :param file_id:
-        :return None | HTTPException
+        :param -> file_id: str
+        :return -> None | HTTPException
         """
 
         super().__init__()
@@ -42,7 +38,7 @@ class DownloadService(FileManager):
     async def generate_zip(self) -> BytesIO | Exception:
         """
         Generate zip file
-        :return: BytesIO | Exception
+        :return -> BytesIO | Exception
         """
 
         try:
@@ -65,8 +61,7 @@ class DownloadService(FileManager):
     async def download(self) -> StreamingResponse | HTTPException:
         """
         Download file
-        :param file: UploadFile
-        :return: StreamingResponse | HTTPException
+        :return -> StreamingResponse | HTTPException
         """
 
         try:

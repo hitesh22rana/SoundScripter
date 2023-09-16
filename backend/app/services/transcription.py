@@ -11,10 +11,6 @@ from app.utils.responses import OK
 
 
 class TranscriptionService:
-    """
-    Transcription service
-    """
-
     local_storage_base_path: str = settings.local_storage_base_path
 
     image: str = "transcription-service"
@@ -24,6 +20,12 @@ class TranscriptionService:
         self,
         transcription_details: TranscriptionSchema,
     ) -> None | HTTPException:
+        """
+        Transcription Service
+        :param -> transcription_details: TranscriptionSchema
+        :return -> None | HTTPException
+        """
+
         self.file_id: str = transcription_details.file_id
         self.language: str = transcription_details.language
 
@@ -49,6 +51,11 @@ class TranscriptionService:
             ) from e
 
     def get_container_config(self) -> dict:
+        """
+        Generate docker container config
+        :return -> dict
+        """
+
         bind_volume_path: str = (
             TranscriptionService.local_storage_base_path + "/" + self.file_id
         )
@@ -66,15 +73,35 @@ class TranscriptionService:
         return container_config
 
     def get_file_path(self) -> str:
+        """
+        Generate relative file path for the audio file
+        :return -> str
+        """
+
         return f"/{TranscriptionService.container_base_path}/file.wav"
 
     def get_output_folder_path(self) -> str:
+        """
+        Generate relative output folder path for the audio file
+        :return -> str
+        """
+
         return f"/{TranscriptionService.container_base_path}/transcriptions"
 
     def get_model_path(self) -> str:
+        """
+        Generate relative model path
+        :return -> str
+        """
+
         return f"/root/models/{self.model}"
 
     async def transcribe(self) -> OK | HTTPException:
+        """
+        Add the transcription request in the task queue for further processing
+        :return -> OK | HTTPException
+        """
+
         try:
             task = generate_transcriptions.delay(
                 data={

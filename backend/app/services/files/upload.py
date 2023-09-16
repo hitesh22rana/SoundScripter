@@ -14,21 +14,17 @@ from app.utils.responses import Accepted
 
 
 class UploadService(FileManager):
-    """
-    Upload service
-    """
-
     def __init__(self, file: UploadFile = File(...)) -> None | HTTPException:
         """
         Upload service
-        :param file: UploadFile
-        :return None | HTTPException
+        :param -> file: UploadFile
+        :return -> None | HTTPException
         """
 
         super().__init__()
 
         self.file: UploadFile = file
-        self.file_name: str = self.get_unique_file_name()
+        self.file_name: str = self.get_unique_file_id()
         self.file_extension: str = self.get_file_extension(file_name=self.file.filename)
 
         if (
@@ -47,8 +43,7 @@ class UploadService(FileManager):
     async def upload(self) -> None | HTTPException:
         """
         Upload file
-        :param file: UploadFile
-        :return: Accepted | HTTPException
+        :return -> Accepted | HTTPException
         """
 
         try:
