@@ -13,6 +13,12 @@ class AudioManager:
         audio_path: str,
         audio_format: str,
     ) -> None | Exception:
+        """
+        AudioManager Utility
+        :param -> audio_path: str, audio_format: str
+        :return -> None | Exception
+        """
+
         self.audio_path = audio_path
         self.audio_format = audio_format
 
@@ -40,7 +46,13 @@ class AudioManager:
         output_path: str,
         output_format: str,
         delete_original_file: bool = False,
-    ):
+    ) -> None | Exception:
+        """
+        Changes audio sample rate
+        :param -> sample_rate: str, output_path: str, output_format: str, delete_original_file: bool
+        :return -> None | Exception
+        """
+
         if not self.file_manager.is_audio_file_extension(output_format):
             raise Exception(
                 {
@@ -92,6 +104,12 @@ class AudioManager:
     def split_audio(
         self, part_count: int, delete_original_file: bool = False
     ) -> None | Exception:
+        """
+        Split audio into multiple parts
+        :param -> part_count: int, delete_original_file: bool
+        :return -> None | Exception
+        """
+
         try:
             audio = AudioSegment.from_file(
                 self.audio_path,

@@ -9,6 +9,12 @@ from app.utils.file_manager import FileManager
 
 class VideoManager:
     def __init__(self, video_path: str, video_extension: str) -> None | Exception:
+        """
+        VideoManager Utility
+        :param -> video_path: str, video_extension: str
+        :return -> None | Exception
+        """
+
         self.video_path = video_path
         self.video_extension = video_extension
 
@@ -25,6 +31,12 @@ class VideoManager:
     def convert_to_audio(
         self, audio_format: str, delete_original_file: bool = False
     ) -> None | Exception:
+        """
+        Converts video to audio
+        :param -> audio_format: str, delete_original_file: bool
+        :return -> None | Exception
+        """
+
         if not self.file_manager.is_audio_file_extension(audio_format):
             raise Exception(
                 {
