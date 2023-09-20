@@ -42,6 +42,9 @@ class CeleryClient:
                     ],
                 )
 
+                # Set Celery broker heartbeat to zero for long task execution
+                cls.client.conf.broker_heartbeat = 0
+
                 # Worker Concurrency
                 cls.client.conf.worker_concurrency = cls.worker_concurrency
 

@@ -2,6 +2,7 @@
 # Path: backend/app/utils/file_manager.py
 
 import os
+import shutil
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
@@ -279,6 +280,16 @@ class FileManager:
         return os.path.exists(file_path)
 
     @classmethod
+    def get_folder_path(cls, file_id: str) -> str:
+        """
+        Get folder path
+        :param -> file_id: str
+        :return -> str
+        """
+
+        return cls.directory + "/" + file_id
+
+    @classmethod
     def delete_file(cls, file_path) -> None | FileNotFoundError:
         """
         Delete file
@@ -290,3 +301,15 @@ class FileManager:
             raise FileNotFoundError
 
         return os.remove(file_path)
+
+    def delete_folder(cls, folder_path) -> None | FileNotFoundError:
+        """
+        Delete folder
+        :param -> folder_path: str
+        :return -> bool | FileNotFoundError
+        """
+
+        if not cls.validate_file_path(file_path=folder_path):
+            raise FileNotFoundError
+
+        return shutil.rmtree(folder_path)

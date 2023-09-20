@@ -3,7 +3,7 @@
 
 from fastapi import APIRouter, File, UploadFile
 
-from app.services.files import DownloadService, UploadService
+from app.services.files import FileService
 
 router = APIRouter(
     tags=["Files"],
@@ -13,9 +13,14 @@ router = APIRouter(
 
 @router.post("/upload", response_description="Upload file")
 async def upload(file: UploadFile = File(...)):
-    return await UploadService(file=file).upload()
+    return await FileService().upload(file=file)
 
 
 @router.get("/download/{file_id}", response_description="Download file")
 async def download(file_id: str):
-    return await DownloadService(file_id=file_id).download()
+    return await FileService().download(file_id=file_id)
+
+
+@router.delete("/delete/{file_id}", response_description="Delete file")
+async def delete(file_id: str):
+    return await FileService().delete(file_id=file_id)

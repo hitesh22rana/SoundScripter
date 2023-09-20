@@ -27,7 +27,7 @@ services:
         env_file:
             - ./.env
         environment:
-            - CELERY_BROKER=amqp://message-broker
+            - CELERY_BROKER=pyamqp://message-broker
             - LOCAL_STORAGE_BASE_PATH=${PWD}/data
             - REDIS_HOST=pub-sub
         ports:
