@@ -3,6 +3,7 @@
 
 
 from app.background_tasks import background_tasks
+from app.services.sse import Channels, NotificationsService
 from app.utils.docker_client import docker_client
 
 
@@ -14,7 +15,12 @@ from app.utils.docker_client import docker_client
 )
 def generate_transcriptions(data: dict) -> None:
     try:
-        print("Generating transcriptions")
+        print(f"Generating transcriptions for {data['file_id']}")
+
+        NotificationsService().publish_message(
+            channel=Channels.status,
+            message=f"Generating transcriptions for {data['file_id']}",
+        )
 
         docker_client.run_container(
             container_config=data["container_config"],
@@ -24,7 +30,12 @@ def generate_transcriptions(data: dict) -> None:
         )
 
         # TODO:- After successfully generating the transcription, notifiy the user.
-        print("Success: Transcription is generated")
+        print(f"Success: Transcription generated for {data['file_id']}")
+
+        NotificationsService().publish_message(
+            channel=Channels.status,
+            message=f"Success: Transcription generated for {data['file_id']}",
+        )
 
     except Exception as e:
         print(f"Error: {e}")

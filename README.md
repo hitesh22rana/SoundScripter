@@ -13,7 +13,7 @@ Simplify and Automate your transcription workflow with SoundScripter
 
 SoundScripter's architecture is designed to handle transcription requests efficiently. Here's how it works:
 
-1. **User Requests:** Users send audio files for transcription to the SoundScripter API.
+1. **User Requests:** Users uploads video/audio files for transcription to the SoundScripter API.
 
 2. **RabbitMQ Message Broker:** Transcription requests are added to the RabbitMQ message broker, which acts as a message queue.
 
@@ -21,7 +21,11 @@ SoundScripter's architecture is designed to handle transcription requests effici
 
 4. **Task Execution:** The Celery workers execute the transcription tasks, converting audio to text. Each worker runs in its own container, allowing for parallel processing of tasks based on the system configuration.
 
-5. **Response:** Once the transcription is complete, the user is notified.
+5. **Realtime Notifications:** SoundScripter leverages Redis Pub-Sub and Server-Side Events (SSE) for real-time notifications:
+
+    - **Redis Pub-Sub:** As tasks progress or complete, SoundScripter publishes updates to Redis channels.
+
+    - **Server-Side Events (SSE):** Clients, such as web applications, establish SSE connections with the SoundScripter server. When new messages arrive on the Redis Pub-Sub channels, the server pushes these updates to connected clients in real-time using SSE. This allows users to receive live notifications about the progress and completion of their transcription tasks.
 
 ## Getting Started
 

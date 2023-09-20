@@ -1,4 +1,4 @@
-# Purpose: Celery client for handling celery tasks.
+# Purpose: Celery client for handling background tasks.
 # Path: backend\app\utils\celery_client.py
 
 import sys
@@ -83,9 +83,6 @@ class CeleryClient:
 
     @classmethod
     def get_client(cls) -> Celery | None:
-        if not cls.client:
-            cls.connect()
-
         return cls.client
 
 

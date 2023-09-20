@@ -24,7 +24,7 @@ class UploadService(FileManager):
         super().__init__()
 
         self.file: UploadFile = file
-        self.file_name: str = self.get_unique_file_id()
+        self.file_id: str = self.get_unique_file_id()
         self.file_extension: str = self.get_file_extension(file_name=self.file.filename)
 
         if (
@@ -37,7 +37,7 @@ class UploadService(FileManager):
             )
 
         self.file_path: str = self.generate_file_path(
-            file_name=self.file_name, file_extension=self.file_extension
+            file_name=self.file_id, file_extension=self.file_extension
         )
 
     async def upload(self) -> None | HTTPException:
@@ -56,6 +56,7 @@ class UploadService(FileManager):
             if self.is_audio_file_extension(self.file_extension[1:]):
                 change_audio_sample_rate.delay(
                     data={
+                        "file_id": self.file_id,
                         "audio_path": self.file_path,
                         "audio_format": self.file_extension[1:],
                         "sample_rate": 16000,  # 16 kHz
@@ -70,6 +71,7 @@ class UploadService(FileManager):
             elif self.is_video_file_extension(self.file_extension[1:]):
                 convert_video_to_audio.delay(
                     data={
+                        "file_id": self.file_id,
                         "video_path": self.file_path,
                         "video_extension": self.file_extension[1:],
                         "audio_format": "wav",
@@ -79,14 +81,14 @@ class UploadService(FileManager):
 
             return Accepted(
                 {
-                    "file_id": self.file_name,
+                    "file_id": self.file_id,
                     "detail": f"Success: File uploaded successfully",
                 }
             )
 
         except Exception as e:
-            status_code = status.HTTP_400_BAD_REQUEST
-            detail = "Error: Bad Request"
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            detail = "Error: Upload service is not available"
 
             if isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")

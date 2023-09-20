@@ -1,4 +1,4 @@
-# Purpose: Docker client for handling docker operations
+# Purpose: Docker client for handling docker tasks
 # Path: backend\app\utils\docker_client.py
 
 import sys
@@ -46,9 +46,6 @@ class DockerClient:
 
     @classmethod
     def get_client(cls) -> docker.DockerClient | None:
-        if not cls.client:
-            cls.connect()
-
         return cls.client
 
     @classmethod

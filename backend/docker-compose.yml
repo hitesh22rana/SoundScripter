@@ -9,6 +9,15 @@ services:
         restart: always
         ports:
             - "5672:5672"
+
+    # Redis PubSub for realtime server side events notifications
+    pub-sub:
+        image: redis
+        container_name: redis
+        restart: always
+        ports:
+            - "6379:6379"
+
     # Backend
     backend:
         build:
@@ -20,6 +29,7 @@ services:
         environment:
             - CELERY_BROKER=amqp://message-broker
             - LOCAL_STORAGE_BASE_PATH=${PWD}/data
+            - REDIS_HOST=pub-sub
         ports:
             - "8000:8000"
         volumes:
@@ -27,3 +37,4 @@ services:
             - ./data:/backend/data
         depends_on:
             - message-broker
+            - pub-sub

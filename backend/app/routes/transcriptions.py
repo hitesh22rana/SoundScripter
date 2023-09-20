@@ -4,7 +4,7 @@
 from fastapi import APIRouter, Body
 
 from app.schemas import TranscriptionSchema
-from app.services.transcription import TranscriptionService
+from app.services.transcriptions import TranscriptionService
 
 router = APIRouter(
     tags=["Transcriptions"],

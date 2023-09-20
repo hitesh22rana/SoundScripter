@@ -40,6 +40,3 @@ COPY --from=build /whisper/main /usr/local/bin/whisper
 
 # Set the entrypoint
 CMD ["bash"]
-
-# whisper -t 2 -m /root/models/ggml-small.en-q5_1.bin -f /data/202309-1208-3532-462488bf-c3b1-4226-84fa-711b8558a600/file.wav -osrt -of /data/transcriptions
-# whisper -t 2 -m /root/models/ggml-small.en-q5_1.bin -f /data/202309-1417-5012-1bd7022d-c263-4bbb-89a4-9348abdb52ef/file.wav -osrt -of /data/transcriptions

@@ -105,6 +105,7 @@ class TranscriptionService:
         try:
             task = generate_transcriptions.delay(
                 data={
+                    "file_id": self.file_id,
                     "container_config": self.get_container_config(),
                     "detach": False,
                     "remove": True,
@@ -120,7 +121,7 @@ class TranscriptionService:
             )
 
         except Exception as e:
-            status_code = status.HTTP_400_BAD_REQUEST
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Transcription service is not available"
 
             if isinstance(e.args[0], dict):

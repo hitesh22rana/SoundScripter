@@ -78,8 +78,8 @@ class DownloadService(FileManager):
             )
 
         except Exception as e:
-            status_code = status.HTTP_400_BAD_REQUEST
-            detail = "Error: Bad Request"
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            detail = "Error: Download service is not available"
 
             if isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")

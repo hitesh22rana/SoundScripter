@@ -2,6 +2,7 @@
 # Path: backend\app\background_tasks\conversion.py
 
 from app.background_tasks import background_tasks
+from app.services.sse import Channels, NotificationsService
 from app.utils.audio_manager import AudioManager
 from app.utils.video_manager import VideoManager
 
@@ -15,7 +16,12 @@ from app.utils.video_manager import VideoManager
 def convert_video_to_audio(data: dict) -> None:
     try:
         # TODO:- Notify the user that the video is being converted
-        print("Converting video to audio")
+        print(f"Converting video {data['file_id']} to audio")
+
+        NotificationsService().publish_message(
+            channel=Channels.status,
+            message=f"Converting video {data['file_id']} to audio",
+        )
 
         VideoManager(
             video_path=data["video_path"], video_extension=data["video_extension"]
@@ -25,12 +31,18 @@ def convert_video_to_audio(data: dict) -> None:
         )
 
         # TODO:- After successfully converting the video to audio, notify the user
-        print("Success: Video converted to audio")
+        print(f"Success: Video {data['file_id']} converted to audio")
+
+        NotificationsService().publish_message(
+            channel=Channels.status,
+            message=f"Success: Video {data['file_id']} converted to audio",
+        )
 
         audio_path = data["video_path"].replace(data["video_extension"], "wav")
 
         change_audio_sample_rate.delay(
             data={
+                "file_id": data["file_id"],
                 "audio_path": audio_path,
                 "audio_format": "wav",
                 "sample_rate": "16000",
@@ -53,7 +65,12 @@ def convert_video_to_audio(data: dict) -> None:
 def change_audio_sample_rate(data: dict) -> None:
     try:
         # TODO:- Notify the user that the audio's sample rate is being optimised
-        print("Optimising audio smaple rate")
+        print(f"Optimising audio smaple rate for {data['file_id']} audio")
+
+        NotificationsService().publish_message(
+            channel=Channels.status,
+            message=f"Optimising audio smaple rate for {data['file_id']} audio",
+        )
 
         AudioManager(
             audio_path=data["audio_path"], audio_format=data["audio_format"]
@@ -65,7 +82,12 @@ def change_audio_sample_rate(data: dict) -> None:
         )
 
         # TODO:- After successfully optimsing the audio, notify the user
-        print("Success: audio sample rate optimised")
+        print(f"Success: {data['file_id']} audio sample rate optimised")
+
+        NotificationsService().publish_message(
+            channel=Channels.status,
+            message=f"Success: {data['file_id']} audio sample rate optimised",
+        )
 
     except Exception as e:
         print(f"Error: {e}")
