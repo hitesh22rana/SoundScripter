@@ -17,7 +17,7 @@ def generate_transcriptions(data: dict) -> None:
     try:
         print(f"Generating transcriptions for {data['file_id']}")
 
-        NotificationsService().publish_message(
+        NotificationsService().publish(
             channel=Channels.status,
             message=f"Generating transcriptions for {data['file_id']}",
         )
@@ -29,10 +29,9 @@ def generate_transcriptions(data: dict) -> None:
             command=data["command"],
         )
 
-        # TODO:- After successfully generating the transcription, notifiy the user.
         print(f"Success: Transcription generated for {data['file_id']}")
 
-        NotificationsService().publish_message(
+        NotificationsService().publish(
             channel=Channels.status,
             message=f"Success: Transcription generated for {data['file_id']}",
         )

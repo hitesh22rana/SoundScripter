@@ -15,10 +15,9 @@ from app.utils.video_manager import VideoManager
 )
 def convert_video_to_audio(data: dict) -> None:
     try:
-        # TODO:- Notify the user that the video is being converted
         print(f"Converting video {data['file_id']} to audio")
 
-        NotificationsService().publish_message(
+        NotificationsService().publish(
             channel=Channels.status,
             message=f"Converting video {data['file_id']} to audio",
         )
@@ -30,10 +29,9 @@ def convert_video_to_audio(data: dict) -> None:
             delete_original_file=data["delete_original_file"],
         )
 
-        # TODO:- After successfully converting the video to audio, notify the user
         print(f"Success: Video {data['file_id']} converted to audio")
 
-        NotificationsService().publish_message(
+        NotificationsService().publish(
             channel=Channels.status,
             message=f"Success: Video {data['file_id']} converted to audio",
         )
@@ -64,10 +62,9 @@ def convert_video_to_audio(data: dict) -> None:
 )
 def change_audio_sample_rate(data: dict) -> None:
     try:
-        # TODO:- Notify the user that the audio's sample rate is being optimised
         print(f"Optimising audio smaple rate for {data['file_id']} audio")
 
-        NotificationsService().publish_message(
+        NotificationsService().publish(
             channel=Channels.status,
             message=f"Optimising audio smaple rate for {data['file_id']} audio",
         )
@@ -81,10 +78,9 @@ def change_audio_sample_rate(data: dict) -> None:
             delete_original_file=data["delete_original_file"],
         )
 
-        # TODO:- After successfully optimsing the audio, notify the user
         print(f"Success: {data['file_id']} audio sample rate optimised")
 
-        NotificationsService().publish_message(
+        NotificationsService().publish(
             channel=Channels.status,
             message=f"Success: {data['file_id']} audio sample rate optimised",
         )

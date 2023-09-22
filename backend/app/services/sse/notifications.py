@@ -17,7 +17,7 @@ class NotificationsService:
     def __init__(self):
         pass
 
-    def publish_message(self, channel: Channels, message: str) -> None:
+    def publish(self, channel: Channels, message: str) -> None:
         """
         Publishes a message to a channel
         :param -> channel: Channels, message: str
@@ -30,7 +30,7 @@ class NotificationsService:
         except Exception as e:
             print(e)
 
-    async def send_notifications(self):
+    async def send(self):
         status_channel = await redis_client.subscribe_async(Channels.status)
 
         try:

@@ -50,7 +50,7 @@ class TranscriptionService:
                 status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
             ) from e
 
-    def get_container_config(self) -> dict:
+    def _get_container_config(self) -> dict:
         """
         Generate docker container config
         :return -> dict
@@ -72,7 +72,7 @@ class TranscriptionService:
 
         return container_config
 
-    def get_file_path(self) -> str:
+    def _get_file_path(self) -> str:
         """
         Generate relative file path for the audio file
         :return -> str
@@ -80,7 +80,7 @@ class TranscriptionService:
 
         return f"/{TranscriptionService.container_base_path}/file.wav"
 
-    def get_output_folder_path(self) -> str:
+    def _get_output_folder_path(self) -> str:
         """
         Generate relative output folder path for the audio file
         :return -> str
@@ -88,7 +88,7 @@ class TranscriptionService:
 
         return f"/{TranscriptionService.container_base_path}/transcriptions"
 
-    def get_model_path(self) -> str:
+    def _get_model_path(self) -> str:
         """
         Generate relative model path
         :return -> str
@@ -106,10 +106,10 @@ class TranscriptionService:
             task = generate_transcriptions.delay(
                 data={
                     "file_id": self.file_id,
-                    "container_config": self.get_container_config(),
+                    "container_config": self._get_container_config(),
                     "detach": False,
                     "remove": True,
-                    "command": f"whisper -t 2 -m {self.get_model_path()} -f {self.get_file_path()} -osrt -ovtt -of {self.get_output_folder_path()}",
+                    "command": f"whisper -t 2 -m {self._get_model_path()} -f {self._get_file_path()} -osrt -ovtt -of {self._get_output_folder_path()}",
                 }
             )
 

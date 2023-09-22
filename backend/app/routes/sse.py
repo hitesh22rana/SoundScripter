@@ -14,4 +14,4 @@ router = APIRouter(
 
 @router.get("/notifications", response_description="Realtime status")
 async def notifications():
-    return EventSourceResponse(NotificationsService().send_notifications())
+    return EventSourceResponse(NotificationsService().send())

@@ -22,6 +22,11 @@ class FileService(FileManager):
     arcname: str = "transcription"
 
     def __init__(self) -> None:
+        """
+        File Service
+        :return -> None
+        """
+
         super().__init__()
 
     async def _generate_zip(self, files: list[Path]) -> BytesIO | Exception:
