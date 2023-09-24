@@ -48,7 +48,15 @@ To run SoundScripter locally or in a server environment, follow these steps:
     - You can configure various settings, such as RabbitMQ connection details and task priorities, in the `docker-compose.yml` files.
     - Environment variables are stored in `.env`. Refer `.env.example` for a template of the required variables. Make sure to create a `.env` file with your specific configuration before running the application.
 
-4. Build and run the application
+4. Requirements Check
+
+    Before running the application, it's important to ensure that system meets the essential requirements in order to run the application. You can use the `check-requirements.sh` script to verify this:
+
+    ```bash
+    ./check-requirements.sh
+    ```
+
+5. Build and run the application
 
     i. First build the transcription service
 
@@ -62,7 +70,7 @@ To run SoundScripter locally or in a server environment, follow these steps:
     docker-compose -f docker-compose.yml up
     ```
 
-5. Now you backend is up and running and you can access the API docs at `http://localhost:8000/docs`.
+6. Now you backend is up and running and you can access the API docs at `http://localhost:8000/docs`.
 
 ## Contributions
 
