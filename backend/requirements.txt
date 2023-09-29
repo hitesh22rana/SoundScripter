@@ -10,5 +10,6 @@ pydantic-settings==2.0.3
 pydub==0.25.1
 python-multipart==0.0.6
 redis==5.0.0
+SQLAlchemy==2.0.21
 sse-starlette==1.6.5
 uvicorn==0.23.2

@@ -2,15 +2,11 @@
 # Path: backend\app\services\sse\notifications.py
 
 import asyncio
-from enum import Enum
 
 from fastapi import HTTPException, status
 
 from app.utils.redis_client import redis_client
-
-
-class Channels(str, Enum):
-    status = "status"
+from app.utils.shared import Channels
 
 
 class NotificationsService:

@@ -5,6 +5,7 @@
 from app.background_tasks import background_tasks
 from app.services.sse import Channels, NotificationsService
 from app.utils.docker_client import docker_client
+from app.utils.shared import Channels
 
 
 @background_tasks.task(

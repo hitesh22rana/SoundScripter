@@ -191,3 +191,22 @@ class FileService(FileManager):
                 detail = e.args[0].get("detail")
 
             raise HTTPException(status_code=status_code, detail=detail) from e
+
+    async def list(self) -> list[dict] | HTTPException:
+        """
+        List files
+        :return -> list[dict] | HTTPException
+        """
+
+        try:
+            pass
+
+        except Exception as e:
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            detail = "Error: List service is not available"
+
+            if isinstance(e.args[0], dict):
+                status_code = e.args[0].get("status_code")
+                detail = e.args[0].get("detail")
+
+            raise HTTPException(status_code=status_code, detail=detail) from e

@@ -4,6 +4,7 @@
 from app.background_tasks import background_tasks
 from app.services.sse import Channels, NotificationsService
 from app.utils.audio_manager import AudioManager
+from app.utils.shared import Channels
 from app.utils.video_manager import VideoManager
 
 
