@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     local_storage_base_path: str
     redis_host: str
     redis_port: int
+    postgres_host: str
+    postgres_user: str
+    postgres_password: str
+    postgres_port: int
 
     class Config:
         env_file = ".env"

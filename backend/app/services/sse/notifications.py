@@ -13,10 +13,10 @@ class NotificationsService:
     def __init__(self):
         pass
 
-    def publish(self, channel: Channels, message: str) -> None:
+    def publish(self, channel: str, message: str) -> None:
         """
         Publishes a message to a channel
-        :param -> channel: Channels, message: str
+        :param -> channel: str, message: str
         :return -> None
         """
 
@@ -27,7 +27,7 @@ class NotificationsService:
             print(e)
 
     async def send(self):
-        status_channel = await redis_client.subscribe_async(Channels.status)
+        status_channel = await redis_client.subscribe_async(Channels.STATUS)
 
         try:
             while True:

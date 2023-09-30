@@ -1,9 +1,12 @@
 # Purpose: FileManager utility class for handling files related tasks.
 # Path: backend/app/utils/file_manager.py
 
+import io
 import os
 import shutil
+import zipfile
 from datetime import datetime
+from io import BytesIO
 from pathlib import Path
 from uuid import uuid4
 
@@ -302,6 +305,7 @@ class FileManager:
 
         return os.remove(file_path)
 
+    @classmethod
     def delete_folder(cls, folder_path) -> None | FileNotFoundError:
         """
         Delete folder
@@ -313,3 +317,25 @@ class FileManager:
             raise FileNotFoundError
 
         return shutil.rmtree(folder_path)
+
+    @classmethod
+    async def generate_zip(
+        self, arcname: str, files: list[Path]
+    ) -> BytesIO | Exception:
+        """
+        Generate zip file
+        :param -> files: list[Path]
+        :return -> BytesIO | Exception
+        """
+
+        try:
+            zip_stream = io.BytesIO()
+
+            with zipfile.ZipFile(zip_stream, "w", zipfile.ZIP_DEFLATED) as zipf:
+                for file in files:
+                    zipf.write(file, arcname=arcname + file.suffix)
+
+            return zip_stream
+
+        except Exception as e:
+            raise e

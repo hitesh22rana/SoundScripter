@@ -19,7 +19,7 @@ def generate_transcriptions(data: dict) -> None:
         print(f"Generating transcriptions for {data['file_id']}")
 
         NotificationsService().publish(
-            channel=Channels.status,
+            channel=Channels.STATUS,
             message=f"Generating transcriptions for {data['file_id']}",
         )
 
@@ -33,7 +33,7 @@ def generate_transcriptions(data: dict) -> None:
         print(f"Success: Transcription generated for {data['file_id']}")
 
         NotificationsService().publish(
-            channel=Channels.status,
+            channel=Channels.STATUS,
             message=f"Success: Transcription generated for {data['file_id']}",
         )
 

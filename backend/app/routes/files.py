@@ -1,9 +1,12 @@
 # Purpose: Files router for handling files related operations.
 # Path: backend\app\routers\files.py
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile
+from sqlalchemy.orm import Session
 
 from app.services.files import FileService
+from app.utils.db_client import db_client
+from app.utils.shared import Sort
 
 router = APIRouter(
     tags=["Files"],
@@ -11,21 +14,30 @@ router = APIRouter(
 )
 
 
+@router.get("/list", response_description="List files")
+async def list(
+    session: Session = Depends(db_client.get_db_session),
+    limit: int = 10,
+    offset: int = 0,
+    sort: Sort = Sort.DESC,
+):
+    return await FileService(session=session).list(
+        limit=limit, offset=offset, sort=sort
+    )
+
+
 @router.post("/upload", response_description="Upload file")
-async def upload(file: UploadFile = File(...)):
-    return await FileService().upload(file=file)
+async def upload(
+    session: Session = Depends(db_client.get_db_session), file: UploadFile = File(...)
+):
+    return await FileService(session=session).upload(file=file)
 
 
 @router.get("/download/{file_id}", response_description="Download file")
 async def download(file_id: str):
-    return await FileService().download(file_id=file_id)
+    return await FileService(session=None).download(file_id=file_id)
 
 
 @router.delete("/delete/{file_id}", response_description="Delete file")
-async def delete(file_id: str):
-    return await FileService().delete(file_id=file_id)
-
-
-@router.get("/list", response_description="List files")
-async def list():
-    return await FileService().list()
+async def delete(file_id: str, session: Session = Depends(db_client.get_db_session)):
+    return await FileService(session=session).delete(file_id=file_id)

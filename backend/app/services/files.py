@@ -9,19 +9,23 @@ from pathlib import Path
 import aiofiles
 from fastapi import File, HTTPException, UploadFile, status
 from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import Session
 
 from app.background_tasks.conversion import (
     change_audio_sample_rate,
     convert_video_to_audio,
 )
+from app.models import FilesModel
+from app.schemas.files import FileResponse
 from app.utils.file_manager import FileManager
-from app.utils.responses import Accepted
+from app.utils.responses import OK, Accepted
+from app.utils.shared import Sort, Type
 
 
 class FileService(FileManager):
     arcname: str = "transcription"
 
-    def __init__(self) -> None:
+    def __init__(self, session: Session = None) -> None:
         """
         File Service
         :return -> None
@@ -29,60 +33,44 @@ class FileService(FileManager):
 
         super().__init__()
 
-    async def _generate_zip(self, files: list[Path]) -> BytesIO | Exception:
+        self.session = session
+
+    async def list(
+        self, limit: int, offset: int, sort: Sort
+    ) -> list[dict] | HTTPException:
         """
-        Generate zip file
-        :param -> files: list[Path]
-        :return -> BytesIO | Exception
-        """
-
-        try:
-            zip_stream = io.BytesIO()
-
-            with zipfile.ZipFile(zip_stream, "w", zipfile.ZIP_DEFLATED) as zipf:
-                for file in files:
-                    zipf.write(file, arcname=FileService.arcname + file.suffix)
-
-            return zip_stream
-
-        except Exception as e:
-            raise Exception(
-                {
-                    "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "detail": "Error: Zip file generation failed",
-                }
-            ) from e
-
-    async def download(self, file_id: str) -> StreamingResponse | HTTPException:
-        """
-        Download file
-        :param -> file_id: str
-        :return -> StreamingResponse | HTTPException
+        List files
+        :param -> limit: int, offset: int, sort: Sort
+        :return -> list[dict] | HTTPException
         """
 
         try:
-            files: list[Path] = self.get_transcription_files(file_id=file_id)
+            results: list[FilesModel] = (
+                self.session.query(FilesModel)
+                .order_by(
+                    FilesModel.created_at.asc()
+                    if sort == Sort.ASC
+                    else FilesModel.created_at.desc()
+                )
+                .limit(limit)
+                .offset(offset)
+                .all()
+            )
 
-        except FileNotFoundError as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error: File not found",
-            ) from e
+            self.session.close()
 
-        try:
-            # Generate the ZIP archive asynchronously
-            zip_stream: BytesIO = await self._generate_zip(files=files)
+            data: list[FileResponse.response] = [
+                FileResponse(row).response() for row in results
+            ]
 
-            # Serve the ZIP archive as a downloadable file
-            return StreamingResponse(
-                io.BytesIO(zip_stream.getvalue()),
-                media_type="application/zip",
-                headers={"Content-Disposition": f"attachment; filename={file_id}.zip"},
+            return OK(
+                {"detail": "Success: Files list fetched successfully", "data": data}
             )
 
         except Exception as e:
+            print(e)
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-            detail = "Error: Download service is not available"
+            detail = "Error: List service is not available"
 
             if isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
@@ -117,6 +105,9 @@ class FileService(FileManager):
                 ):
                     await f.write(chunk)
 
+            # Create a FilesModel instance to save the file details in the database
+            file_model = FilesModel(id=file_id, path=file_path)
+
             if self.is_audio_file_extension(file_extension[1:]):
                 change_audio_sample_rate.delay(
                     data={
@@ -131,6 +122,9 @@ class FileService(FileManager):
                 )
 
             elif self.is_video_file_extension(file_extension[1:]):
+                # Update default Audio type to Video
+                file_model.type = Type.VIDEO
+
                 convert_video_to_audio.delay(
                     data={
                         "file_id": file_id,
@@ -140,6 +134,11 @@ class FileService(FileManager):
                         "delete_original_file": True,
                     }
                 )
+
+            self.session.add(file_model)
+            self.session.commit()
+            self.session.refresh(file_model)
+            self.session.close()
 
             return Accepted(
                 {
@@ -158,6 +157,45 @@ class FileService(FileManager):
 
             raise HTTPException(status_code=status_code, detail=detail) from e
 
+    async def download(self, file_id: str) -> StreamingResponse | HTTPException:
+        """
+        Download file
+        :param -> file_id: str
+        :return -> StreamingResponse | HTTPException
+        """
+
+        try:
+            files: list[Path] = self.get_transcription_files(file_id=file_id)
+
+        except FileNotFoundError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Error: File not found",
+            ) from e
+
+        try:
+            # Generate the ZIP archive asynchronously
+            zip_stream: BytesIO = await self.generate_zip(
+                arcname=FileService.arcname, files=files
+            )
+
+            # Serve the ZIP archive as a downloadable file
+            return StreamingResponse(
+                io.BytesIO(zip_stream.getvalue()),
+                media_type="application/zip",
+                headers={"Content-Disposition": f"attachment; filename={file_id}.zip"},
+            )
+
+        except Exception as e:
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            detail = "Error: Download service is not available"
+
+            if isinstance(e.args[0], dict):
+                status_code = e.args[0].get("status_code")
+                detail = e.args[0].get("detail")
+
+            raise HTTPException(status_code=status_code, detail=detail) from e
+
     async def delete(self, file_id: str) -> None | HTTPException:
         """
         Delete file
@@ -166,6 +204,10 @@ class FileService(FileManager):
         """
 
         try:
+            self.session.query(FilesModel).filter_by(id=file_id).delete()
+            self.session.commit()
+            self.session.close()
+
             folder_path = self.get_folder_path(file_id=file_id)
             self.delete_folder(folder_path=folder_path)
 
@@ -185,25 +227,6 @@ class FileService(FileManager):
         except Exception as e:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Delete service is not available"
-
-            if isinstance(e.args[0], dict):
-                status_code = e.args[0].get("status_code")
-                detail = e.args[0].get("detail")
-
-            raise HTTPException(status_code=status_code, detail=detail) from e
-
-    async def list(self) -> list[dict] | HTTPException:
-        """
-        List files
-        :return -> list[dict] | HTTPException
-        """
-
-        try:
-            pass
-
-        except Exception as e:
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-            detail = "Error: List service is not available"
 
             if isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")

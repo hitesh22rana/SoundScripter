@@ -19,7 +19,7 @@ def convert_video_to_audio(data: dict) -> None:
         print(f"Converting video {data['file_id']} to audio")
 
         NotificationsService().publish(
-            channel=Channels.status,
+            channel=Channels.STATUS,
             message=f"Converting video {data['file_id']} to audio",
         )
 
@@ -33,7 +33,7 @@ def convert_video_to_audio(data: dict) -> None:
         print(f"Success: Video {data['file_id']} converted to audio")
 
         NotificationsService().publish(
-            channel=Channels.status,
+            channel=Channels.STATUS,
             message=f"Success: Video {data['file_id']} converted to audio",
         )
 
@@ -66,7 +66,7 @@ def change_audio_sample_rate(data: dict) -> None:
         print(f"Optimising audio smaple rate for {data['file_id']} audio")
 
         NotificationsService().publish(
-            channel=Channels.status,
+            channel=Channels.STATUS,
             message=f"Optimising audio smaple rate for {data['file_id']} audio",
         )
 
@@ -82,7 +82,7 @@ def change_audio_sample_rate(data: dict) -> None:
         print(f"Success: {data['file_id']} audio sample rate optimised")
 
         NotificationsService().publish(
-            channel=Channels.status,
+            channel=Channels.STATUS,
             message=f"Success: {data['file_id']} audio sample rate optimised",
         )
 

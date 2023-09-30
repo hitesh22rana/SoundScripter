@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 
 from app.routes import files, sse, transcriptions
 from app.utils.celery_client import celery_client
+from app.utils.db_client import db_client
 from app.utils.docker_client import docker_client
 from app.utils.redis_client import redis_client
 
@@ -61,6 +62,14 @@ async def startup_event():
             detail="Error: Celery client service unavailable. Application cannot start.",
         ) from e
 
+    try:
+        db_client.connect()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Error: Database client service unavailable. Application cannot start.",
+        ) from e
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -82,6 +91,14 @@ async def shutdown_event():
 
     try:
         redis_client.disconnect()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Error: Celery client service unavailable.",
+        ) from e
+
+    try:
+        db_client.disconnect()
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

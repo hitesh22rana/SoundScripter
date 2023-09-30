@@ -20,8 +20,6 @@ class RedisClient:
     redis_host: str = settings.redis_host
     redis_port: int = settings.redis_port
 
-    status_channel: str = "status"
-
     logger.configure(
         handlers=[
             dict(sink=sys.stdout, level="INFO", colorize=True),
