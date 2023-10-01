@@ -25,15 +25,16 @@ from app.utils.shared import Sort, Type
 class FileService(FileManager):
     arcname: str = "transcription"
 
-    def __init__(self, session: Session = None) -> None:
+    def __init__(self, session: Session) -> None:
         """
         File Service
+        :param -> session: Session = None
         :return -> None
         """
 
         super().__init__()
 
-        self.session = session
+        self.session: Session = session
 
     async def list(
         self, limit: int, offset: int, sort: Sort
@@ -68,7 +69,6 @@ class FileService(FileManager):
             )
 
         except Exception as e:
-            print(e)
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: List service is not available"
 
@@ -163,6 +163,8 @@ class FileService(FileManager):
         :param -> file_id: str
         :return -> StreamingResponse | HTTPException
         """
+
+        # TODO:- Check database if transcriptions are generated or not
 
         try:
             files: list[Path] = self.get_transcription_files(file_id=file_id)

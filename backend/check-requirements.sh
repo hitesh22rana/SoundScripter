@@ -18,8 +18,8 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
-# Checks if port 8000, 5672 and 6379 are free and open
-for port in 8000 5672 6379; do
+# Checks if port 8000, 5672, 6379 and 5432 are free and open
+for port in 8000 5672 6379 5432; do
     if [[ "$OSTYPE" == "msys" ]]; then
         if netstat -an | findstr ":$port"; then
             echo "Error: Port $port is already in use. Please free up port $port and try again."
