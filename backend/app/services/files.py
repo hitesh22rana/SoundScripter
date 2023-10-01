@@ -2,7 +2,6 @@
 # Path: backend\app\services\files.py
 
 import io
-import zipfile
 from io import BytesIO
 from pathlib import Path
 
@@ -15,11 +14,11 @@ from app.background_tasks.conversion import (
     change_audio_sample_rate,
     convert_video_to_audio,
 )
-from app.models import FilesModel
-from app.schemas.files import FileResponse
+from app.models import FilesModel, TranscriptionsModel
+from app.schemas import ConversionBackgroundJobPayloadSchema, FileResponse
 from app.utils.file_manager import FileManager
 from app.utils.responses import OK, Accepted
-from app.utils.shared import Sort, Type
+from app.utils.shared import Sort, Status, Type
 
 
 class FileService(FileManager):
@@ -38,11 +37,11 @@ class FileService(FileManager):
 
     async def list(
         self, limit: int, offset: int, sort: Sort
-    ) -> list[dict] | HTTPException:
+    ) -> list[FileResponse.response] | HTTPException:
         """
         List files
         :param -> limit: int, offset: int, sort: Sort
-        :return -> list[dict] | HTTPException
+        :return -> list[FileResponse.response] | HTTPException
         """
 
         try:
@@ -106,39 +105,37 @@ class FileService(FileManager):
                     await f.write(chunk)
 
             # Create a FilesModel instance to save the file details in the database
-            file_model = FilesModel(id=file_id, path=file_path)
+            file_model: FilesModel = FilesModel(id=file_id, path=file_path)
+
+            data: dict = (
+                ConversionBackgroundJobPayloadSchema(
+                    id=file_id,
+                    current_path=file_path,
+                    current_format=file_extension[1:],
+                    sample_rate=16000,  # 16 kHz
+                    output_path=file_path.replace(file_extension[1:], "wav"),
+                    output_format="wav",
+                    delete_original_file=True,
+                )
+            ).model_dump()
 
             if self.is_audio_file_extension(file_extension[1:]):
-                change_audio_sample_rate.delay(
-                    data={
-                        "file_id": file_id,
-                        "audio_path": file_path,
-                        "audio_format": file_extension[1:],
-                        "sample_rate": 16000,  # 16 kHz
-                        "output_path": file_path.replace(file_extension[1:], "wav"),
-                        "output_format": "wav",
-                        "delete_original_file": True,
-                    }
-                )
+                self.session.add(file_model)
+                self.session.commit()
+                self.session.refresh(file_model)
+                self.session.close()
+
+                change_audio_sample_rate.delay(data=data)
 
             elif self.is_video_file_extension(file_extension[1:]):
                 # Update default Audio type to Video
                 file_model.type = Type.VIDEO
+                self.session.add(file_model)
+                self.session.commit()
+                self.session.refresh(file_model)
+                self.session.close()
 
-                convert_video_to_audio.delay(
-                    data={
-                        "file_id": file_id,
-                        "video_path": file_path,
-                        "video_extension": file_extension[1:],
-                        "audio_format": "wav",
-                        "delete_original_file": True,
-                    }
-                )
-
-            self.session.add(file_model)
-            self.session.commit()
-            self.session.refresh(file_model)
-            self.session.close()
+                convert_video_to_audio.delay(data=data)
 
             return Accepted(
                 {
@@ -164,18 +161,25 @@ class FileService(FileManager):
         :return -> StreamingResponse | HTTPException
         """
 
-        # TODO:- Check database if transcriptions are generated or not
-
         try:
+            transcription: TranscriptionsModel = (
+                self.session.query(TranscriptionsModel)
+                .filter_by(file_id=file_id)
+                .first()
+            )
+
+            if not transcription:
+                raise FileNotFoundError()
+
+            if transcription.status != Status.DONE:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: Transcription is not completed yet",
+                    }
+                )
+
             files: list[Path] = self.get_transcription_files(file_id=file_id)
-
-        except FileNotFoundError as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error: File not found",
-            ) from e
-
-        try:
             # Generate the ZIP archive asynchronously
             zip_stream: BytesIO = await self.generate_zip(
                 arcname=FileService.arcname, files=files
@@ -187,6 +191,12 @@ class FileService(FileManager):
                 media_type="application/zip",
                 headers={"Content-Disposition": f"attachment; filename={file_id}.zip"},
             )
+
+        except FileNotFoundError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Error: File not found",
+            ) from e
 
         except Exception as e:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -206,7 +216,13 @@ class FileService(FileManager):
         """
 
         try:
-            self.session.query(FilesModel).filter_by(id=file_id).delete()
+            self.session.query(TranscriptionsModel).filter_by(file_id=file_id).delete(
+                synchronize_session=False
+            )
+            self.session.query(FilesModel).filter_by(id=file_id).delete(
+                synchronize_session=False
+            )
+
             self.session.commit()
             self.session.close()
 

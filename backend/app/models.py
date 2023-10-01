@@ -36,7 +36,7 @@ class FilesModel(Base):
 
     # Establish a relationship with TranscriptionsModel
     transcription: Mapped["TranscriptionsModel"] = relationship(
-        "TranscriptionsModel", back_populates="file"
+        "TranscriptionsModel", back_populates="file", cascade="all, delete-orphan"
     )
 
 
@@ -64,6 +64,9 @@ class TranscriptionsModel(Base):
         TIMESTAMP(timezone=True), default=None, nullable=True
     )
 
+    # Task id of the celery task
+    task_id: Mapped[str] = mapped_column(String, nullable=True)
+
     # Foreign key to the file model and Index it for faster queries
     file_id: Mapped[str] = mapped_column(
         String, ForeignKey("files.id"), nullable=False, index=True
@@ -71,5 +74,6 @@ class TranscriptionsModel(Base):
 
     # Establish a relationship with FilesModel
     file: Mapped["FilesModel"] = relationship(
-        "FilesModel", back_populates="transcription"
+        "FilesModel",
+        back_populates="transcription",
     )

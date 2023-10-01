@@ -73,11 +73,11 @@ class DBClient:
 
     @classmethod
     def get_db_session(cls) -> Session:
-        db = cls.Session()
+        session = cls.Session()
         try:
-            yield db
+            yield session
         finally:
-            db.close()
+            session.close()
 
 
 db_client = DBClient()

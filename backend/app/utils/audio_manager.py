@@ -10,21 +10,21 @@ from app.utils.file_manager import FileManager
 class AudioManager:
     def __init__(
         self,
-        audio_path: str,
-        audio_format: str,
+        path: str,
+        format: str,
     ) -> None | Exception:
         """
         AudioManager Utility
-        :param -> audio_path: str, audio_format: str
+        :param -> path: str, format: str
         :return -> None | Exception
         """
 
-        self.audio_path = audio_path
-        self.audio_format = audio_format
+        self.path = path
+        self.format = format
 
         self.file_manager: FileManager = FileManager()
 
-        if not self.file_manager.validate_file_path(self.audio_path):
+        if not self.file_manager.validate_file_path(self.path):
             raise Exception(
                 {
                     "status_code": status.HTTP_400_BAD_REQUEST,
@@ -32,7 +32,7 @@ class AudioManager:
                 }
             )
 
-        if not self.file_manager.is_audio_file_extension(self.audio_format):
+        if not self.file_manager.is_audio_file_extension(self.format):
             raise Exception(
                 {
                     "status_code": status.HTTP_400_BAD_REQUEST,
@@ -63,8 +63,8 @@ class AudioManager:
 
         try:
             audio = AudioSegment.from_file(
-                self.audio_path,
-                format=self.audio_format,
+                self.path,
+                format=self.format,
             )
 
             audio.export(
@@ -80,9 +80,9 @@ class AudioManager:
                 ],
             )
 
-            if delete_original_file and output_path != self.audio_path:
+            if delete_original_file and output_path != self.path:
                 try:
-                    self.file_manager.delete_file(self.audio_path)
+                    self.file_manager.delete_file(self.path)
                 except Exception as e:
                     raise Exception(
                         {
@@ -112,13 +112,13 @@ class AudioManager:
 
         try:
             audio = AudioSegment.from_file(
-                self.audio_path,
-                format=self.audio_format,
+                self.path,
+                format=self.format,
             )
 
             audio_duration = len(audio)
             part_duration = audio_duration // part_count
-            original_file_name = self.audio_path.replace("." + self.audio_format, "")
+            original_file_name = self.path.replace("." + self.format, "")
 
             for part in range(part_count):
                 start_duration = part * part_duration
@@ -130,13 +130,13 @@ class AudioManager:
 
                 # export audio part
                 audio[start_duration:end_duration].export(
-                    f"{original_file_name}{part + 1}.{self.audio_format}",
-                    format=self.audio_format,
+                    f"{original_file_name}{part + 1}.{self.format}",
+                    format=self.format,
                 )
 
             if delete_original_file:
                 try:
-                    self.file_manager.delete_file(self.audio_path)
+                    self.file_manager.delete_file(self.path)
                 except Exception as e:
                     raise Exception(
                         {

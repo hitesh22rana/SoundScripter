@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get("/list", response_description="List files")
+@router.get("", response_description="List files")
 async def list(
     session: Session = Depends(db_client.get_db_session),
     limit: int = 10,

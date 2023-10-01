@@ -8,19 +8,19 @@ from app.utils.file_manager import FileManager
 
 
 class VideoManager:
-    def __init__(self, video_path: str, video_extension: str) -> None | Exception:
+    def __init__(self, path: str, format: str) -> None | Exception:
         """
         VideoManager Utility
-        :param -> video_path: str, video_extension: str
+        :param -> path: str, format: str
         :return -> None | Exception
         """
 
-        self.video_path = video_path
-        self.video_extension = video_extension
+        self.path = path
+        self.format = format
 
         self.file_manager: FileManager = FileManager()
 
-        if not self.file_manager.validate_file_path(self.video_path):
+        if not self.file_manager.validate_file_path(self.path):
             raise Exception(
                 {
                     "status_code": status.HTTP_400_BAD_REQUEST,
@@ -29,15 +29,15 @@ class VideoManager:
             )
 
     def convert_to_audio(
-        self, audio_format: str, delete_original_file: bool = False
+        self, output_path: str, output_format: str, delete_original_file: bool = False
     ) -> None | Exception:
         """
         Converts video to audio
-        :param -> audio_format: str, delete_original_file: bool
+        :param -> output_path: str, output_format: str, delete_original_file: bool
         :return -> None | Exception
         """
 
-        if not self.file_manager.is_audio_file_extension(audio_format):
+        if not self.file_manager.is_audio_file_extension(output_format):
             raise Exception(
                 {
                     "status_code": status.HTTP_400_BAD_REQUEST,
@@ -45,13 +45,11 @@ class VideoManager:
                 }
             )
 
-        audio_path = self.video_path.replace(self.video_extension, audio_format)
-
         try:
-            video_file: VideoFileClip = VideoFileClip(self.video_path)
+            video_file: VideoFileClip = VideoFileClip(self.path)
             audio_file: AudioFileClip = video_file.audio
             audio_file.write_audiofile(
-                filename=audio_path,
+                filename=output_path,
                 nbytes=2,
                 codec="pcm_s16le",
                 buffersize=8192,
@@ -64,7 +62,7 @@ class VideoManager:
 
             if delete_original_file:
                 try:
-                    self.file_manager.delete_file(self.video_path)
+                    self.file_manager.delete_file(self.path)
                 except Exception as e:
                     raise Exception(
                         {
