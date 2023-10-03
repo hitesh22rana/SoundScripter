@@ -31,9 +31,9 @@ middleware = [
 ]
 
 """Routers"""
-app.include_router(files.router)
-app.include_router(transcriptions.router)
-app.include_router(sse.router)
+app.include_router(files.router, prefix="/api/v1")
+app.include_router(transcriptions.router, prefix="/api/v1")
+app.include_router(sse.router, prefix="/api/v1")
 
 
 @app.on_event("startup")
