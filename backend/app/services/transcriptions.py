@@ -14,7 +14,7 @@ from app.schemas import (
 )
 from app.utils.file_manager import FileManager
 from app.utils.responses import OK
-from app.utils.shared import Sort
+from app.utils.shared import Sort, Status
 
 
 class TranscriptionService:
@@ -91,7 +91,7 @@ class TranscriptionService:
         """
 
         try:
-            results: list[DataResponse.response] = (
+            results: list = (
                 self.session.query(FilesModel, TranscriptionsModel)
                 .outerjoin(FilesModel, FilesModel.id == TranscriptionsModel.file_id)
                 .order_by(
@@ -143,7 +143,7 @@ class TranscriptionService:
         if language != "English":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Currently only English is supported",
+                detail="Error: Currently only English is supported",
             )
 
         model: str = "ggml-small.en-q5_1.bin"
@@ -162,6 +162,28 @@ class TranscriptionService:
 
             if file is None or file_path != file.path:
                 raise FileNotFoundError()
+
+            # Additional validation if file is already transcribed or is in process, return HTTPException stating file is already in process
+            if file is not None and file.transcription is not None:
+                if file.transcription.status == Status.DONE:
+                    raise Exception(
+                        {
+                            "status_code": status.HTTP_400_BAD_REQUEST,
+                            "detail": "Error: File is already transcribed",
+                        }
+                    )
+
+                elif (
+                    file.transcription.status == Status.PROCESSING
+                    or file.transcription.status == Status.QUEUED
+                ):
+                    raise Exception(
+                        {
+                            "status_code": status.HTTP_400_BAD_REQUEST,
+                            "detail": "Error: File is already processing",
+                        }
+                    )
+
             data: dict = TranscriptionBackgroundJobPayloadSchema(
                 id=file_id,
                 container_config=self._get_container_config(file_id=file_id),
@@ -199,5 +221,6 @@ class TranscriptionService:
 
             if isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
+                detail = e.args[0].get("detail")
 
             raise HTTPException(status_code=status_code, detail=detail) from e
