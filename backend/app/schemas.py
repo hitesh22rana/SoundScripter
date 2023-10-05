@@ -53,24 +53,6 @@ class TranscriptionBackgroundJobPayloadSchema(BaseModel):
         from_attributes = True
 
 
-class DataResponse:
-    def __init__(self, data: list) -> None:
-        self.file: FileResponse.response = FileResponse(data[0]).response()
-        self.transcription: TranscriptionResponse.response = TranscriptionResponse(
-            data[1]
-        ).response()
-
-    def response(self) -> dict:
-        return {
-            "id": self.file["id"],
-            "type": self.file["type"],
-            "task_id": self.transcription["id"],
-            "status": self.transcription["status"],
-            "created_at": self.transcription["created_at"],
-            "completed_at": self.transcription["completed_at"],
-        }
-
-
 class FileResponse:
     def __init__(self, data: FilesModel) -> None:
         self.id: str = data.id
@@ -93,6 +75,7 @@ class FileResponse:
 
 class TranscriptionResponse:
     def __init__(self, data: TranscriptionsModel) -> None:
+        self.id: str = str(data.id)
         self.task_id: Optional[str] = data.task_id
         self.language: str = data.language
         self.status: Status = data.status
@@ -103,9 +86,28 @@ class TranscriptionResponse:
 
     def response(self) -> dict:
         return {
-            "id": self.task_id,
+            "id": self.id,
+            "task_id": self.task_id,
             "language": self.language,
             "status": self.status,
             "created_at": self.created_at,
             "completed_at": self.completed_at,
+        }
+
+
+class DataResponse:
+    def __init__(self, data: list) -> None:
+        self.file: FileResponse.response = FileResponse(data[0]).response()
+        self.transcription: TranscriptionResponse.response = TranscriptionResponse(
+            data[1]
+        ).response()
+
+    def response(self) -> dict:
+        return {
+            "id": self.file["id"],
+            "type": self.file["type"],
+            "task_id": self.transcription["task_id"],
+            "status": self.transcription["status"],
+            "created_at": self.transcription["created_at"],
+            "completed_at": self.transcription["completed_at"],
         }

@@ -22,6 +22,7 @@ class TranscriptionService:
 
     image: str = "transcription-service"
     container_base_path: str = "home/data"
+    model: str = "ggml-small.en-q5_1.bin"
 
     def __init__(
         self,
@@ -35,21 +36,20 @@ class TranscriptionService:
 
         self.session: Session = session
 
-    def _get_container_config(self, file_id: str) -> dict:
+    @classmethod
+    def _get_container_config(cls, file_id: str) -> dict:
         """
         Generate docker container config
         :return -> dict
         """
 
-        bind_volume_path: str = (
-            TranscriptionService.local_storage_base_path + "/" + file_id
-        )
+        bind_volume_path: str = cls.local_storage_base_path + "/" + file_id
 
         container_config: dict = {
-            "image": TranscriptionService.image,
+            "image": cls.image,
             "volumes": {
                 bind_volume_path: {
-                    "bind": f"/{TranscriptionService.container_base_path}",
+                    "bind": f"/{cls.container_base_path}",
                     "mode": "rw",
                 }
             },
@@ -57,29 +57,32 @@ class TranscriptionService:
 
         return container_config
 
-    def _get_file_path(self) -> str:
+    @classmethod
+    def _get_file_path(cls) -> str:
         """
         Generate relative file path for the audio file
         :return -> str
         """
 
-        return f"/{TranscriptionService.container_base_path}/file.wav"
+        return f"/{cls.container_base_path}/file.wav"
 
-    def _get_output_folder_path(self) -> str:
+    @classmethod
+    def _get_output_folder_path(cls) -> str:
         """
         Generate relative output folder path for the audio file
         :return -> str
         """
 
-        return f"/{TranscriptionService.container_base_path}/transcriptions"
+        return f"/{cls.container_base_path}/transcriptions"
 
-    def _get_model_path(self, model: str) -> str:
+    @classmethod
+    def _get_model_path(cls) -> str:
         """
         Generate relative model path
         :return -> str
         """
 
-        return f"/root/models/{model}"
+        return f"/root/models/{cls.model}"
 
     async def list(
         self, limit: int, offset: int, sort: Sort
@@ -146,10 +149,6 @@ class TranscriptionService:
                 detail="Error: Currently only English is supported",
             )
 
-        model: str = "ggml-small.en-q5_1.bin"
-
-        file_manager: FileManager = FileManager()
-
         try:
             file: FilesModel = (
                 self.session.query(FilesModel)
@@ -157,14 +156,31 @@ class TranscriptionService:
                 .first()
             )
 
-            # Additional validation for the file, could be removed
-            file_path: str = file_manager.get_file_path_from_id(file_id=file_id)
-
-            if file is None or file_path != file.path:
+            if file is None:
                 raise FileNotFoundError()
 
             # Additional validation if file is already transcribed or is in process, return HTTPException stating file is already in process
-            if file is not None and file.transcription is not None:
+            if file.status == Status.ERROR:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: File was not uploaded successfully",
+                    }
+                )
+
+            elif file.status != Status.DONE:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: File is not yet uploaded",
+                    }
+                )
+
+            # Additional validation for the file, could be removed
+            if file.path != FileManager().get_file_path_from_id(file_id=file_id):
+                raise FileNotFoundError()
+
+            if file.transcription is not None:
                 if file.transcription.status == Status.DONE:
                     raise Exception(
                         {
@@ -189,7 +205,7 @@ class TranscriptionService:
                 container_config=self._get_container_config(file_id=file_id),
                 detach=False,
                 remove=True,
-                command=f"whisper -t 2 -m {self._get_model_path(model=model)} -f {self._get_file_path()} -osrt -ovtt -of {self._get_output_folder_path()}",
+                command=f"whisper -t 2 -m {self._get_model_path()} -f {self._get_file_path()} -osrt -ovtt -of {self._get_output_folder_path()}",
             ).model_dump()
 
             transcription_model: TranscriptionsModel = TranscriptionsModel(
