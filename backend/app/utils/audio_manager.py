@@ -40,6 +40,11 @@ class AudioManager:
                 }
             )
 
+        self.audio = AudioSegment.from_file(
+            file=self.path,
+            format=self.format,
+        )
+
     def change_sample_rate(
         self,
         sample_rate: str,
@@ -62,12 +67,7 @@ class AudioManager:
             )
 
         try:
-            audio = AudioSegment.from_file(
-                self.path,
-                format=self.format,
-            )
-
-            audio.export(
+            self.audio.export(
                 out_f=output_path,
                 format=output_format,
                 parameters=[
@@ -111,12 +111,7 @@ class AudioManager:
         """
 
         try:
-            audio = AudioSegment.from_file(
-                self.path,
-                format=self.format,
-            )
-
-            audio_duration = len(audio)
+            audio_duration = len(self.audio)
             part_duration = audio_duration // part_count
             original_file_name = self.path.replace("." + self.format, "")
 
@@ -129,7 +124,7 @@ class AudioManager:
                     end_duration = audio_duration
 
                 # export audio part
-                audio[start_duration:end_duration].export(
+                self.audio[start_duration:end_duration].export(
                     f"{original_file_name}{part + 1}.{self.format}",
                     format=self.format,
                 )

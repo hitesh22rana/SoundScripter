@@ -28,6 +28,16 @@ class VideoManager:
                 }
             )
 
+        if not self.file_manager.is_video_file_extension(self.format):
+            raise Exception(
+                {
+                    "status_code": status.HTTP_400_BAD_REQUEST,
+                    "detail": "Error: Invalid video format",
+                }
+            )
+
+        self.video: VideoFileClip = VideoFileClip(self.path)
+
     def convert_to_audio(
         self, output_path: str, output_format: str, delete_original_file: bool = False
     ) -> None | Exception:
@@ -46,9 +56,8 @@ class VideoManager:
             )
 
         try:
-            video_file: VideoFileClip = VideoFileClip(self.path)
-            audio_file: AudioFileClip = video_file.audio
-            audio_file.write_audiofile(
+            audio: AudioFileClip = self.video.audio
+            audio.write_audiofile(
                 filename=output_path,
                 nbytes=2,
                 codec="pcm_s16le",
@@ -57,8 +66,8 @@ class VideoManager:
                 logger=None,
             )
 
-            video_file.close()
-            audio_file.close()
+            self.video.close()
+            audio.close()
 
             if delete_original_file:
                 try:
