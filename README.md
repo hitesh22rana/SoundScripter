@@ -58,7 +58,7 @@ To run SoundScripter locally or in a server environment, follow these steps:
     i. First build the transcription service
 
     ```bash
-    docker build -t transcription-service -f Dockerfile.transcription-service
+    docker build -t transcription-service -f Dockerfile.transcription-service .
     ```
 
     ii. Now, run the docker-compose file to bind all the services

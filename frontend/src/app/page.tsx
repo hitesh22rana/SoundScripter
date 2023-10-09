@@ -1,7 +1,7 @@
 export default function Home() {
     return (
         <main>
-            <h1>SoundScripter</h1>
+            <h1>Home Page</h1>
         </main>
     );
 }
