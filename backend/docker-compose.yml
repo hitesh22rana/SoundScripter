@@ -2,22 +2,6 @@ version: "3"
 name: "sound-scripter"
 
 services:
-    # RabbitMQ message broker
-    message-broker:
-        image: rabbitmq:latest
-        container_name: message-broker
-        restart: always
-        ports:
-            - "5672:5672"
-
-    # Redis PubSub for realtime server side events notifications
-    pub-sub:
-        image: redis
-        container_name: redis
-        restart: always
-        ports:
-            - "6379:6379"
-
     # Postgres database
     db:
         image: postgres:alpine
@@ -29,6 +13,26 @@ services:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=postgres
             - POSTGRES_DB=db
+
+    # RabbitMQ message broker
+    message-broker:
+        image: rabbitmq:latest
+        container_name: message-broker
+        restart: always
+        ports:
+            - "5672:5672"
+        depends_on:
+            - db
+
+    # Redis PubSub for realtime server side events notifications
+    pub-sub:
+        image: redis
+        container_name: redis
+        restart: always
+        ports:
+            - "6379:6379"
+        depends_on:
+            - db
 
     # Backend
     backend:
@@ -49,6 +53,6 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./data:/backend/data
         depends_on:
+            - db
             - message-broker
             - pub-sub
-            - db
