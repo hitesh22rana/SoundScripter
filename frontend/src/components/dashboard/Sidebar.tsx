@@ -33,7 +33,7 @@ export default function Sidebar() {
                     SoundScripter
                 </h2>
 
-                <nav className="flex w-full flex-col gap-4">
+                <nav className="flex w-full flex-col gap-1">
                     {routes.map((route: TRoute, index: number) => {
                         return (
                             <Button
