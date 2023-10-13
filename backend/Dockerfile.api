@@ -6,27 +6,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory to /backend
-WORKDIR /backend
+# Set the working directory to /api
+WORKDIR /api
 
 # Copy the requirements.txt file
-COPY ./requirements.txt /backend
+COPY ./requirements.txt /api
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /backend/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /api/requirements.txt
 
 # Copy the files and folder into the container
-COPY ./app /backend/app
-COPY ./run.sh /backend
+COPY ./app /api/app
 
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 
-# Make the file executable
-RUN ["chmod", "+x", "./run.sh"]
 
-# Make the enetrypoint as bash
-ENTRYPOINT [ "/bin/sh" ]
-
-# Run FastAPI and Celery-worker
-CMD ["./run.sh"]
+# Run the api
+CMD [ "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000" ]

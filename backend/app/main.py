@@ -39,6 +39,14 @@ app.include_router(sse.router, prefix="/api/v1")
 @app.on_event("startup")
 async def startup_event():
     try:
+        db_client.connect()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Error: Database client service unavailable. Application cannot start.",
+        ) from e
+
+    try:
         docker_client.connect()
     except Exception as e:
         raise HTTPException(
@@ -62,17 +70,17 @@ async def startup_event():
             detail="Error: Celery client service unavailable. Application cannot start.",
         ) from e
 
-    try:
-        db_client.connect()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Error: Database client service unavailable. Application cannot start.",
-        ) from e
-
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    try:
+        db_client.disconnect()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Error: Celery client service unavailable.",
+        ) from e
+
     try:
         docker_client.disconnect()
     except Exception as e:
@@ -91,14 +99,6 @@ async def shutdown_event():
 
     try:
         redis_client.disconnect()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Error: Celery client service unavailable.",
-        ) from e
-
-    try:
-        db_client.disconnect()
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

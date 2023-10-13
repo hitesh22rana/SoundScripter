@@ -14,7 +14,7 @@ services:
             - POSTGRES_PASSWORD=postgres
             - POSTGRES_DB=db
         volumes:
-            - ./data:/var/lib/postgresql/data
+            - ./data/db:/var/lib/postgresql/data
 
     # RabbitMQ message broker
     message-broker:
@@ -23,8 +23,6 @@ services:
         restart: always
         ports:
             - "5672:5672"
-        depends_on:
-            - db
 
     # Redis PubSub for realtime server side events notifications
     pub-sub:
@@ -33,14 +31,34 @@ services:
         restart: always
         ports:
             - "6379:6379"
-        depends_on:
-            - db
 
-    # Backend
-    backend:
+    # Celery task queue for task processing
+    task-queue:
         build:
             context: ./
-            dockerfile: Dockerfile.backend
+            dockerfile: Dockerfile.task-queue
+        container_name: task-queue
+        restart: always
+        env_file:
+            - ./.env
+        environment:
+            - CELERY_BROKER=pyamqp://message-broker
+            - LOCAL_STORAGE_BASE_PATH=${PWD}/data
+            - REDIS_HOST=pub-sub
+            - POSTGRES_HOST=db
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./data:/task-queue/data
+        depends_on:
+            - db
+            - message-broker
+            - pub-sub
+
+    # Api
+    api:
+        build:
+            context: ./
+            dockerfile: Dockerfile.api
         container_name: backend
         restart: always
         env_file:
@@ -54,8 +72,9 @@ services:
             - "8000:8000"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
-            - ./data:/backend/data
+            - ./data:/api/data
         depends_on:
             - db
             - message-broker
             - pub-sub
+            - task-queue
