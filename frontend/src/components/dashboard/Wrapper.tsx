@@ -1,5 +1,5 @@
 import Sidebar from "@/src/components/dashboard/Sidebar";
-import Topbar from "./Topbar";
+import Topbar from "@/src/components/dashboard/Topbar";
 
 type props = {
     children: string | JSX.Element | Array<JSX.Element> | React.ReactNode;

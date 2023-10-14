@@ -137,11 +137,3 @@ input[type=number] {
     @apply bg-background text-foreground;
   }
 }
-
-.upload-area {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
