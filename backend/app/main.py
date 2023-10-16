@@ -111,7 +111,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return JSONResponse(
         content={
             "status_code": "422",
-            "detail": f"Error: Unprocessable Entity",
+            "detail": "Error: Unprocessable Entity",
         },
         status_code=422,
     )

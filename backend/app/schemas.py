@@ -3,26 +3,27 @@
 
 from typing import Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 from app.models import FilesModel, TranscriptionsModel
-from app.utils.shared import Status, Type
-from app.utils.validators import validate_language
+from app.utils.shared import Language, Priority, Status, Type
 
 
 class TranscriptionSchema(BaseModel):
     file_id: str = Field(..., description="Name of the file to be transcribed")
-    language: str = Field(..., description="Language of the file to be transcribed")
-
-    @validator("language", pre=True)
-    def validate_language(cls, language):
-        return validate_language(language)
+    language: Language = Field(
+        Language.ENGLISH, description="Language of the file to be transcribed"
+    )
+    priority: Priority = Field(
+        Priority.LOW, description="Priority of the transcription job"
+    )
 
     class Config:
         json_schema_extra = {
             "example": {
                 "file_id": "XXXX-XXXX",
-                "language": "English",
+                "language": "ENGLISH",
+                "priority": "LOW",
             }
         }
 

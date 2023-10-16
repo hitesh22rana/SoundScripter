@@ -31,6 +31,12 @@ class Language(str, Enum):
 
 
 @unique
+class Priority(str, Enum):
+    LOW = "LOW"
+    HIGH = "HIGH"
+
+
+@unique
 class Sort(str, Enum):
     ASC = "ASC"
     DESC = "DESC"

@@ -1,6 +1,7 @@
 # Purpose: Transcription service for handling transcriptions related tasks.
 # Path: backend\app\services\transcriptions.py
 
+import psutil
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -14,7 +15,7 @@ from app.schemas import (
 )
 from app.utils.file_manager import FileManager
 from app.utils.responses import OK
-from app.utils.shared import Sort, Status
+from app.utils.shared import Language, Priority, Sort, Status
 
 
 class TranscriptionService:
@@ -84,6 +85,44 @@ class TranscriptionService:
 
         return f"/root/models/{cls.model}"
 
+    @classmethod
+    def _get_thread_count(cls, priority: Priority) -> int:
+        """
+        Generate thread count based on priority
+        :param -> priority: Priority
+        :return -> int
+        """
+
+        threads_count: int = psutil.cpu_count(logical=True)
+
+        if priority == Priority.HIGH:
+            return threads_count // 2
+
+        return threads_count // 4
+
+    @classmethod
+    def _get_spoken_language(cls, langauge: Language) -> str:
+        """
+        Generate spoken language
+        :param -> langauge: Language
+        :return -> str
+        """
+
+        return langauge.value
+
+    @classmethod
+    def _get_command(cls, langauge: Language, priority: Priority) -> str:
+        """
+        Generate docker command
+        :param -> langauge: Language, priority: Priority
+        :return -> str
+        """
+
+        # TODO:- Add support for multiple languages
+        # TODO:- Add support for multiple models
+
+        return f"whisper -t {cls._get_thread_count(priority=priority)} -l {cls._get_spoken_language(langauge=langauge)} -m {cls._get_model_path()} -f {cls._get_file_path()} -osrt -ovtt -of {cls._get_output_folder_path()}"
+
     async def list(
         self, limit: int, offset: int, sort: Sort
     ) -> list[DataResponse.response] | HTTPException:
@@ -135,19 +174,13 @@ class TranscriptionService:
     ) -> OK | HTTPException:
         """
         Add the transcription request in the task queue for further processing
-        :params -> transcription_details: TranscriptionSchema
+        :param -> transcription_details: TranscriptionSchema
         :return -> OK | HTTPException
         """
 
         file_id: str = transcription_details.file_id
-        language: str = transcription_details.language
-
-        # TODO:- Add support for multiple languages
-        if language != "English":
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error: Currently only English is supported",
-            )
+        language: Language = transcription_details.language
+        priority: Priority = transcription_details.priority
 
         try:
             file: FilesModel = (
@@ -205,7 +238,7 @@ class TranscriptionService:
                 container_config=self._get_container_config(file_id=file_id),
                 detach=False,
                 remove=True,
-                command=f"whisper -t 2 -m {self._get_model_path()} -f {self._get_file_path()} -osrt -ovtt -of {self._get_output_folder_path()}",
+                command=self._get_command(langauge=language, priority=priority),
             ).model_dump()
 
             transcription_model: TranscriptionsModel = TranscriptionsModel(
@@ -235,7 +268,7 @@ class TranscriptionService:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Transcription service is not available"
 
-            if isinstance(e.args[0], dict):
+            if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
                 detail = e.args[0].get("detail")
 
