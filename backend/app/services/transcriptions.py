@@ -233,6 +233,55 @@ class TranscriptionService:
                         }
                     )
 
+            # Get the currently executing high priority tasks count
+            currently_executing_tasks: list[TranscriptionsModel] = (
+                self.session.query(TranscriptionsModel)
+                .filter(TranscriptionsModel.status == Status.PROCESSING)
+                .order_by(None)
+                .all()
+            )
+
+            high_priority_tasks_count: int = len(
+                [
+                    task
+                    for task in currently_executing_tasks
+                    if task.priority == Priority.HIGH
+                ]
+            )
+            low_priority_tasks_count: int = len(
+                [
+                    task
+                    for task in currently_executing_tasks
+                    if task.priority == Priority.LOW
+                ]
+            )
+
+            print(high_priority_tasks_count, low_priority_tasks_count)
+
+            if high_priority_tasks_count >= 2:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: Only 2 high priority tasks can be executed concurrently",
+                    }
+                )
+
+            elif high_priority_tasks_count == 1 and low_priority_tasks_count >= 2:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: Only 2 low priority tasks can be executed at a time along with 1 high priority task",
+                    }
+                )
+
+            elif low_priority_tasks_count > 2 and priority == Priority.HIGH:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: High priority tasks can't be executed at this time",
+                    }
+                )
+
             data: dict = TranscriptionBackgroundJobPayloadSchema(
                 id=file_id,
                 container_config=self._get_container_config(file_id=file_id),
@@ -242,7 +291,7 @@ class TranscriptionService:
             ).model_dump()
 
             transcription_model: TranscriptionsModel = TranscriptionsModel(
-                file_id=file_id
+                file_id=file_id, language=language, priority=priority
             )
 
             self.session.add(transcription_model)

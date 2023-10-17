@@ -22,7 +22,7 @@ class TranscriptionSchema(BaseModel):
         json_schema_extra = {
             "example": {
                 "file_id": "XXXX-XXXX",
-                "language": "ENGLISH",
+                "language": "en",
                 "priority": "LOW",
             }
         }
@@ -79,6 +79,7 @@ class TranscriptionResponse:
         self.id: str = str(data.id)
         self.task_id: Optional[str] = data.task_id
         self.language: str = data.language
+        self.priority: Priority = data.priority
         self.status: Status = data.status
         self.created_at: str = data.created_at.isoformat()
         self.completed_at: Optional[str] = (
@@ -90,6 +91,7 @@ class TranscriptionResponse:
             "id": self.id,
             "task_id": self.task_id,
             "language": self.language,
+            "priority": self.priority,
             "status": self.status,
             "created_at": self.created_at,
             "completed_at": self.completed_at,
@@ -108,6 +110,8 @@ class DataResponse:
             "id": self.file["id"],
             "type": self.file["type"],
             "task_id": self.transcription["task_id"],
+            "language": self.transcription["language"],
+            "priority": self.transcription["priority"],
             "status": self.transcription["status"],
             "created_at": self.transcription["created_at"],
             "completed_at": self.transcription["completed_at"],

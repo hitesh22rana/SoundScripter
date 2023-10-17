@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import ENUM as EnumPG
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.utils.shared import Base, Language, Status, Type
+from app.utils.shared import Base, Language, Priority, Status, Type
 
 
 class FilesModel(Base):
@@ -54,8 +54,11 @@ class TranscriptionsModel(Base):
     language: Mapped[Language] = mapped_column(
         EnumPG(Language), default=Language.ENGLISH, nullable=False
     )
+    priority: Mapped[Priority] = mapped_column(
+        EnumPG(Priority), default=Priority.LOW, nullable=False
+    )
     status: Mapped[Status] = mapped_column(
-        EnumPG(Status), default=Status.QUEUE, nullable=False
+        EnumPG(Status), default=Status.QUEUE, index=True, nullable=False
     )
     created_at: Mapped[TIMESTAMP] = mapped_column(
         TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False

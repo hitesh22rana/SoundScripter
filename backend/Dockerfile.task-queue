@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir --upgrade -r /task-queue/requirements.txt
 COPY ./app /task-queue/app
 
 # Run the celery task queue
-CMD [ "celery", "-A", "app.background_tasks.transcription", "worker", "--loglevel=info", "-P", "gevent", "-E" ]
+CMD [ "celery", "-A", "app.background_tasks", "worker", "--loglevel=info", "-P", "gevent", "-E" ]
