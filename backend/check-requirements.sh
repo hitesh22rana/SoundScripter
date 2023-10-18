@@ -1,5 +1,14 @@
 # !/bin/bash
 
+# Checks if a minimum of 4 CPU threads are available
+min_cpu_threads=4
+available_cpu_threads=$(nproc)
+
+if [ "$available_cpu_threads" -lt "$min_cpu_threads" ]; then
+    echo "Error: Insufficient CPU threads. This application requires a minimum of $min_cpu_threads CPU threads, but your system has only $available_cpu_threads CPU threads."
+    exit 1
+fi
+
 # Checks if Docker is installed
 if ! command -v docker &> /dev/null; then
     echo "Error: Docker is not installed. Please install Docker and try again."
