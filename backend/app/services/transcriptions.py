@@ -256,8 +256,6 @@ class TranscriptionService:
                 ]
             )
 
-            print(high_priority_tasks_count, low_priority_tasks_count)
-
             if high_priority_tasks_count >= 2:
                 raise Exception(
                     {

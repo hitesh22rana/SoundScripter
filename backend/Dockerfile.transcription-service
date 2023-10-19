@@ -19,7 +19,6 @@ RUN bash ./models/download-ggml-model.sh small.en-q5_1
 # Build the main file
 RUN make main
 
-
 # Production image
 FROM debian:latest AS production
 
