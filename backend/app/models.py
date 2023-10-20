@@ -22,6 +22,7 @@ class FilesModel(Base):
         index=True,
         nullable=False,
     )
+    name: Mapped[str] = mapped_column(String, default=None, nullable=False)
     type: Mapped[Type] = mapped_column(EnumPG(Type), default=Type.AUDIO, nullable=False)
     path: Mapped[str] = mapped_column(String, default=None, nullable=False)
     status: Mapped[Status] = mapped_column(

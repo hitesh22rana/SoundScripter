@@ -163,7 +163,7 @@ class TranscriptionService:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: List service is not available"
 
-            if isinstance(e.args[0], dict):
+            if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
                 detail = e.args[0].get("detail")
 

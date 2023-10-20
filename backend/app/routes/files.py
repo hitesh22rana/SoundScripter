@@ -1,7 +1,7 @@
 # Purpose: Files router for handling files related operations.
 # Path: backend\app\routers\files.py
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 
 from app.services.files import FileService
@@ -28,9 +28,11 @@ async def list(
 
 @router.post("/upload", response_description="Upload file")
 async def upload(
-    session: Session = Depends(db_client.get_db_session), file: UploadFile = File(...)
+    session: Session = Depends(db_client.get_db_session),
+    file: UploadFile = File(...),
+    name: str = Form(...),
 ):
-    return await FileService(session=session).upload(file=file)
+    return await FileService(session=session).upload(name=name, file=file)
 
 
 @router.get("/download/{file_id}", response_description="Download file")

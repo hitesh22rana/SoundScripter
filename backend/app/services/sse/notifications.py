@@ -41,4 +41,8 @@ class NotificationsService:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Notification service is not available"
 
+            if e.args and isinstance(e.args[0], dict):
+                status_code = e.args[0].get("status_code")
+                detail = e.args[0].get("detail")
+
             raise HTTPException(status_code=status_code, detail=detail) from e

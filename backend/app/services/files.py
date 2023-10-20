@@ -71,16 +71,18 @@ class FileService(FileManager):
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: List service is not available"
 
-            if isinstance(e.args[0], dict):
+            if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
                 detail = e.args[0].get("detail")
 
             raise HTTPException(status_code=status_code, detail=detail) from e
 
-    async def upload(self, file: UploadFile = File(...)) -> None | HTTPException:
+    async def upload(
+        self, name: str, file: UploadFile = File(...)
+    ) -> None | HTTPException:
         """
         Upload file
-        :param -> file: UploadFile = File(...)
+        :param -> name: str, file: UploadFile = File(...)
         :return -> Accepted | HTTPException
         """
 
@@ -105,7 +107,7 @@ class FileService(FileManager):
                     await f.write(chunk)
 
             # Create a FilesModel instance to save the file details in the database
-            file_model: FilesModel = FilesModel(id=file_id, path=file_path)
+            file_model: FilesModel = FilesModel(id=file_id, name=name, path=file_path)
 
             data: dict = (
                 ConversionBackgroundJobPayloadSchema(
@@ -148,7 +150,7 @@ class FileService(FileManager):
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Upload service is not available"
 
-            if isinstance(e.args[0], dict):
+            if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
                 detail = e.args[0].get("detail")
 
@@ -202,7 +204,7 @@ class FileService(FileManager):
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Download service is not available"
 
-            if isinstance(e.args[0], dict):
+            if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
                 detail = e.args[0].get("detail")
 
@@ -246,7 +248,7 @@ class FileService(FileManager):
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Delete service is not available"
 
-            if isinstance(e.args[0], dict):
+            if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
                 detail = e.args[0].get("detail")
 

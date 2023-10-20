@@ -57,6 +57,7 @@ class TranscriptionBackgroundJobPayloadSchema(BaseModel):
 class FileResponse:
     def __init__(self, data: FilesModel) -> None:
         self.id: str = data.id
+        self.name: str = data.name
         self.type: Type = data.type
         self.status: Status = data.status
         self.created_at: str = data.created_at.isoformat()
@@ -67,6 +68,7 @@ class FileResponse:
     def response(self) -> dict:
         return {
             "id": self.id,
+            "name": self.name,
             "type": self.type,
             "status": self.status,
             "created_at": self.created_at,
@@ -108,6 +110,7 @@ class DataResponse:
     def response(self) -> dict:
         return {
             "id": self.file["id"],
+            "name": self.file["name"],
             "type": self.file["type"],
             "task_id": self.transcription["task_id"],
             "language": self.transcription["language"],
