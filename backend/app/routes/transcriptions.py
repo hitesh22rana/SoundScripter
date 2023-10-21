@@ -35,3 +35,8 @@ async def transcribe(
     return await TranscriptionService(session=session).transcribe(
         transcription_details=transcription_details
     )
+
+
+@router.get("/{file_id}/download", response_description="Download transcription")
+async def download(file_id: str, session: Session = Depends(db_client.get_db_session)):
+    return await TranscriptionService(session=session).download(file_id=file_id)

@@ -35,11 +35,6 @@ async def upload(
     return await FileService(session=session).upload(name=name, file=file)
 
 
-@router.get("/download/{file_id}", response_description="Download file")
-async def download(file_id: str, session: Session = Depends(db_client.get_db_session)):
-    return await FileService(session=session).download(file_id=file_id)
-
-
 @router.delete("/delete/{file_id}", response_description="Delete file")
 async def delete(file_id: str, session: Session = Depends(db_client.get_db_session)):
     return await FileService(session=session).delete(file_id=file_id)

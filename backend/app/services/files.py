@@ -1,13 +1,9 @@
 # Purpose: File Service for handling files related operations.
 # Path: backend\app\services\files.py
 
-import io
-from io import BytesIO
-from pathlib import Path
 
 import aiofiles
 from fastapi import File, HTTPException, UploadFile, status
-from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.background_tasks.conversion import (
@@ -18,12 +14,10 @@ from app.models import FilesModel, TranscriptionsModel
 from app.schemas import ConversionBackgroundJobPayloadSchema, FileResponse
 from app.utils.file_manager import FileManager
 from app.utils.responses import OK, Accepted
-from app.utils.shared import Sort, Status, Type
+from app.utils.shared import Sort, Type
 
 
 class FileService(FileManager):
-    arcname: str = "transcription"
-
     def __init__(self, session: Session) -> None:
         """
         File Service
@@ -149,60 +143,6 @@ class FileService(FileManager):
         except Exception as e:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Upload service is not available"
-
-            if e.args and isinstance(e.args[0], dict):
-                status_code = e.args[0].get("status_code")
-                detail = e.args[0].get("detail")
-
-            raise HTTPException(status_code=status_code, detail=detail) from e
-
-    async def download(self, file_id: str) -> StreamingResponse | HTTPException:
-        """
-        Download file
-        :param -> file_id: str
-        :return -> StreamingResponse | HTTPException
-        """
-
-        try:
-            transcription: TranscriptionsModel = (
-                self.session.query(TranscriptionsModel)
-                .filter_by(file_id=file_id)
-                .first()
-            )
-
-            if not transcription:
-                raise FileNotFoundError()
-
-            if transcription.status != Status.DONE:
-                raise Exception(
-                    {
-                        "status_code": status.HTTP_400_BAD_REQUEST,
-                        "detail": "Error: Transcription is not completed yet",
-                    }
-                )
-
-            files: list[Path] = self.get_transcription_files(file_id=file_id)
-            # Generate the ZIP archive asynchronously
-            zip_stream: BytesIO = await self.generate_zip(
-                arcname=FileService.arcname, files=files
-            )
-
-            # Serve the ZIP archive as a downloadable file
-            return StreamingResponse(
-                io.BytesIO(zip_stream.getvalue()),
-                media_type="application/zip",
-                headers={"Content-Disposition": f"attachment; filename={file_id}.zip"},
-            )
-
-        except FileNotFoundError as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error: File not found",
-            ) from e
-
-        except Exception as e:
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-            detail = "Error: Download service is not available"
 
             if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")

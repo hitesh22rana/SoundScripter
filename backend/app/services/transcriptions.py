@@ -1,8 +1,14 @@
 # Purpose: Transcription service for handling transcriptions related tasks.
 # Path: backend\app\services\transcriptions.py
 
+import io
+import zipfile
+from io import BytesIO
+from pathlib import Path
+
 import psutil
 from fastapi import HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.background_tasks.transcription import generate_transcriptions
@@ -24,6 +30,7 @@ class TranscriptionService:
     image: str = "transcription-service"
     container_base_path: str = "home/data"
     model: str = "ggml-small.en-q5_1.bin"
+    arcname: str = "transcription"
 
     def __init__(
         self,
@@ -122,6 +129,28 @@ class TranscriptionService:
         # TODO:- Add support for multiple models
 
         return f"whisper -t {cls._get_thread_count(priority=priority)} -l {cls._get_spoken_language(langauge=langauge)} -m {cls._get_model_path()} -f {cls._get_file_path()} -osrt -ovtt -of {cls._get_output_folder_path()}"
+
+    @classmethod
+    async def generate_zip(
+        self, arcname: str, files: list[Path]
+    ) -> BytesIO | Exception:
+        """
+        Generate zip file
+        :param -> files: list[Path]
+        :return -> BytesIO | Exception
+        """
+
+        try:
+            zip_stream = io.BytesIO()
+
+            with zipfile.ZipFile(zip_stream, "w", zipfile.ZIP_DEFLATED) as zipf:
+                for file in files:
+                    zipf.write(file, arcname=arcname + file.suffix)
+
+            return zip_stream
+
+        except Exception as e:
+            raise e
 
     async def list(
         self, limit: int, offset: int, sort: Sort
@@ -314,6 +343,62 @@ class TranscriptionService:
         except Exception as e:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Transcription service is not available"
+
+            if e.args and isinstance(e.args[0], dict):
+                status_code = e.args[0].get("status_code")
+                detail = e.args[0].get("detail")
+
+            raise HTTPException(status_code=status_code, detail=detail) from e
+
+    async def download(self, file_id: str) -> StreamingResponse | HTTPException:
+        """
+        Download file
+        :param -> file_id: str
+        :return -> StreamingResponse | HTTPException
+        """
+
+        try:
+            transcription: TranscriptionsModel = (
+                self.session.query(TranscriptionsModel)
+                .filter_by(file_id=file_id)
+                .first()
+            )
+
+            if not transcription:
+                raise FileNotFoundError()
+
+            if transcription.status != Status.DONE:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: Transcription is not completed yet",
+                    }
+                )
+
+            files: list[Path] = FileManager().get_transcription_files(file_id=file_id)
+            # Generate the ZIP archive asynchronously
+            zip_stream: BytesIO = await self.generate_zip(
+                arcname=self.arcname, files=files
+            )
+
+            # Serve the ZIP archive as a downloadable file
+            return StreamingResponse(
+                io.BytesIO(zip_stream.getvalue()),
+                media_type="application/zip",
+                headers={
+                    "Content-Disposition": f"attachment; filename={transcription.file.name}.zip"
+                },
+            )
+
+        except FileNotFoundError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Error: File not found",
+            ) from e
+
+        except Exception as e:
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            detail = "Error: Download service is not available"
 
             if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
