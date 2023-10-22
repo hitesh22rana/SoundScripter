@@ -131,7 +131,7 @@ class TranscriptionService:
         return f"whisper -t {cls._get_thread_count(priority=priority)} -l {cls._get_spoken_language(langauge=langauge)} -m {cls._get_model_path()} -f {cls._get_file_path()} -osrt -ovtt -of {cls._get_output_folder_path()}"
 
     @classmethod
-    async def generate_zip(
+    async def _generate_zip(
         self, arcname: str, files: list[Path]
     ) -> BytesIO | Exception:
         """
@@ -377,7 +377,7 @@ class TranscriptionService:
 
             files: list[Path] = FileManager().get_transcription_files(file_id=file_id)
             # Generate the ZIP archive asynchronously
-            zip_stream: BytesIO = await self.generate_zip(
+            zip_stream: BytesIO = await self._generate_zip(
                 arcname=self.arcname, files=files
             )
 
