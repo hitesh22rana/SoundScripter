@@ -2,8 +2,8 @@
 FROM python:3.11-slim-buster
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory to /api

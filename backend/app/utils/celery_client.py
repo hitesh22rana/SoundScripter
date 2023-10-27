@@ -48,6 +48,9 @@ class CeleryClient:
                 # Worker Concurrency
                 cls.client.conf.worker_concurrency = cls.worker_concurrency
 
+                # Tasks tracking
+                cls.client.conf.task_track_started = True
+
                 # Queues and Exchanges
                 cls.client.conf.task_queues = [
                     Queue(

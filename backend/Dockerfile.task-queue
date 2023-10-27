@@ -2,8 +2,8 @@
 FROM python:3.11-slim-buster
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory to /task-queue
@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir --upgrade -r /task-queue/requirements.txt
 COPY ./app /task-queue/app
 
 # Run the celery task queue
-CMD [ "celery", "-A", "app.background_tasks", "worker", "--loglevel=info", "-P", "gevent", "-E" ]
+CMD [ "celery", "-A", "app.background_tasks", "worker", "--loglevel=info", "-P", "threads", "-E" ]
