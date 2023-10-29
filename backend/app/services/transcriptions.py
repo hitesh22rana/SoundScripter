@@ -7,6 +7,7 @@ from io import BytesIO
 from pathlib import Path
 
 import psutil
+from celery.result import AsyncResult
 from fastapi import HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -399,6 +400,40 @@ class TranscriptionService:
         except Exception as e:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Download service is not available"
+
+            if e.args and isinstance(e.args[0], dict):
+                status_code = e.args[0].get("status_code")
+                detail = e.args[0].get("detail")
+
+            raise HTTPException(status_code=status_code, detail=detail) from e
+
+    async def terminate(self, task_id: str) -> OK | HTTPException:
+        """
+        Cancel transcription
+        :param -> task_id: str
+        :return -> OK | HTTPException
+        """
+
+        try:
+            task: AsyncResult = AsyncResult(task_id)
+
+            if task is None:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: Task is not in progress",
+                    }
+                )
+
+            return OK(
+                {
+                    "detail": "Success: Transcription task is cancelled",
+                }
+            )
+
+        except Exception as e:
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+            detail = "Error: Cancel service is not available"
 
             if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")
