@@ -14,8 +14,8 @@ from app.utils.docker_client import docker_client
 from app.utils.redis_client import redis_client
 
 app = FastAPI(
-    title="Transcription service",
-    description="Transcription service backend",
+    title="SoundScripter",
+    description="Simplify and Automate your transcription workflow with SoundScripter",
     version="1.0.0",
 )
 
