@@ -7,12 +7,14 @@ from io import BytesIO
 from pathlib import Path
 
 import psutil
-from celery.result import AsyncResult
 from fastapi import HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
-from app.background_tasks.transcription import generate_transcriptions
+from app.background_tasks.transcription import (
+    generate_transcription,
+    stop_transcription,
+)
 from app.config import settings
 from app.models import FilesModel, TranscriptionsModel
 from app.schemas import (
@@ -278,6 +280,7 @@ class TranscriptionService:
                     if task.priority == Priority.HIGH
                 ]
             )
+
             low_priority_tasks_count: int = len(
                 [
                     task
@@ -327,7 +330,7 @@ class TranscriptionService:
             self.session.refresh(transcription_model)
             self.session.close()
 
-            task = generate_transcriptions.delay(data=data)
+            task = generate_transcription.delay(data=data)
 
             return OK(
                 {
@@ -407,33 +410,40 @@ class TranscriptionService:
 
             raise HTTPException(status_code=status_code, detail=detail) from e
 
-    async def terminate(self, task_id: str) -> OK | HTTPException:
+    async def terminate(self, file_id: str) -> OK | HTTPException:
         """
-        Cancel transcription
-        :param -> task_id: str
+        Terminate running transcription
+        :param -> file_id: str
         :return -> OK | HTTPException
         """
 
         try:
-            task: AsyncResult = AsyncResult(task_id)
+            transcription: TranscriptionsModel = (
+                self.session.query(TranscriptionsModel)
+                .filter_by(file_id=file_id)
+                .first()
+            )
 
-            if task is None:
+            if not transcription or transcription.status != Status.PROCESSING:
                 raise Exception(
                     {
                         "status_code": status.HTTP_400_BAD_REQUEST,
-                        "detail": "Error: Task is not in progress",
+                        "detail": "Error: Transcription is not in process",
                     }
                 )
 
+            task = stop_transcription.delay(container_id=transcription.task_id)
+
             return OK(
                 {
+                    "task_id": task.id,
                     "detail": "Success: Transcription task is cancelled",
                 }
             )
 
         except Exception as e:
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-            detail = "Error: Cancel service is not available"
+            detail = "Error: Termination service is not available"
 
             if e.args and isinstance(e.args[0], dict):
                 status_code = e.args[0].get("status_code")

@@ -4,7 +4,7 @@
 from fastapi import APIRouter
 from sse_starlette.sse import EventSourceResponse
 
-from app.services.sse import NotificationsService
+from app.services.sse.notifications import NotificationsService
 
 router = APIRouter(
     tags=["ServerSideEvents"],

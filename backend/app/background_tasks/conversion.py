@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from app.background_tasks import background_tasks
 from app.models import FilesModel
-from app.services.sse import Channels, NotificationsService
+from app.services.sse.notifications import NotificationsService
 from app.utils.audio_manager import AudioManager
 from app.utils.db_client import db_client
 from app.utils.shared import Channels, Status
@@ -103,11 +103,6 @@ def change_audio_sample_rate(data: dict) -> None:
 
         print(f"Success: {data['id']} audio sample rate optimised")
 
-        NotificationsService().publish(
-            channel=Channels.STATUS,
-            message=f"Success: {data['id']} audio sample rate optimised",
-        )
-
         file: FilesModel = session.query(FilesModel).filter_by(id=data["id"]).first()
         file.path = data["output_path"]
         file.status = Status.DONE
@@ -116,6 +111,11 @@ def change_audio_sample_rate(data: dict) -> None:
         session.commit()
         session.refresh(file)
         session.close()
+
+        NotificationsService().publish(
+            channel=Channels.STATUS,
+            message=f"Success: {data['id']} audio sample rate optimised",
+        )
 
     except Exception as e:
         print(f"Error: {e}")

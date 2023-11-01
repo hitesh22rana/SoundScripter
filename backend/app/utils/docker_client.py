@@ -52,15 +52,17 @@ class DockerClient:
     def run_container(
         cls,
         container_config: dict,
+        command: str,
         detach: bool,
         remove: bool,
-        command: str,
+        name: str,
     ) -> None | Exception:
         try:
             return cls.client.containers.run(
                 **container_config,
                 detach=detach,
                 remove=remove,
+                name=name,
                 command=command,
             )
 
@@ -70,6 +72,29 @@ class DockerClient:
                 {
                     "status_code": status.HTTP_503_SERVICE_UNAVAILABLE,
                     "detail": "Error: Docker container could not be started",
+                }
+            ) from e
+
+    @classmethod
+    def stop_container(cls, container_id: str) -> None | Exception:
+        try:
+            cls.client.containers.get(container_id=container_id).stop()
+
+        except docker.errors.NotFound:
+            logger.critical("Error: Docker container could not be found")
+            raise Exception(
+                {
+                    "status_code": status.HTTP_404_NOT_FOUND,
+                    "detail": "Error: Docker container could not be found",
+                }
+            )
+
+        except Exception as e:
+            logger.critical("Error: Docker container could not be stopped")
+            raise Exception(
+                {
+                    "status_code": status.HTTP_503_SERVICE_UNAVAILABLE,
+                    "detail": "Error: Docker container could not be stopped",
                 }
             ) from e
 

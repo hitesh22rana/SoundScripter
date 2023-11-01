@@ -8,7 +8,7 @@ from celery import current_task
 
 from app.background_tasks import background_tasks
 from app.models import TranscriptionsModel
-from app.services.sse import Channels, NotificationsService
+from app.services.sse.notifications import NotificationsService
 from app.utils.db_client import db_client
 from app.utils.docker_client import docker_client
 from app.utils.shared import Channels, Status
@@ -20,7 +20,7 @@ from app.utils.shared import Channels, Status
     default_retry_delay=60,
     queue="transcription_task_queue",
 )
-def generate_transcriptions(data: dict) -> None:
+def generate_transcription(data: dict) -> None:
     try:
         session = next(db_client.get_db_session())
 
@@ -43,17 +43,13 @@ def generate_transcriptions(data: dict) -> None:
 
         docker_client.run_container(
             container_config=data["container_config"],
+            name=current_task.request.id,
             detach=data["detach"],
             remove=data["remove"],
             command=data["command"],
         )
 
         print(f"Success: Transcription generated for {data['id']}")
-
-        NotificationsService().publish(
-            channel=Channels.STATUS,
-            message=f"Success: Transcription generated for {data['id']}",
-        )
 
         session = next(db_client.get_db_session())
         transcription: TranscriptionsModel = (
@@ -65,6 +61,11 @@ def generate_transcriptions(data: dict) -> None:
         session.commit()
         session.refresh(transcription)
         session.close()
+
+        NotificationsService().publish(
+            channel=Channels.STATUS,
+            message=f"Success: Transcription generated for {data['id']}",
+        )
 
     except Exception as e:
         print(f"Error: {e}")
@@ -80,3 +81,28 @@ def generate_transcriptions(data: dict) -> None:
         session.commit()
         session.refresh(transcription)
         session.close()
+
+
+@background_tasks.task(
+    acks_late=True,
+    max_retries=1,
+    default_retry_delay=60,
+    queue="transcription_task_queue",
+)
+def stop_transcription(container_id: str):
+    try:
+        session = next(db_client.get_db_session())
+
+        docker_client.stop_container(container_id=container_id)
+
+        session.query(TranscriptionsModel).filter_by(task_id=container_id).delete()
+        session.commit()
+        session.close()
+
+        NotificationsService().publish(
+            channel=Channels.STATUS,
+            message=f"Success: Transcriptions generation terminated for {container_id}",
+        )
+
+    except Exception as e:
+        print(f"Error: {e}")
