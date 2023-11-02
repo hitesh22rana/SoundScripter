@@ -1,13 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 import Dropzone, { Accept } from "react-dropzone";
 
 import { Button } from "@/src/components/ui/button";
 
 export default function FileUpload({ fileTypes }: { fileTypes: Accept }) {
+    const [files, setFiles] = useState<Array<File>>([]);
+
+    console.log(files);
+
     return (
         <Fragment>
             <div className="flex flex-col items-center bg-white w-full h-full py-10 rounded gap-10 shadow px-5">
@@ -21,7 +25,9 @@ export default function FileUpload({ fileTypes }: { fileTypes: Accept }) {
                     </h4>
                 </div>
                 <Dropzone
-                    onDrop={(acceptedFiles) => console.log(acceptedFiles)}
+                    onDrop={(acceptedFiles) =>
+                        setFiles((prev) => [...prev, ...acceptedFiles])
+                    }
                     accept={fileTypes}
                 >
                     {({ getRootProps, getInputProps }) => (
