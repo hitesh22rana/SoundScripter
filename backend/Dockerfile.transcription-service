@@ -1,5 +1,5 @@
 # Base image
-FROM debian:latest AS build
+FROM ubuntu:latest AS build
 
 # Upadte and install g++, make and wget
 RUN apt-get update \
