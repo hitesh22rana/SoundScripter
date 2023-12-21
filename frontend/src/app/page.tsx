@@ -1,7 +1,9 @@
-export default function Home() {
+import FileUploadModal from "@/src/components/dashboard/FileUploadModal";
+
+export default function Page() {
     return (
-        <main>
-            <h1>Home Page</h1>
-        </main>
+        <section className="flex flex-col justify-between p-3">
+            <FileUploadModal />
+        </section>
     );
 }
