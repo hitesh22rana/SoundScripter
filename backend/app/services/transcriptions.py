@@ -185,7 +185,7 @@ class TranscriptionService:
             ]
 
             return OK(
-                {
+                content={
                     "detail": "Success: Transcriptions list fetched successfully",
                     "data": data,
                 }
@@ -333,7 +333,7 @@ class TranscriptionService:
             task = generate_transcription.delay(data=data)
 
             return OK(
-                {
+                content={
                     "task_id": task.id,
                     "detail": "Success: File is added to transcription queue",
                 }
@@ -390,7 +390,7 @@ class TranscriptionService:
                 io.BytesIO(zip_stream.getvalue()),
                 media_type="application/zip",
                 headers={
-                    "Content-Disposition": f"attachment; filename={transcription.file.name}.zip"
+                    "Content-Disposition": f"attachment; filename={transcription.file.name}.zip",
                 },
             )
 
@@ -435,7 +435,7 @@ class TranscriptionService:
             task = stop_transcription.delay(container_id=transcription.task_id)
 
             return OK(
-                {
+                content={
                     "task_id": task.id,
                     "detail": "Success: Transcription task is cancelled",
                 }

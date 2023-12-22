@@ -58,7 +58,10 @@ class FileService(FileManager):
             ]
 
             return OK(
-                {"detail": "Success: Files list fetched successfully", "data": data}
+                content={
+                    "detail": "Success: Files list fetched successfully",
+                    "data": data,
+                }
             )
 
         except Exception as e:
@@ -134,7 +137,7 @@ class FileService(FileManager):
                 convert_video_to_audio.delay(data=data)
 
             return Accepted(
-                {
+                content={
                     "file_id": file_id,
                     "detail": "Success: File uploaded successfully",
                 }
@@ -172,7 +175,7 @@ class FileService(FileManager):
             self.delete_folder(folder_path=folder_path)
 
             return Accepted(
-                {
+                content={
                     "file_id": file_id,
                     "detail": "Success: File deleted successfully",
                 }

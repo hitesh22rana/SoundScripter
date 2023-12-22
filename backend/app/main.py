@@ -3,21 +3,15 @@
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.middleware import Middleware
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
 
 from app.routes import files, sse, transcriptions
 from app.utils.celery_client import celery_client
 from app.utils.db_client import db_client
 from app.utils.docker_client import docker_client
 from app.utils.redis_client import redis_client
-
-app = FastAPI(
-    title="SoundScripter",
-    description="Simplify and Automate your transcription workflow with SoundScripter",
-    version="1.0.0",
-)
 
 """Middleware"""
 middleware = [
@@ -29,6 +23,13 @@ middleware = [
         allow_headers=["*"],
     ),
 ]
+
+app = FastAPI(
+    title="SoundScripter",
+    description="Simplify and Automate your transcription workflow with SoundScripter",
+    version="1.0.0",
+    middleware=middleware,
+)
 
 """Routers"""
 app.include_router(files.router, prefix="/api/v1")

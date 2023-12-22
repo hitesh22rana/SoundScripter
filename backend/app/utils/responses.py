@@ -10,8 +10,12 @@ from fastapi import Response
 class OK(Response):
     media_type = "application/json"
 
-    def __init__(self, content: typing.Any = None) -> None:
-        super().__init__(content, 200)
+    def __init__(
+        self,
+        content: typing.Any = None,
+        headers: typing.Optional[typing.Mapping[str, str]] = None,
+    ) -> None:
+        super().__init__(content=content, status_code=200, headers=headers)
 
     def render(self, content) -> bytes:
         assert orjson is not None, "orjson must be installed"
@@ -21,8 +25,12 @@ class OK(Response):
 class Created(Response):
     media_type = "application/json"
 
-    def __init__(self, content: typing.Any = None) -> None:
-        super().__init__(content, 201)
+    def __init__(
+        self,
+        content: typing.Any = None,
+        headers: typing.Optional[typing.Mapping[str, str]] = None,
+    ) -> None:
+        super().__init__(content=content, status_code=201, headers=headers)
 
     def render(self, content) -> bytes:
         assert orjson is not None, "orjson must be installed"
@@ -32,8 +40,12 @@ class Created(Response):
 class Accepted(Response):
     media_type = "application/json"
 
-    def __init__(self, content: typing.Any = None) -> None:
-        super().__init__(content, 202)
+    def __init__(
+        self,
+        content: typing.Any = None,
+        headers: typing.Optional[typing.Mapping[str, str]] = None,
+    ) -> None:
+        super().__init__(content=content, status_code=202, headers=headers)
 
     def render(self, content) -> bytes:
         assert orjson is not None, "orjson must be installed"

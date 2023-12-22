@@ -71,6 +71,7 @@ class FileManager:
         "video/x-ms-wmv",
         "video/mpeg",
         "video/x-flv",
+        "application/octet-stream",
     ]
     transcription_file_types: list[str] = [
         "text/plain",
