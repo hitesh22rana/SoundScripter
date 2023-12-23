@@ -3,11 +3,15 @@
 import { useState } from "react";
 import Image from "next/image";
 import Dropzone, { Accept } from "react-dropzone";
+import { toast } from "react-toastify";
 
 import Modal from "@/src/components/ui/modal";
 import { Button } from "@/src/components/ui/button";
+import Input from "@/src/components/ui/input";
 
 import useModalStore from "@/src/store/modal";
+import { FileData } from "@/src/types/api";
+import { fileUpload } from "@/src/lib/api";
 
 const fileTypes: Accept = {
     "audio/wav": [],
@@ -18,19 +22,38 @@ const fileTypes: Accept = {
 
 const FileUploadModal = () => {
     const { isOpen, toggleModal } = useModalStore();
-    const [file, setFile] = useState<File>();
+    const [fileData, setFileData] = useState<FileData>({} as FileData);
+
+    function handleFileNameChange(name: string) {
+        setFileData({ ...fileData, name: name });
+    }
+
+    async function handleFileUpload() {
+        if (!fileData?.file || !fileData.name) return;
+
+        try {
+            toast.info("Uploading file...");
+            await fileUpload(fileData);
+            toast.success("File uploaded successfully");
+        } catch (error) {
+            toast.error("Error uploading file");
+        }
+    }
 
     if (!isOpen) return null;
 
-    const handleClose = () => {
-        toggleModal();
-    };
-
     return (
         <Modal isOpen={isOpen}>
-            <div className="relative flex flex-col items-center bg-white max-w-lg rounded gap-10 shadow p-8">
-                <div className="top-4 right-4 absolute">X</div>
-                <div className="flex flex-col items-center justify-center gap-4">
+            <div className="relative flex flex-col items-center bg-white max-w-lg rounded gap-5 shadow px-8 py-5">
+                <Image
+                    src="/icons/close.png"
+                    alt="close"
+                    width={30}
+                    height={30}
+                    onClick={toggleModal}
+                    className="absolute top-4 right-4 cursor-pointer"
+                />
+                <div className="flex flex-col items-center justify-center gap-2">
                     <h3 className="text-3xl font-bold text-gray-950">
                         Upload File
                     </h3>
@@ -41,14 +64,19 @@ const FileUploadModal = () => {
                 </div>
                 <Dropzone
                     onDrop={(acceptedFiles) => {
-                        setFile(acceptedFiles[acceptedFiles.length - 1]);
+                        const selectedFile =
+                            acceptedFiles[acceptedFiles.length - 1];
+                        setFileData({
+                            file: selectedFile,
+                            name: selectedFile?.name,
+                        });
                     }}
                     accept={fileTypes}
                     maxFiles={1}
                 >
                     {({ getRootProps, getInputProps }) => (
                         <div
-                            className="flex flex-col items-center justify-center w-full h-full outline-dashed outline-2 outline-gray-400 rounded p-5 bg-gray-50 gap-5 mb-2 cursor-pointer"
+                            className="flex flex-col items-center justify-center w-full h-full outline-dashed outline-2 outline-gray-400 rounded p-5 bg-gray-50 gap-4 cursor-pointer"
                             {...getRootProps()}
                         >
                             <input {...getInputProps()} />
@@ -64,7 +92,7 @@ const FileUploadModal = () => {
 
                             <Button
                                 variant="outline"
-                                className="px-8 py-5 border-2 font-medium"
+                                className="px-8 py-4 border-2 font-medium"
                             >
                                 Browse
                             </Button>
@@ -75,6 +103,20 @@ const FileUploadModal = () => {
                         </div>
                     )}
                 </Dropzone>
+                <Input
+                    name="name"
+                    type="text"
+                    value={fileData.name}
+                    placeholder="Name"
+                    onChange={(e) => handleFileNameChange(e.target.value)}
+                />
+                <Button
+                    variant="default"
+                    className="py-6 w-full text-lg font-medium"
+                    onClick={handleFileUpload}
+                >
+                    Upload
+                </Button>
             </div>
         </Modal>
     );

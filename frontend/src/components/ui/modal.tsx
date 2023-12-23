@@ -22,7 +22,7 @@ const Modal = ({ isOpen, children }: Props) => {
 
     return (
         <div
-            className={`fixed inset-0 z-[9999] flex h-full min-h-screen w-screen items-center justify-center overflow-auto bg-[url('/images/noise.png')] backdrop-blur ${
+            className={`fixed inset-0 z-[9999] flex h-full min-h-screen w-screen items-center justify-center overflow-auto border-2 bg-[url('/images/noise.png')] backdrop-blur ${
                 isOpen ? "block" : "hidden"
             }`}
         >
