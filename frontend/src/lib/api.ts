@@ -16,3 +16,13 @@ export async function fileUpload({ file, name }: FileData) {
 
     return res;
 }
+
+export async function fetchFileList() {
+    const res = await (
+        await fetch(API_URL + "/files", {
+            method: "GET",
+        })
+    ).json();
+
+    return res.data;
+}
