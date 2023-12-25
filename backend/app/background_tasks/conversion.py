@@ -1,6 +1,7 @@
 # Purpose: Background task for converting video to audio.
 # Path: backend\app\background_tasks\conversion.py
 
+import json
 from datetime import datetime, timezone
 
 from app.background_tasks import background_tasks
@@ -29,11 +30,15 @@ def convert_video_to_audio(data: dict) -> None:
         session.refresh(file)
         session.close()
 
-        print(f"Converting video {data['id']} to audio")
-
         NotificationsService().publish(
             channel=Channels.STATUS,
-            message=f"Converting video {data['id']} to audio",
+            message=json.dumps(
+                {
+                    "id": data["id"],
+                    "status": Status.PROCESSING,
+                    "process": "conversion",
+                }
+            ),
         )
 
         VideoManager(
@@ -44,20 +49,22 @@ def convert_video_to_audio(data: dict) -> None:
             delete_original_file=data["delete_original_file"],
         )
 
-        print(f"Success: Video {data['id']} converted to audio")
-
         NotificationsService().publish(
             channel=Channels.STATUS,
-            message=f"Success: Video {data['id']} converted to audio",
+            message=json.dumps(
+                {
+                    "id": data["id"],
+                    "status": Status.PROCESSING,
+                    "process": "conversion",
+                }
+            ),
         )
 
         data["current_path"] = data["output_path"]
         data["current_format"] = data["output_format"]
         change_audio_sample_rate.delay(data=data)
 
-    except Exception as e:
-        print(f"Error: {e}")
-
+    except Exception as _:
         session = next(db_client.get_db_session())
 
         file: FilesModel = session.query(FilesModel).filter_by(id=data["id"]).first()
@@ -85,11 +92,15 @@ def change_audio_sample_rate(data: dict) -> None:
         session.commit()
         session.refresh(file)
 
-        print(f"Optimising audio smaple rate for {data['id']} audio")
-
         NotificationsService().publish(
             channel=Channels.STATUS,
-            message=f"Optimising audio smaple rate for {data['id']} audio",
+            message=json.dumps(
+                {
+                    "id": data["id"],
+                    "status": Status.PROCESSING,
+                    "process": "optimization",
+                }
+            ),
         )
 
         AudioManager(
@@ -100,8 +111,6 @@ def change_audio_sample_rate(data: dict) -> None:
             output_format=data["output_format"],
             delete_original_file=data["delete_original_file"],
         )
-
-        print(f"Success: {data['id']} audio sample rate optimised")
 
         file: FilesModel = session.query(FilesModel).filter_by(id=data["id"]).first()
         file.path = data["output_path"]
@@ -114,12 +123,16 @@ def change_audio_sample_rate(data: dict) -> None:
 
         NotificationsService().publish(
             channel=Channels.STATUS,
-            message=f"Success: {data['id']} audio sample rate optimised",
+            message=json.dumps(
+                {
+                    "id": data["id"],
+                    "status": Status.DONE,
+                    "process": "optimization",
+                }
+            ),
         )
 
-    except Exception as e:
-        print(f"Error: {e}")
-
+    except Exception as _:
         session = next(db_client.get_db_session())
 
         file: FilesModel = session.query(FilesModel).filter_by(id=data["id"]).first()

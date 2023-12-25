@@ -1,7 +1,7 @@
 # Purpose: Background task for generating transcriptions.
 # Path: backend\app\background_tasks\transcription.py
 
-
+import json
 from datetime import datetime, timezone
 
 from celery import current_task
@@ -34,11 +34,15 @@ def generate_transcription(data: dict) -> None:
         session.refresh(transcription)
         session.close()
 
-        print(f"Generating transcriptions for {data['id']}")
-
         NotificationsService().publish(
             channel=Channels.STATUS,
-            message=f"Generating transcriptions for {data['id']}",
+            message=json.dumps(
+                {
+                    "id": data["id"],
+                    "status": Status.PROCESSING,
+                    "process": "transcription",
+                }
+            ),
         )
 
         docker_client.run_container(
@@ -48,8 +52,6 @@ def generate_transcription(data: dict) -> None:
             remove=data["remove"],
             command=data["command"],
         )
-
-        print(f"Success: Transcription generated for {data['id']}")
 
         session = next(db_client.get_db_session())
         transcription: TranscriptionsModel = (
@@ -64,12 +66,16 @@ def generate_transcription(data: dict) -> None:
 
         NotificationsService().publish(
             channel=Channels.STATUS,
-            message=f"Success: Transcription generated for {data['id']}",
+            message=json.dumps(
+                {
+                    "id": data["id"],
+                    "status": Status.DONE,
+                    "process": "transcription",
+                }
+            ),
         )
 
-    except Exception as e:
-        print(f"Error: {e}")
-
+    except Exception as _:
         session = next(db_client.get_db_session())
 
         transcription: TranscriptionsModel = (
@@ -99,10 +105,13 @@ def stop_transcription(container_id: str):
         session.commit()
         session.close()
 
-        NotificationsService().publish(
-            channel=Channels.STATUS,
-            message=f"Success: Transcriptions generation terminated for {container_id}",
+    except Exception as _:
+        transcription: TranscriptionsModel = (
+            session.query(TranscriptionsModel).filter_by(task_id=container_id).first()
         )
+        transcription.status = Status.ERROR
+        transcription.completed_at = datetime.now(timezone.utc)
 
-    except Exception as e:
-        print(f"Error: {e}")
+        session.commit()
+        session.refresh(transcription)
+        session.close()
