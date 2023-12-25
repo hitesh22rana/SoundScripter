@@ -5,7 +5,7 @@ Simplify and Automate your transcription workflow with SoundScripter
 ## Features
 
 -   **Media Transcription:** Convert media files (audio/video) to text with high accuracy.
--   **Scalable:** Utilizes a distributed architecture to handle multiple transcription requests in parallel.
+-   **Scalable:** Utilizes a distributed architecture to handle multiple requests in parallel.
 -   **Real-time Notifications:** Uses Redis Pub-Sub for real-time notifications.
 
 ## Architecture
@@ -22,7 +22,7 @@ SoundScripter's architecture is designed to handle transcription requests effici
 
 5. **Task Execution:** Each task runs in its own container, allowing for parallel processing of multiple tasks based on the system configuration.
 
-6. **Realtime Notifications:** SoundScripter leverages Redis Pub-Sub and Server-Side Events (SSE) for real-time notifications.
+6. **Realtime Notifications:** SoundScripter leverages Redis Pub-Sub and Server-Sent Events (SSE) for real-time notifications.
 
 ## Getting Started
 
