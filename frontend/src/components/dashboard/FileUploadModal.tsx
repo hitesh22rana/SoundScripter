@@ -10,6 +10,7 @@ import { Button } from "@/src/components/ui/button";
 import Input from "@/src/components/ui/input";
 
 import useModalStore from "@/src/store/modal";
+import useFileStore from "@/src/store/file";
 import { FileData } from "@/src/types/api";
 import { fileUpload } from "@/src/lib/api";
 
@@ -22,6 +23,7 @@ const fileTypes: Accept = {
 
 const FileUploadModal = () => {
     const { isOpen, toggleModal } = useModalStore();
+    const { fetchFiles } = useFileStore();
     const [fileData, setFileData] = useState<FileData>({} as FileData);
 
     function handleFileNameChange(name: string) {
@@ -34,6 +36,7 @@ const FileUploadModal = () => {
         try {
             toast.info("Uploading file...");
             await fileUpload(fileData);
+            fetchFiles();
             toast.success("File uploaded successfully");
         } catch (error) {
             toast.error("Error uploading file");
