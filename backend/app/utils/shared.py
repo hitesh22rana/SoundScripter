@@ -8,7 +8,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 @unique
 class Channels(str, Enum):
-    STATUS = "STATUS"
+    NOTIFICATIONS = "NOTIFICATIONS"
 
 
 @unique
@@ -17,6 +17,20 @@ class Status(str, Enum):
     PROCESSING = "PROCESSING"
     DONE = "DONE"
     ERROR = "ERROR"
+
+
+@unique
+class NotificationType(str, Enum):
+    INFO = "INFO"
+    SUCCESS = "SUCCESS"
+    ERROR = "ERROR"
+
+
+@unique
+class Task(str, Enum):
+    CONVERSION = "CONVERSION"
+    OPTIMIZATION = "OPTIMIZATION"
+    TRANSCRIPTION = "TRANSCRIPTION"
 
 
 @unique

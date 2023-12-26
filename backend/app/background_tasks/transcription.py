@@ -11,7 +11,7 @@ from app.models import TranscriptionsModel
 from app.services.sse.notifications import NotificationsService
 from app.utils.db_client import db_client
 from app.utils.docker_client import docker_client
-from app.utils.shared import Channels, Status
+from app.utils.shared import Channels, NotificationType, Status, Task
 
 
 @background_tasks.task(
@@ -35,12 +35,14 @@ def generate_transcription(data: dict) -> None:
         session.close()
 
         NotificationsService().publish(
-            channel=Channels.STATUS,
+            channel=Channels.NOTIFICATIONS,
             message=json.dumps(
                 {
                     "id": data["id"],
                     "status": Status.PROCESSING,
-                    "process": "transcription",
+                    "type": NotificationType.INFO,
+                    "task": Task.TRANSCRIPTION,
+                    "message": "transcription in process",
                 }
             ),
         )
@@ -65,12 +67,14 @@ def generate_transcription(data: dict) -> None:
         session.close()
 
         NotificationsService().publish(
-            channel=Channels.STATUS,
+            channel=Channels.NOTIFICATIONS,
             message=json.dumps(
                 {
                     "id": data["id"],
                     "status": Status.DONE,
-                    "process": "transcription",
+                    "type": NotificationType.SUCCESS,
+                    "task": Task.TRANSCRIPTION,
+                    "message": "successfully generated transcription",
                 }
             ),
         )
@@ -87,6 +91,19 @@ def generate_transcription(data: dict) -> None:
         session.commit()
         session.refresh(transcription)
         session.close()
+
+        NotificationsService().publish(
+            channel=Channels.NOTIFICATIONS,
+            message=json.dumps(
+                {
+                    "id": data["id"],
+                    "status": Status.ERROR,
+                    "type": NotificationType.ERROR,
+                    "task": Task.TRANSCRIPTION,
+                    "message": "transcription generation failed",
+                }
+            ),
+        )
 
 
 @background_tasks.task(
@@ -105,6 +122,19 @@ def stop_transcription(container_id: str):
         session.commit()
         session.close()
 
+        NotificationsService().publish(
+            channel=Channels.NOTIFICATIONS,
+            message=json.dumps(
+                {
+                    "id": container_id,
+                    "status": Status.DONE,
+                    "type": NotificationType.SUCCESS,
+                    "task": Task.TRANSCRIPTION,
+                    "message": "successfully stopped running transcription job",
+                }
+            ),
+        )
+
     except Exception as _:
         transcription: TranscriptionsModel = (
             session.query(TranscriptionsModel).filter_by(task_id=container_id).first()
@@ -115,3 +145,16 @@ def stop_transcription(container_id: str):
         session.commit()
         session.refresh(transcription)
         session.close()
+
+        NotificationsService().publish(
+            channel=Channels.NOTIFICATIONS,
+            message=json.dumps(
+                {
+                    "id": container_id,
+                    "status": Status.ERROR,
+                    "type": NotificationType.ERROR,
+                    "task": Task.TRANSCRIPTION,
+                    "message": "failed to stop running transcription job",
+                }
+            ),
+        )

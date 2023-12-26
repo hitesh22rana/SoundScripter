@@ -32,11 +32,13 @@ class NotificationsService:
         :return -> EventSourceResponse
         """
 
-        status_channel = await redis_client.subscribe_async(Channels.STATUS)
+        notifications_channel = await redis_client.subscribe_async(
+            Channels.NOTIFICATIONS
+        )
 
         try:
             while True:
-                message: dict | None = await status_channel.get_message()
+                message: dict | None = await notifications_channel.get_message()
                 if message and isinstance(message["data"], bytes):
                     yield (message["data"]).decode("utf-8")
 
