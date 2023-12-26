@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
 import {
@@ -33,11 +33,30 @@ const TranscriptionsList = () => {
     const columns: ColumnDef<ListTranscription>[] = [
         {
             accessorKey: "name",
-            header: "Name",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === "asc")
+                        }
+                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                    >
+                        File name
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
         },
         {
             accessorKey: "type",
-            header: "Type",
+            header: () => {
+                return (
+                    <span className="font-medium md:text-base text-sm text-black">
+                        Type
+                    </span>
+                );
+            },
             cell: ({ row }) => {
                 const value: Media = row.getValue("type") as Media;
                 let icon;
@@ -65,7 +84,13 @@ const TranscriptionsList = () => {
         },
         {
             accessorKey: "status",
-            header: "Status",
+            header: () => {
+                return (
+                    <span className="font-medium md:text-base text-sm text-black">
+                        Status
+                    </span>
+                );
+            },
             cell: ({ row }) => {
                 const value: Status = row.getValue("status") as Status;
                 let backgroundColor;
@@ -95,7 +120,20 @@ const TranscriptionsList = () => {
         },
         {
             accessorKey: "created_at",
-            header: "Created At",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === "asc")
+                        }
+                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                    >
+                        Started at
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
             cell: ({ row }) =>
                 new Date(row.getValue("created_at")).toLocaleString(
                     "en-US",
@@ -104,7 +142,20 @@ const TranscriptionsList = () => {
         },
         {
             accessorKey: "completed_at",
-            header: "Completed At",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === "asc")
+                        }
+                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                    >
+                        Completed at
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
             cell: ({ row }) =>
                 row.getValue("completed_at")
                     ? (new Date(row.getValue("completed_at")).toLocaleString(
@@ -171,7 +222,7 @@ const TranscriptionsList = () => {
     }
 
     return (
-        <div className="w-full mx-auto max-w-[1400px] px-4 pt-10">
+        <div className="w-full mx-auto px-4 pt-10">
             <DataTable columns={columns} data={data} />
         </div>
     );

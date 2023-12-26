@@ -18,7 +18,7 @@ export default function Page() {
     const List = list[listType];
 
     return (
-        <section className="flex flex-col items-start justify-start p-2 w-full max-w-7xl mx-auto">
+        <section className="flex flex-col items-start justify-start px-2 w-full max-w-7xl mx-auto py-10">
             <div className="flex flex-row items-center justify-center bg-gray-50 shadow border border-gray-100 mx-auto">
                 <Button
                     variant={listType === "files" ? "default" : "ghost"}

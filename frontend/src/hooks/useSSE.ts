@@ -6,7 +6,8 @@ type Props = {
 
 const useSSE = <T>({ url }: Props) => {
     const [isConnected, setIsConnected] = useState<boolean>(false);
-    const [data, setData] = useState<T[]>([] as T[]);
+    const [data, setData] = useState<T | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const eventSource = new EventSource(url);
@@ -16,21 +17,24 @@ const useSSE = <T>({ url }: Props) => {
         };
 
         eventSource.onmessage = (event) => {
-            let stream;
-            try {
-                stream = JSON.parse(event.data);
-            } catch (error) {}
+            const stream: T = JSON.parse(event.data);
+            setData(stream);
+        };
 
-            console.log(stream);
+        eventSource.onerror = () => {
+            setData(null);
+            setError("Error connecting to server");
         };
 
         return () => {
             eventSource.close();
             setIsConnected(false);
+            setData(null);
+            setError(null);
         };
     }, [url]);
 
-    return { data };
+    return { data, error, isConnected };
 };
 
 export default useSSE;

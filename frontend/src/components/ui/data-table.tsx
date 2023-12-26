@@ -1,10 +1,13 @@
 "use client";
 
+import { Fragment, useState } from "react";
 import {
     ColumnDef,
+    SortingState,
     flexRender,
     getCoreRowModel,
     getPaginationRowModel,
+    getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
 
@@ -17,6 +20,7 @@ import {
     TableRow,
 } from "@/src/components/ui/table";
 import { Button } from "@/src/components/ui/button";
+import Image from "next/image";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -27,16 +31,23 @@ export function DataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
+    const [sorting, setSorting] = useState<SortingState>([]);
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        state: {
+            sorting,
+        },
     });
 
     return (
-        <div>
-            <div className="rounded-md border">
+        <Fragment>
+            <div className="rounded-md border-2 border-gray-200">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -45,7 +56,7 @@ export function DataTable<TData, TValue>({
                                     return (
                                         <TableHead
                                             key={header.id}
-                                            className="md:text-base text-sm font-semibold min-w-[120px] md:min-w-fit"
+                                            className="min-w-[120px] md:min-w-max"
                                         >
                                             {header.isPlaceholder
                                                 ? null
@@ -72,7 +83,7 @@ export function DataTable<TData, TValue>({
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell
                                             key={cell.id}
-                                            className="md:text-sm text-xs font-medium"
+                                            className="md:text-sm text-xs font-medium text-gray-500"
                                         >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
@@ -86,16 +97,25 @@ export function DataTable<TData, TValue>({
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-center"
+                                    className="text-center"
                                 >
-                                    No results.
+                                    <Image
+                                        src="/images/no-results-found.gif"
+                                        width="200"
+                                        height="200"
+                                        alt="No results found"
+                                        className="mx-auto scale-125"
+                                    />
+                                    <span className="font-medium text-lg text-gray-500">
+                                        Results Not Found
+                                    </span>
                                 </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex items-center justify-end space-x-2">
                 <Button
                     variant="outline"
                     size="sm"
@@ -113,6 +133,6 @@ export function DataTable<TData, TValue>({
                     Next
                 </Button>
             </div>
-        </div>
+        </Fragment>
     );
 }

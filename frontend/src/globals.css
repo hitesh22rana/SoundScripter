@@ -27,10 +27,11 @@ html {
 }
 body {
     background-color: #F8F9FB;
-    overflow-x: hidden;
     background-image: url('/images/noise.png');
     background-size: 15%;
     overflow-x: hidden;
+    min-height: 100vh;
+    min-width: 100vw;
 }
 body,
 h1,
@@ -172,4 +173,58 @@ input[type=number] {
 @keyframes left {
   0% , 100%{ transform: translateY(10px) }
   50% { transform: translateY(-10px) }
+}
+
+.notification-loader {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  border: 2px solid;
+  border-color: #808080 #808080 transparent transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+.notification-loader::after,
+.notification-loader::before {
+  content: '';  
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  border: 2px solid;
+  border-color: transparent transparent #FF3D00 #FF3D00;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: rotationBack 0.5s linear infinite;
+  transform-origin: center center;
+}
+.notification-loader::before {
+  width: 12px;
+  height: 12px;
+  border-color: #808080 #808080 transparent transparent;
+  animation: rotation 1.5s linear infinite;
+}
+    
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+} 
+@keyframes rotationBack {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
 }

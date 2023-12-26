@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
 import {
@@ -57,20 +57,42 @@ const FilesList = () => {
     const columns: ColumnDef<ListFile>[] = [
         {
             accessorKey: "name",
-            header: "Name",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === "asc")
+                        }
+                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                    >
+                        File name
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
         },
         {
             accessorKey: "type",
-            header: "Type",
+            header: () => {
+                return (
+                    <span className="font-medium md:text-base text-sm text-black">
+                        Media type
+                    </span>
+                );
+            },
             cell: ({ row }) => {
                 const value: Media = row.getValue("type") as Media;
                 let icon;
+                let text;
                 switch (value) {
                     case "AUDIO":
+                        text = "Audio";
                         icon = "audio.png";
                         break;
                     case "VIDEO":
                         icon = "video.png";
+                        text = "Video";
                         break;
                 }
 
@@ -82,44 +104,73 @@ const FilesList = () => {
                             height="20"
                             alt={icon}
                         />
-                        <span>{value}</span>
+                        <span>{text}</span>
                     </div>
                 );
             },
         },
         {
             accessorKey: "status",
-            header: "Status",
+            header: () => {
+                return (
+                    <span className="font-medium md:text-base text-sm text-black">
+                        Status
+                    </span>
+                );
+            },
             cell: ({ row }) => {
                 const value: Status = row.getValue("status") as Status;
                 let backgroundColor;
+                let fontColor;
+                let text;
                 switch (value) {
                     case "DONE":
-                        backgroundColor = "bg-green-500";
+                        backgroundColor = "bg-green-100";
+                        fontColor = "text-green-600";
+                        text = "Done";
                         break;
                     case "ERROR":
-                        backgroundColor = "bg-red-500";
+                        backgroundColor = "bg-red-100";
+                        fontColor = "text-red-600";
+                        text = "Error";
                         break;
                     case "PROCESSING":
-                        backgroundColor = "bg-yellow-500";
+                        backgroundColor = "bg-blue-100";
+                        fontColor = "text-blue-600";
+                        text = "Processing";
                         break;
                     case "QUEUE":
-                        backgroundColor = "bg-blue-500";
+                        backgroundColor = "bg-yellow-100";
+                        fontColor = "text-yellow-600";
+                        text = "Queued";
                         break;
                 }
 
                 return (
                     <span
-                        className={`${backgroundColor} text-white w-full px-4 py-1 md:text-xs rounded-full`}
+                        className={`${backgroundColor} ${fontColor} py-1 px-4 w-full md:text-sm text-xs font-medium rounded-md`}
                     >
-                        {value}
+                        {text}
                     </span>
                 );
             },
         },
         {
             accessorKey: "created_at",
-            header: "Created At",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === "asc")
+                        }
+                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                    >
+                        Uploaded at
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
             cell: ({ row }) =>
                 new Date(row.getValue("created_at")).toLocaleString(
                     "en-US",
@@ -128,7 +179,20 @@ const FilesList = () => {
         },
         {
             accessorKey: "completed_at",
-            header: "Completed At",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === "asc")
+                        }
+                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                    >
+                        Completed at
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
             cell: ({ row }) =>
                 row.getValue("completed_at")
                     ? (new Date(row.getValue("completed_at")).toLocaleString(

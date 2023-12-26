@@ -1,8 +1,9 @@
 import Image from "next/image";
+import Notifications from "@/src/components/dashboard/Notifications";
 
 export default function Topbar() {
     return (
-        <header className="flex w-full h-auto flex-row items-center justify-between bg-white shadow-sm px-5 py-2">
+        <header className="flex w-full h-auto min-h-fit flex-row items-center justify-between shadow bg-gray-100 px-5 py-2">
             <Image
                 src="/images/logo-icon.png"
                 width="30"
@@ -13,17 +14,7 @@ export default function Topbar() {
                 className="w-auto h-auto bg-contain object-contain"
             />
 
-            <div className="flex items-center justify-center rounded-full border p-0">
-                <Image
-                    src="/icons/notifications.png"
-                    width="20"
-                    height="20"
-                    alt="notifications"
-                    draggable={false}
-                    quality={100}
-                    className="w-auto h-auto bg-contain object-contain scale-75"
-                />
-            </div>
+            <Notifications />
         </header>
     );
 }
