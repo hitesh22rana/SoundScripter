@@ -78,12 +78,13 @@ export default function RootLayout({
                 />
                 <Image
                     src="/images/logo.png"
-                    width="800"
-                    height="800"
+                    width="400"
+                    height="400"
                     alt="logo"
+                    priority
                     draggable={false}
                     quality={100}
-                    className="absolute w-auto h-auto top-1/2 left-1/2 right-1/2 -translate-x-1/2 -translate-y-1/2 bg-contain object-contain opacity-5 -z-50"
+                    className="absolute mnd:w-auto md:h-auto top-1/2 left-1/2 right-1/2 -translate-x-1/2 -translate-y-1/2 bg-contain object-contain opacity-5 -z-50"
                 />
                 <Wrapper>{children}</Wrapper>
             </body>

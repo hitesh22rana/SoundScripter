@@ -17,7 +17,7 @@ const useSSE = <T>({ url }: Props) => {
         };
 
         eventSource.onmessage = (event) => {
-            const stream: T = JSON.parse(event.data);
+            const stream: T = JSON.parse(event?.data);
             setData(stream);
         };
 
