@@ -63,6 +63,7 @@ export default function RootLayout({
                 <meta name="theme-color" content="#ffffff" />
             </head>
             <body className={Font.className}>
+                <div id="modal-root" />
                 <ToastContainer
                     position="top-center"
                     autoClose={2000}

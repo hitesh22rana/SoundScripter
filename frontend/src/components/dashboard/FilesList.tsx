@@ -7,6 +7,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
+import FileUploadModal from "@/src/components/dashboard/FileUploadModal";
+
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,7 +24,7 @@ import { ListFile } from "@/src/types/api";
 import { dateFormatOptions } from "@/src/lib/utils";
 
 const FilesList = () => {
-    const { toggleModal } = useModalStore();
+    const { mountModal } = useModalStore();
     const { fetchFiles, data, deleteFile, error: filesError } = useFileStore();
 
     useEffect(() => {
@@ -253,7 +255,7 @@ const FilesList = () => {
             <Button
                 variant="default"
                 className="flex flex-row items-center border-2 gap-2 w-auto md:ml-auto md:mr-0 mx-auto md:text-sm text-xs md:p-4 p-3"
-                onClick={toggleModal}
+                onClick={() => mountModal(<FileUploadModal />)}
             >
                 <Image
                     src="/icons/upload.svg"

@@ -1,15 +1,17 @@
 import { create } from "zustand";
 
 interface ModalStoreType {
-    isOpen: boolean;
+    modal: JSX.Element | null;
 
-    toggleModal(): void;
+    mountModal: (modal: JSX.Element) => void;
+    unMountModal: () => void;
 }
 
-const useModalStore = create<ModalStoreType>((set, get) => ({
-    isOpen: false,
+const useModalStore = create<ModalStoreType>((set) => ({
+    modal: null,
 
-    toggleModal: () => set(() => ({ isOpen: !get().isOpen })),
+    mountModal: (modal) => set(() => ({ modal: modal })),
+    unMountModal: () => set(() => ({ modal: null })),
 }));
 
 export default useModalStore;

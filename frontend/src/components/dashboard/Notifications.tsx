@@ -1,6 +1,10 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useState } from "react";
+/*
+    TODO: Show toast on success and errors but all the notifications can be shown in the notifications list
+*/
+
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import {
     Popover,
