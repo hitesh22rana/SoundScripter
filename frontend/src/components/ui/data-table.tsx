@@ -107,7 +107,7 @@ export function DataTable<TData, TValue>({
                                         className="mx-auto scale-125"
                                     />
                                     <span className="font-medium text-lg text-gray-500">
-                                        Results Not Found
+                                        No Results Found
                                     </span>
                                 </TableCell>
                             </TableRow>

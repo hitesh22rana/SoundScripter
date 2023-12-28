@@ -1,11 +1,11 @@
-import { Media, Priorty, Status } from "./core";
+import { Language, Media, Priorty, Status } from "@/src/types/core";
 
-export type FileData = {
+export type FileUploadApiPayload = {
     file: File;
     name: string;
 };
 
-export type ListFile = {
+export type ListFileApiResponse = {
     id: string;
     name: string;
     type: Media;
@@ -14,7 +14,7 @@ export type ListFile = {
     completed_at: Date;
 };
 
-export type ListTranscription = {
+export type ListTranscriptionApiResponse = {
     id: string;
     name: string;
     type: Media;
@@ -24,4 +24,10 @@ export type ListTranscription = {
     status: Status;
     created_at: Date;
     completed_at: Date;
+};
+
+export type TranscribeFileApiPayload = {
+    file_id: string;
+    language: Language;
+    priority: Priorty;
 };

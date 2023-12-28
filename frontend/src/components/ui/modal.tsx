@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Image from "next/image";
 
+import useModalStore from "@/src/store/modal";
 import { cn } from "@/src/lib/utils";
 
 interface BaseModalUIProps {
@@ -10,7 +11,11 @@ interface BaseModalUIProps {
     children: string | JSX.Element | Array<JSX.Element> | React.ReactNode;
 }
 
-const ModalUI = ({ className, children }: BaseModalUIProps) => {
+interface ModalUIProps extends BaseModalUIProps {
+    onClose?: () => void;
+}
+
+const ModalUI = ({ onClose, className, children }: ModalUIProps) => {
     useEffect(() => {
         document.body.style.overflow = "hidden";
 
@@ -20,57 +25,67 @@ const ModalUI = ({ className, children }: BaseModalUIProps) => {
     }, []);
 
     return (
-        <div
-            className={cn(
-                "fixed inset-0 z-[9999] flex h-full min-h-screen w-screen items-center justify-center overflow-auto border-2 bg-[url('/images/noise.png')] backdrop-blur-lg",
-                className
-            )}
-        >
-            {children}
+        <div className="fixed inset-0 z-[9999] flex h-full min-h-screen w-screen items-center justify-center overflow-auto bg-[url('/images/noise.png')] bg-black/50 p-0 backdrop-blur-lg">
+            <div
+                className={cn(
+                    "relative flex flex-col items-center bg-white max-w-md md:w-full w-[95%] rounded gap-5 shadow md:px-6 px-5 md:py-5 py-4",
+                    className
+                )}
+            >
+                {onClose ? (
+                    <Image
+                        src="/icons/close.png"
+                        alt="close"
+                        width={25}
+                        height={25}
+                        onClick={onClose}
+                        className="absolute md:top-5 md:right-4 top-4 right-3 md:scale-100 scale-75 cursor-pointer"
+                    />
+                ) : null}
+                {children}
+            </div>
         </div>
     );
 };
 
-interface ModalBodyUIProps extends BaseModalUIProps {
-    onClose?: () => void;
-}
-
-const ModalBody = ({ onClose, className, children }: ModalBodyUIProps) => {
-    return (
-        <div
-            className={cn(
-                "relative flex flex-col items-center bg-white max-w-lg rounded gap-5 shadow px-8 py-5",
-                className
-            )}
-        >
-            {onClose ? (
-                <Image
-                    src="/icons/close.png"
-                    alt="close"
-                    width={30}
-                    height={30}
-                    onClick={onClose}
-                    className="absolute top-4 right-4 cursor-pointer"
-                />
-            ) : null}
-            {children}
-        </div>
-    );
-};
-
-const ModalHeader = ({ className, children }: BaseModalUIProps) => {
-    return <div className={className}>{children}</div>;
-};
-
-const ModalContent = ({ className, children }: BaseModalUIProps) => {
+const ModalUIHeader = ({ className, children }: BaseModalUIProps) => {
     return <div className={cn("w-full h-full", className)}>{children}</div>;
 };
 
-ModalUI.Body = ModalBody;
-ModalUI.Header = ModalHeader;
-ModalUI.Content = ModalContent;
+const ModalUIHeading = ({ className, children }: BaseModalUIProps) => {
+    return (
+        <h3
+            className={cn(
+                "md:text-3xl text-2xl font-bold text-gray-950",
+                className
+            )}
+        >
+            {children}
+        </h3>
+    );
+};
 
-import useModalStore from "@/src/store/modal";
+const ModalUISubHeading = ({ className, children }: BaseModalUIProps) => {
+    return (
+        <h4
+            className={cn(
+                "text-gray-600 md:text-lg text-sm text-center",
+                className
+            )}
+        >
+            {children}
+        </h4>
+    );
+};
+
+const ModalUIBody = ({ className, children }: BaseModalUIProps) => {
+    return <div className={cn("w-full h-full", className)}>{children}</div>;
+};
+
+ModalUI.Header = ModalUIHeader;
+ModalUI.Heading = ModalUIHeading;
+ModalUI.SubHeading = ModalUISubHeading;
+ModalUI.Body = ModalUIBody;
 
 const Modal = () => {
     const { modal } = useModalStore();

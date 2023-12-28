@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
 import { deleteFile, fetchFileList } from "@/src/lib/api";
-import { ListFile } from "@/src/types/api";
+import { ListFileApiResponse } from "@/src/types/api";
 
 interface FileStoreType {
     error: string | null;
-    data: ListFile[] | null;
+    data: ListFileApiResponse[] | null;
 
     fetchFiles: () => void;
     deleteFile: (id: string, revalidate: boolean) => void;
@@ -21,8 +21,10 @@ const useFileStore = create<FileStoreType>((set, get) => ({
         try {
             const res = await fetchFileList();
             set(() => ({ data: res }));
-        } catch (error) {
-            set(() => ({ error: "Unable to fetch files data" }));
+        } catch (error: any) {
+            set(() => ({
+                error: error.message || "Unable to fetch files data",
+            }));
         }
     },
     deleteFile: async (id: string, revalidate: boolean) => {
@@ -31,8 +33,8 @@ const useFileStore = create<FileStoreType>((set, get) => ({
             if (revalidate) {
                 get().fetchFiles();
             }
-        } catch (error) {
-            set(() => ({ error: "Unable to delete file" }));
+        } catch (error: any) {
+            set(() => ({ error: error.message || "Unable to delete file" }));
         }
     },
 }));

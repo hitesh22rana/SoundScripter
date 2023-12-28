@@ -2,12 +2,13 @@
 
 import { useEffect } from "react";
 import Image from "next/image";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
 import FileUploadModal from "@/src/components/dashboard/FileUploadModal";
+import TranscribeFileModal from "@/src/components/dashboard/TranscribeFileModal";
 
 import {
     DropdownMenu,
@@ -20,8 +21,8 @@ import {
 import useFileStore from "@/src/store/file";
 import useModalStore from "@/src/store/modal";
 import { Media, Status } from "@/src/types/core";
-import { ListFile } from "@/src/types/api";
-import { dateFormatOptions } from "@/src/lib/utils";
+import { ListFileApiResponse } from "@/src/types/api";
+import { dateFormatOptions, cn } from "@/src/lib/utils";
 
 const FilesList = () => {
     const { mountModal } = useModalStore();
@@ -50,13 +51,15 @@ const FilesList = () => {
     async function handleFileDelete(id: string) {
         try {
             deleteFile(id, true);
-            toast.success("File deleted successfully");
+            toast.success("Success", {
+                description: "File deleted successfully",
+            });
         } catch (error) {
-            toast.error("Failed to delete file");
+            toast.error("Error", { description: "Failed to delete file" });
         }
     }
 
-    const columns: ColumnDef<ListFile>[] = [
+    const columns: ColumnDef<ListFileApiResponse>[] = [
         {
             accessorKey: "name",
             header: ({ column }) => {
@@ -150,7 +153,11 @@ const FilesList = () => {
 
                 return (
                     <span
-                        className={`${backgroundColor} ${fontColor} py-1 px-4 w-full md:text-sm text-xs font-medium rounded-md`}
+                        className={cn(
+                            "py-1 px-4 text-center md:text-sm text-xs font-medium rounded-md",
+                            backgroundColor,
+                            fontColor
+                        )}
                     >
                         {text}
                     </span>
@@ -206,7 +213,7 @@ const FilesList = () => {
         {
             id: "actions",
             cell: ({ row }) => {
-                const file = row.original;
+                const file: ListFileApiResponse = row.original;
 
                 return (
                     <DropdownMenu>
@@ -220,7 +227,14 @@ const FilesList = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="cursor-pointer gap-2">
+                            <DropdownMenuItem
+                                className="cursor-pointer gap-2"
+                                onClick={() =>
+                                    mountModal(
+                                        <TranscribeFileModal {...file} />
+                                    )
+                                }
+                            >
                                 <Image
                                     src="/icons/transcription.svg"
                                     width="15"

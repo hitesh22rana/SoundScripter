@@ -15,9 +15,9 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 
 import useTranscriptionStore from "@/src/store/transcription";
-import { ListTranscription } from "@/src/types/api";
+import { ListTranscriptionApiResponse } from "@/src/types/api";
 import { Media, Status } from "@/src/types/core";
-import { dateFormatOptions } from "@/src/lib/utils";
+import { cn, dateFormatOptions } from "@/src/lib/utils";
 
 const TranscriptionsList = () => {
     const {
@@ -30,7 +30,7 @@ const TranscriptionsList = () => {
         fetchTranscriptions();
     }, []);
 
-    const columns: ColumnDef<ListTranscription>[] = [
+    const columns: ColumnDef<ListTranscriptionApiResponse>[] = [
         {
             accessorKey: "name",
             header: ({ column }) => {
@@ -94,26 +94,40 @@ const TranscriptionsList = () => {
             cell: ({ row }) => {
                 const value: Status = row.getValue("status") as Status;
                 let backgroundColor;
+                let fontColor;
+                let text;
                 switch (value) {
                     case "DONE":
-                        backgroundColor = "bg-green-500";
+                        backgroundColor = "bg-green-100";
+                        fontColor = "text-green-600";
+                        text = "Done";
                         break;
                     case "ERROR":
-                        backgroundColor = "bg-red-500";
+                        backgroundColor = "bg-red-100";
+                        fontColor = "text-red-600";
+                        text = "Error";
                         break;
                     case "PROCESSING":
-                        backgroundColor = "bg-yellow-500";
+                        backgroundColor = "bg-blue-100";
+                        fontColor = "text-blue-600";
+                        text = "Processing";
                         break;
                     case "QUEUE":
-                        backgroundColor = "bg-blue-500";
+                        backgroundColor = "bg-yellow-100";
+                        fontColor = "text-yellow-600";
+                        text = "Queued";
                         break;
                 }
 
                 return (
                     <span
-                        className={`${backgroundColor} text-white w-full px-4 py-1 md:text-xs rounded-full`}
+                        className={cn(
+                            "py-1 px-4 text-center md:text-sm text-xs font-medium rounded-md",
+                            backgroundColor,
+                            fontColor
+                        )}
                     >
-                        {value}
+                        {text}
                     </span>
                 );
             },
@@ -167,8 +181,6 @@ const TranscriptionsList = () => {
         {
             id: "actions",
             cell: ({ row }) => {
-                const file = row.original;
-
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -180,23 +192,23 @@ const TranscriptionsList = () => {
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem className="cursor-pointer gap-2">
                                 <Image
-                                    src="/icons/transcription.svg"
+                                    src="/icons/download.png"
                                     width="15"
                                     height="15"
                                     alt="transcribe"
                                 />
-                                Transcribe
+                                Download
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator />
                             <DropdownMenuItem className="cursor-pointer gap-2">
                                 <Image
-                                    src="/icons/delete.png"
+                                    src="/icons/terminate.png"
                                     width="15"
                                     height="15"
                                     alt="delete"
                                 />
-                                Delete
+                                Terminate
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

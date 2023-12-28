@@ -6,6 +6,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { toast } from "sonner";
 import {
     Popover,
     PopoverContent,
@@ -15,7 +16,6 @@ import { Button } from "@/src/components/ui/button";
 
 import useSSE from "@/src/hooks/useSSE";
 import { NotificationType, Status, Task } from "@/src/types/core";
-import { toast } from "react-toastify";
 
 type Notification = {
     id: string;
@@ -66,7 +66,9 @@ const Notifications = () => {
     }
 
     if (error) {
-        toast.error("Notification service unavailable");
+        toast.error("Error", {
+            description: "Notification service unavailable",
+        });
         return null;
     }
 
