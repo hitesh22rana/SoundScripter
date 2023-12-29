@@ -1,7 +1,7 @@
 "use client";
 
 /*
-    TODO: Show toast on success and errors but all the notifications can be shown in the notifications list
+    TODO:- Show toast on success and errors but all the notifications can be shown in the notifications list
 */
 
 import { useCallback, useEffect, useState } from "react";
@@ -15,6 +15,8 @@ import {
 import { Button } from "@/src/components/ui/button";
 
 import useSSE from "@/src/hooks/useSSE";
+import useFileStore from "@/src/store/file";
+import useTranscriptionStore from "@/src/store/transcription";
 import { NotificationType, Status, Task } from "@/src/types/core";
 
 type Notification = {
@@ -23,6 +25,7 @@ type Notification = {
     type: NotificationType;
     task: Task;
     message: string;
+    completed_at: string | null;
 };
 
 type Notificationsdata = {
@@ -31,6 +34,13 @@ type Notificationsdata = {
 };
 
 const Notifications = () => {
+    const { isConnected, data, error } = useSSE<Notification>({
+        url: "http://127.0.0.1:8000/api/v1/sse/notifications",
+    });
+
+    const { updateFilesDataProgress } = useFileStore();
+    const { updateTranscribeDataProgress } = useTranscriptionStore();
+
     const [allNotifications, setAllNotifications] = useState<Notification[]>(
         [] as Notification[]
     );
@@ -39,15 +49,35 @@ const Notifications = () => {
         {} as Notificationsdata
     );
 
-    const { isConnected, data, error } = useSSE<Notification>({
-        url: "http://127.0.0.1:8000/api/v1/sse/notifications",
-    });
-
     useEffect(() => {
         if (!data) return;
 
         setAllNotifications((prev) => [...prev, data]);
-    }, [data]);
+
+        switch (data.task) {
+            case "CONVERSION":
+                updateFilesDataProgress(
+                    data.id,
+                    data.status,
+                    data.completed_at
+                );
+                break;
+            case "OPTIMIZATION":
+                updateFilesDataProgress(
+                    data.id,
+                    data.status,
+                    data.completed_at
+                );
+                break;
+            case "TRANSCRIPTION":
+                updateTranscribeDataProgress(
+                    data.id,
+                    data.status,
+                    data.completed_at
+                );
+                break;
+        }
+    }, [data, updateFilesDataProgress, updateTranscribeDataProgress]);
 
     const extractNotifications = useCallback(
         (selected: string, tasks: Task[]) => {

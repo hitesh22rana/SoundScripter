@@ -15,7 +15,7 @@ import {
 import useModalStore from "@/src/store/modal";
 import { ListFileApiResponse, TranscribeFileApiPayload } from "@/src/types/api";
 import { Language, Priorty } from "@/src/types/core";
-import { transcribeFile } from "@/srclib/api";
+import { transcribeFile } from "@/src/lib/api";
 
 const TranscriptionFileModal = (file: ListFileApiResponse) => {
     const { unMountModal } = useModalStore();
