@@ -27,8 +27,10 @@ const TranscriptionsList = () => {
     } = useTranscriptionStore();
 
     useEffect(() => {
-        fetchTranscriptions();
-    }, []);
+        (async function () {
+            await fetchTranscriptions();
+        })();
+    }, [fetchTranscriptions]);
 
     const columns: ColumnDef<ListTranscriptionApiResponse>[] = [
         {

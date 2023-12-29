@@ -26,11 +26,18 @@ import { dateFormatOptions, cn } from "@/src/lib/utils";
 
 const FilesList = () => {
     const { mountModal } = useModalStore();
-    const { fetchFiles, data, deleteFile, error: filesError } = useFileStore();
+    const {
+        fetchFiles,
+        data,
+        deleteFile,
+        dataError: filesError,
+    } = useFileStore();
 
     useEffect(() => {
-        fetchFiles();
-    }, []);
+        (async function () {
+            await fetchFiles();
+        })();
+    }, [fetchFiles]);
 
     if (filesError) {
         return (
@@ -50,7 +57,8 @@ const FilesList = () => {
 
     async function handleFileDelete(id: string) {
         try {
-            deleteFile(id, true);
+            await deleteFile(id, false);
+
             toast.success("Success", {
                 description: "File deleted successfully",
             });
