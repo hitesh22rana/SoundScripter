@@ -43,6 +43,7 @@ def generate_transcription(data: dict) -> None:
                     "type": NotificationType.INFO,
                     "task": Task.TRANSCRIPTION,
                     "message": "transcription in process",
+                    "completed_at": None,
                 }
             ),
         )
@@ -60,7 +61,8 @@ def generate_transcription(data: dict) -> None:
             session.query(TranscriptionsModel).filter_by(file_id=data["id"]).first()
         )
         transcription.status = Status.DONE
-        transcription.completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(timezone.utc)
+        transcription.completed_at = completed_at
 
         session.commit()
         session.refresh(transcription)
@@ -75,6 +77,7 @@ def generate_transcription(data: dict) -> None:
                     "type": NotificationType.SUCCESS,
                     "task": Task.TRANSCRIPTION,
                     "message": "successfully generated transcription",
+                    "completed_at": completed_at.isoformat(),
                 }
             ),
         )
@@ -86,7 +89,8 @@ def generate_transcription(data: dict) -> None:
             session.query(TranscriptionsModel).filter_by(file_id=data["id"]).first()
         )
         transcription.status = Status.ERROR
-        transcription.completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(timezone.utc)
+        transcription.completed_at = completed_at
 
         session.commit()
         session.refresh(transcription)
@@ -101,6 +105,7 @@ def generate_transcription(data: dict) -> None:
                     "type": NotificationType.ERROR,
                     "task": Task.TRANSCRIPTION,
                     "message": "transcription generation failed",
+                    "completed_at": completed_at.isoformat(),
                 }
             ),
         )
@@ -131,6 +136,7 @@ def stop_transcription(container_id: str):
                     "type": NotificationType.SUCCESS,
                     "task": Task.TRANSCRIPTION,
                     "message": "successfully stopped running transcription job",
+                    "completed_at": None,
                 }
             ),
         )
@@ -140,7 +146,8 @@ def stop_transcription(container_id: str):
             session.query(TranscriptionsModel).filter_by(task_id=container_id).first()
         )
         transcription.status = Status.ERROR
-        transcription.completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(timezone.utc)
+        transcription.completed_at = completed_at
 
         session.commit()
         session.refresh(transcription)
@@ -155,6 +162,7 @@ def stop_transcription(container_id: str):
                     "type": NotificationType.ERROR,
                     "task": Task.TRANSCRIPTION,
                     "message": "failed to stop running transcription job",
+                    "completed_at": completed_at.isoformat(),
                 }
             ),
         )

@@ -39,6 +39,7 @@ def convert_video_to_audio(data: dict) -> None:
                     "type": NotificationType.INFO,
                     "task": Task.CONVERSION,
                     "message": "video to audio conversion in process",
+                    "completed_at": None,
                 }
             ),
         )
@@ -60,6 +61,7 @@ def convert_video_to_audio(data: dict) -> None:
                     "type": NotificationType.SUCCESS,
                     "task": Task.CONVERSION,
                     "message": "successfully converted video to audio",
+                    "completed_at": None,
                 }
             ),
         )
@@ -73,7 +75,8 @@ def convert_video_to_audio(data: dict) -> None:
 
         file: FilesModel = session.query(FilesModel).filter_by(id=data["id"]).first()
         file.status = Status.ERROR
-        file.completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(timezone.utc)
+        file.completed_at = completed_at
 
         session.commit()
         session.refresh(file)
@@ -88,6 +91,7 @@ def convert_video_to_audio(data: dict) -> None:
                     "type": NotificationType.ERROR,
                     "task": Task.CONVERSION,
                     "message": "video to audio conversion failed",
+                    "completed_at": completed_at.isoformat(),
                 }
             ),
         )
@@ -118,6 +122,7 @@ def change_audio_sample_rate(data: dict) -> None:
                     "type": NotificationType.INFO,
                     "task": Task.OPTIMIZATION,
                     "message": "audio optimization in process",
+                    "completed_at": None,
                 }
             ),
         )
@@ -134,7 +139,8 @@ def change_audio_sample_rate(data: dict) -> None:
         file: FilesModel = session.query(FilesModel).filter_by(id=data["id"]).first()
         file.path = data["output_path"]
         file.status = Status.DONE
-        file.completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(timezone.utc)
+        file.completed_at = completed_at
 
         session.commit()
         session.refresh(file)
@@ -149,6 +155,7 @@ def change_audio_sample_rate(data: dict) -> None:
                     "type": NotificationType.SUCCESS,
                     "task": Task.OPTIMIZATION,
                     "message": "successfully optimized audio",
+                    "completed_at": completed_at.isoformat(),
                 }
             ),
         )
@@ -158,7 +165,8 @@ def change_audio_sample_rate(data: dict) -> None:
 
         file: FilesModel = session.query(FilesModel).filter_by(id=data["id"]).first()
         file.status = Status.ERROR
-        file.completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(timezone.utc)
+        file.completed_at = completed_at
 
         session.commit()
         session.refresh(file)
@@ -173,6 +181,7 @@ def change_audio_sample_rate(data: dict) -> None:
                     "type": NotificationType.ERROR,
                     "task": Task.OPTIMIZATION,
                     "message": "audio optimization failed",
+                    "completed_at": completed_at.isoformat(),
                 }
             ),
         )
