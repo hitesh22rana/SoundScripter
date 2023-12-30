@@ -17,7 +17,7 @@ const useUploadWithProgress = ({ url, method, payload }: Props) => {
         req.open(method, url);
 
         req.upload.addEventListener("progress", function (e) {
-            const percentageUploaded = Math.floor(e.loaded / e.total) * 100;
+            const percentageUploaded = Math.floor((e.loaded / e.total) * 100);
             setProgress(percentageUploaded);
         });
 
@@ -32,6 +32,7 @@ const useUploadWithProgress = ({ url, method, payload }: Props) => {
         req.send(payload);
 
         return () => {
+            req.abort();
             setProgress(0);
             setError(null);
         };
