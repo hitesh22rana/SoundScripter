@@ -4,7 +4,7 @@ import {
 } from "@/src/types/api";
 import { Sort } from "@/src/types/core";
 
-const API_URL = "http://127.0.0.1:8000/api/v1";
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
 export async function fileUpload({ file, name }: FileUploadApiPayload) {
     const formData = new FormData();
@@ -46,7 +46,7 @@ export async function fetchFileList(
         throw new Error(data.detail || "Something went wrong");
     }
 
-    return data.data;
+    return data;
 }
 
 export async function deleteFile(id: string) {
@@ -60,7 +60,7 @@ export async function deleteFile(id: string) {
         throw new Error(data.detail || "Something went wrong");
     }
 
-    return data.data;
+    return data;
 }
 
 export async function fetchTranscriptionList(
@@ -82,7 +82,7 @@ export async function fetchTranscriptionList(
         throw new Error(data.detail || "Something went wrong");
     }
 
-    return data.data;
+    return data;
 }
 
 export async function transcribeFile(payload: TranscribeFileApiPayload) {

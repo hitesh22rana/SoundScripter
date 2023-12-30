@@ -92,7 +92,7 @@ const Notifications = () => {
     );
 
     if (!isConnected && !error) {
-        return <span className="notification-loader scale-50" />;
+        return <span className="notification-loader" />;
     }
 
     if (error) {

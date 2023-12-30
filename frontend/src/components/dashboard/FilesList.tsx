@@ -9,7 +9,7 @@ import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
 import FileUploadModal from "@/src/components/dashboard/FileUploadModal";
 import TranscribeFileModal from "@/src/components/dashboard/TranscribeFileModal";
-
+import Loader from "@/src/components/ui/loader";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -26,33 +26,28 @@ import { dateFormatOptions, cn } from "@/src/lib/utils";
 
 const FilesList = () => {
     const { mountModal } = useModalStore();
-    const {
-        fetchFiles,
-        data,
-        deleteFile,
-        dataError: filesError,
-    } = useFileStore();
+
+    const { fetchFiles, data, error, deleteFile } = useFileStore((state) => ({
+        fetchFiles: state.fetchFiles,
+        deleteFile: state.deleteFile,
+        data: state.data,
+        error: state.error,
+    }));
 
     useEffect(() => {
-        (async function () {
-            await fetchFiles();
-        })();
+        fetchFiles();
     }, [fetchFiles]);
 
-    if (filesError) {
+    if (error) {
         return (
             <div className="flex justify-center items-center w-full h-40">
-                <span className="text-red-500">{filesError}</span>
+                <span className="text-red-500">{error}</span>
             </div>
         );
     }
 
     if (!data) {
-        return (
-            <div className="flex justify-center items-center w-full h-40">
-                <span className="loader" />
-            </div>
-        );
+        return <Loader />;
     }
 
     async function handleFileDelete(id: string) {

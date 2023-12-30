@@ -22,12 +22,13 @@ const useTranscriptionStore = create<FileStoreType>((set, get) => ({
 
     fetchTranscriptions: async () => {
         try {
-            const res = await fetchTranscriptionList();
-            set(() => ({ data: res }));
+            const { data } = await fetchTranscriptionList();
+            set({ data: data, error: null });
         } catch (error: any) {
-            set(() => ({
+            set({
+                data: null,
                 error: error.message || "Unable to fetch transcriptions",
-            }));
+            });
         }
     },
     updateTranscribeDataProgress: (

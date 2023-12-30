@@ -12,3 +12,7 @@ export const dateFormatOptions = {
     hour: "numeric",
     minute: "numeric",
 };
+
+export function isError(statusCode: number) {
+    return statusCode >= 400;
+}

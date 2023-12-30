@@ -5,7 +5,7 @@ import { ListFileApiResponse } from "@/src/types/api";
 import { Status } from "@/src/types/core";
 
 interface FileStoreType {
-    dataError: string | null;
+    error: string | null;
     data: ListFileApiResponse[] | null;
 
     fetchFiles: () => void;
@@ -18,16 +18,17 @@ interface FileStoreType {
 }
 
 const useFileStore = create<FileStoreType>((set, get) => ({
-    dataError: null,
+    error: null,
     data: null,
 
     fetchFiles: async () => {
         try {
-            const res = await fetchFileList();
-            set(() => ({ data: res }));
+            const { data } = await fetchFileList();
+            set(() => ({ data: data, error: null }));
         } catch (error: any) {
             set(() => ({
-                dataError: error.message || "Unable to fetch files data",
+                data: null,
+                error: error.message || "Unable to fetch files data",
             }));
         }
     },

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Toaster } from "@/src/components/ui/sonner";
 import Topbar from "@/src/components/dashboard/Topbar";
 import { Modal } from "@/src/components/ui/modal";
+import BackgroundProgressTracker from "./BackgroundProgressTracker";
 
 type props = {
     children: string | JSX.Element | Array<JSX.Element> | React.ReactNode;
@@ -17,6 +18,7 @@ export default function Wrapper({ children }: props) {
             </main>
             <Toaster closeButton theme="light" />
             <Modal />
+            <BackgroundProgressTracker />
             <Image
                 src="/images/logo.png"
                 width="300"

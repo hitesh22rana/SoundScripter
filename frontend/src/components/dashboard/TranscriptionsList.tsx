@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
+import Loader from "@/src/components/ui/loader";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -20,17 +21,29 @@ import { Media, Status } from "@/src/types/core";
 import { cn, dateFormatOptions } from "@/src/lib/utils";
 
 const TranscriptionsList = () => {
-    const {
-        fetchTranscriptions,
-        data,
-        error: transcriptionError,
-    } = useTranscriptionStore();
+    const { fetchTranscriptions, data, error } = useTranscriptionStore(
+        (state) => ({
+            fetchTranscriptions: state.fetchTranscriptions,
+            data: state.data,
+            error: state.error,
+        })
+    );
 
     useEffect(() => {
-        (async function () {
-            await fetchTranscriptions();
-        })();
+        fetchTranscriptions();
     }, [fetchTranscriptions]);
+
+    if (error) {
+        return (
+            <div className="flex justify-center items-center w-full h-40">
+                <span className="text-red-500">{error}</span>
+            </div>
+        );
+    }
+
+    if (!data) {
+        return <Loader />;
+    }
 
     const columns: ColumnDef<ListTranscriptionApiResponse>[] = [
         {
@@ -218,22 +231,6 @@ const TranscriptionsList = () => {
             },
         },
     ];
-
-    if (transcriptionError) {
-        return (
-            <div className="flex justify-center items-center w-full h-40">
-                <span className="text-red-500">{transcriptionError}</span>
-            </div>
-        );
-    }
-
-    if (!data) {
-        return (
-            <div className="flex justify-center items-center w-full h-40">
-                <span className="loader" />
-            </div>
-        );
-    }
 
     return (
         <div className="w-full mx-auto px-4 pt-10">

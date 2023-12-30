@@ -4,15 +4,14 @@ import { useState } from "react";
 import Image from "next/image";
 import Dropzone, { Accept } from "react-dropzone";
 import { toast } from "sonner";
-
+import BackgroundProgress from "@/src/components/dashboard/BackgroundProgress";
 import { ModalUI } from "@/src/components/ui/modal";
 import { Button } from "@/src/components/ui/button";
 import Input from "@/src/components/ui/input";
 
 import useModalStore from "@/src/store/modal";
-import useFileStore from "@/src/store/file";
+import useBackgroundProgressStore from "@/src/store/background-progress";
 import { FileUploadApiPayload } from "@/src/types/api";
-import { fileUpload } from "@/src/lib/api";
 
 const fileTypes: Accept = {
     "audio/wav": [],
@@ -23,7 +22,8 @@ const fileTypes: Accept = {
 
 const FileUploadModal = () => {
     const { unMountModal } = useModalStore();
-    const { fetchFiles } = useFileStore();
+    const { addToProgressTracker } = useBackgroundProgressStore();
+
     const [fileUploadApiPayload, setFileUploadApiPayload] =
         useState<FileUploadApiPayload>({} as FileUploadApiPayload);
 
@@ -32,22 +32,24 @@ const FileUploadModal = () => {
     }
 
     async function handleFileUpload() {
-        if (!fileUploadApiPayload?.file || !fileUploadApiPayload.name) return;
+        if (!fileUploadApiPayload.file || !fileUploadApiPayload.name) return;
 
-        try {
-            toast.info("Info", {
-                description: "Uploading file",
-            });
-            await fileUpload(fileUploadApiPayload);
-            fetchFiles();
-            toast.success("Success", {
-                description: "File uploaded",
-            });
-        } catch (error) {
-            toast.error("Error", {
-                description: "File uploading failed",
-            });
-        }
+        const formData = new FormData();
+        formData.append("file", fileUploadApiPayload.file);
+        formData.append("name", fileUploadApiPayload.name);
+
+        toast.info("Info", {
+            description: "Uploading file",
+        });
+
+        addToProgressTracker(
+            <BackgroundProgress
+                url={process.env.NEXT_PUBLIC_BACKEND_API_URL + "/files"}
+                method="POST"
+                fileName={fileUploadApiPayload.name}
+                payload={formData}
+            />
+        );
     }
 
     return (
