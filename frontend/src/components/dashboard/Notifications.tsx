@@ -54,6 +54,19 @@ const Notifications = () => {
 
         setAllNotifications((prev) => [...prev, data]);
 
+        switch (data.type) {
+            case "SUCCESS":
+                toast.success("Success", {
+                    description: data.message,
+                });
+                break;
+            case "ERROR":
+                toast.error("Error", {
+                    description: data.message,
+                });
+                break;
+        }
+
         switch (data.task) {
             case "CONVERSION":
                 updateFilesDataProgress(
