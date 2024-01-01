@@ -56,7 +56,14 @@ const TranscriptionFileModal = (file: ListFileApiResponse) => {
             </ModalUI.Header>
 
             <ModalUI.Body className="flex flex-col gap-5">
-                <span>File name: {file.name}</span>
+                <div className="flex flex-row justify-between gap-2 w-full">
+                    <span className="text-base font-semibold min-w-max">
+                        File name:
+                    </span>
+                    <span className="text-ellipsis overflow-hidden whitespace-nowrap">
+                        {file.name}
+                    </span>
+                </div>
                 <div className="flex flex-row items-center justify-between">
                     <Select
                         onValueChange={(value) =>
