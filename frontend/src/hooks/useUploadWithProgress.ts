@@ -32,7 +32,6 @@ const useUploadWithProgress = ({ url, method, payload }: Props) => {
         req.send(payload);
 
         return () => {
-            req.abort();
             setProgress(0);
             setError(null);
         };
