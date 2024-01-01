@@ -1,28 +1,40 @@
 import { create } from "zustand";
 
 interface BackgroundProgressStoreType {
-    progressTracker: JSX.Element[] | null;
+    activeProgress: JSX.Element[];
 
     addToProgressTracker: (backgroundProgress: JSX.Element) => void;
+    removeFromProgressTracker: (id: number) => void;
 }
 
 const useBackgroundProgressStore = create<BackgroundProgressStoreType>(
     (set, get) => ({
-        progressTracker: null,
+        activeProgress: [],
         addToProgressTracker: (backgroundProgress) => {
-            const currentProgressTracker = get().progressTracker;
-
-            if (!currentProgressTracker) {
-                return set(() => ({
-                    progressTracker: [backgroundProgress],
-                }));
-            }
+            const currentProgressTracker = get().activeProgress;
 
             set(() => ({
-                progressTracker: [
-                    ...currentProgressTracker,
-                    backgroundProgress,
-                ],
+                activeProgress: [...currentProgressTracker, backgroundProgress],
+            }));
+        },
+        removeFromProgressTracker: (id: number) => {
+            const currentProgressTracker = get().activeProgress;
+            if (!currentProgressTracker) {
+                return;
+            }
+
+            const filteredProgressTracker = currentProgressTracker.filter(
+                (backgroundProgress) => {
+                    if (backgroundProgress.props.id === id) {
+                        return false;
+                    }
+
+                    return true;
+                }
+            );
+
+            set(() => ({
+                activeProgress: filteredProgressTracker,
             }));
         },
     })
