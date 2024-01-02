@@ -38,7 +38,7 @@ const Notifications = () => {
         url: "http://127.0.0.1:8000/api/v1/sse/notifications",
     });
 
-    const { updateFilesDataProgress } = useFileStore();
+    const { updateFilesDataProgress, fetchFiles } = useFileStore();
     const { updateTranscribeDataProgress } = useTranscriptionStore();
 
     const [allNotifications, setAllNotifications] = useState<Notification[]>(
@@ -65,6 +65,9 @@ const Notifications = () => {
                     description: data.message,
                 });
                 break;
+            case "INFO":
+                fetchFiles();
+                break;
         }
 
         switch (data.task) {
@@ -90,7 +93,12 @@ const Notifications = () => {
                 );
                 break;
         }
-    }, [data, updateFilesDataProgress, updateTranscribeDataProgress]);
+    }, [
+        data,
+        updateFilesDataProgress,
+        updateTranscribeDataProgress,
+        fetchFiles,
+    ]);
 
     const extractNotifications = useCallback(
         (selected: string, tasks: Task[]) => {
