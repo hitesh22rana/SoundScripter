@@ -47,7 +47,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <Fragment>
-            <div className="rounded-md border-2 border-gray-200">
+            <div className="rounded-md border border-gray-200 bg-gray-50 px-2 py-1 shadow">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -115,7 +115,7 @@ export function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2">
+            <div className="flex items-center justify-end space-x-2 mt-5">
                 <Button
                     variant="outline"
                     size="sm"

@@ -1,9 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
+import {
+    ArrowUpDown,
+    Download,
+    BadgeX,
+    MoreHorizontal,
+    FileAudio2,
+    FileVideo2,
+} from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
 import Loader from "@/src/components/ui/loader";
@@ -21,13 +28,17 @@ import { Media, Status } from "@/src/types/core";
 import { cn, dateFormatOptions } from "@/src/lib/utils";
 
 const TranscriptionsList = () => {
-    const { fetchTranscriptions, data, error } = useTranscriptionStore(
-        (state) => ({
-            fetchTranscriptions: state.fetchTranscriptions,
-            data: state.data,
-            error: state.error,
-        })
-    );
+    const {
+        fetchTranscriptions,
+        data,
+        error,
+        downloadTranscription: download,
+    } = useTranscriptionStore((state) => ({
+        fetchTranscriptions: state.fetchTranscriptions,
+        data: state.data,
+        error: state.error,
+        downloadTranscription: state.downloadTranscription,
+    }));
 
     useEffect(() => {
         fetchTranscriptions();
@@ -43,6 +54,20 @@ const TranscriptionsList = () => {
 
     if (!data) {
         return <Loader />;
+    }
+
+    async function downloadTranscription(id: string, fileName: string) {
+        try {
+            await download(id, fileName);
+
+            toast.success("Success", {
+                description: "File download successfully",
+            });
+        } catch (error: any) {
+            toast.error("Error", {
+                description: error?.message || "Failed to download file",
+            });
+        }
     }
 
     const columns: ColumnDef<ListTranscriptionApiResponse>[] = [
@@ -62,37 +87,40 @@ const TranscriptionsList = () => {
                     </Button>
                 );
             },
+            cell: ({ row }) => {
+                return (
+                    <span className="line-clamp-1">{row.getValue("name")}</span>
+                );
+            },
         },
         {
             accessorKey: "type",
             header: () => {
                 return (
                     <span className="font-medium md:text-base text-sm text-black">
-                        Type
+                        Media Type
                     </span>
                 );
             },
             cell: ({ row }) => {
                 const value: Media = row.getValue("type") as Media;
                 let icon;
+                let text;
                 switch (value) {
                     case "AUDIO":
-                        icon = "audio.png";
+                        text = "Audio";
+                        icon = <FileAudio2 className="h-5 w-5" />;
                         break;
                     case "VIDEO":
-                        icon = "video.png";
+                        text = "Video";
+                        icon = <FileVideo2 className="h-5 w-5" />;
                         break;
                 }
 
                 return (
-                    <div className="flex flex-row gap-2">
-                        <Image
-                            src={`/icons/${icon}`}
-                            width="20"
-                            height="20"
-                            alt={icon}
-                        />
-                        <span>{value}</span>
+                    <div className="flex flex-row gap-2 line-clamp-1">
+                        {icon}
+                        <span>{text}</span>
                     </div>
                 );
             },
@@ -163,11 +191,18 @@ const TranscriptionsList = () => {
                     </Button>
                 );
             },
-            cell: ({ row }) =>
-                new Date(row.getValue("created_at")).toLocaleString(
-                    "en-US",
-                    dateFormatOptions as any
-                ) as unknown as string,
+            cell: ({ row }) => {
+                return (
+                    <span className="line-clamp-1">
+                        {
+                            new Date(row.getValue("created_at")).toLocaleString(
+                                "en-US",
+                                dateFormatOptions as any
+                            ) as unknown as string
+                        }
+                    </span>
+                );
+            },
         },
         {
             accessorKey: "completed_at",
@@ -185,44 +220,68 @@ const TranscriptionsList = () => {
                     </Button>
                 );
             },
-            cell: ({ row }) =>
-                row.getValue("completed_at")
-                    ? (new Date(row.getValue("completed_at")).toLocaleString(
-                          "en-US",
-                          dateFormatOptions as any
-                      ) as unknown as string)
-                    : null,
+            cell: ({ row }) => {
+                return (
+                    <span className="line-clamp-1">
+                        {row.getValue("completed_at")
+                            ? (new Date(
+                                  row.getValue("completed_at")
+                              ).toLocaleString(
+                                  "en-US",
+                                  dateFormatOptions as any
+                              ) as unknown as string)
+                            : null}
+                    </span>
+                );
+            },
         },
         {
             id: "actions",
             cell: ({ row }) => {
+                const transcription: ListTranscriptionApiResponse =
+                    row.original;
+                const isCompleted = transcription.completed_at !== null;
+                const isCompletedSuccessFully =
+                    isCompleted && transcription.status === "DONE";
+
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-6 w-6 p-0">
+                            <Button
+                                variant="outline"
+                                className="h-6 w-6 p-0 focus-within:ring-0 focus-within:outline-none focus-visible:ring-0"
+                            >
                                 <span className="sr-only">Open menu</span>
                                 <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem className="cursor-pointer gap-2">
-                                <Image
-                                    src="/icons/download.png"
-                                    width="15"
-                                    height="15"
-                                    alt="transcribe"
-                                />
+                            <DropdownMenuItem
+                                className={cn(
+                                    "cursor-pointer gap-2",
+                                    !isCompletedSuccessFully &&
+                                        "cursor-not-allowed opacity-50"
+                                )}
+                                onClick={() =>
+                                    downloadTranscription(
+                                        transcription.id,
+                                        transcription.name
+                                    )
+                                }
+                            >
+                                <Download className="h-4 w-4" />
                                 Download
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="cursor-pointer gap-2">
-                                <Image
-                                    src="/icons/terminate.png"
-                                    width="15"
-                                    height="15"
-                                    alt="delete"
-                                />
+                            <DropdownMenuItem
+                                className={cn(
+                                    "cursor-pointer gap-2",
+                                    isCompleted &&
+                                        "cursor-not-allowed opacity-50"
+                                )}
+                            >
+                                <BadgeX className="h-4 w-4" />
                                 Terminate
                             </DropdownMenuItem>
                         </DropdownMenuContent>

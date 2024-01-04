@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import { fetchTranscriptionList } from "@/src/lib/api";
+import { fetchTranscriptionList, downloadTranscription } from "@/src/lib/api";
 import { ListTranscriptionApiResponse } from "@/src/types/api";
 import { Status } from "@/src/types/core";
 
@@ -14,6 +14,7 @@ interface FileStoreType {
         status: Status,
         completed_at: string | null
     ) => void;
+    downloadTranscription: (id: string, fileName: string) => void;
 }
 
 const useTranscriptionStore = create<FileStoreType>((set, get) => ({
@@ -49,6 +50,15 @@ const useTranscriptionStore = create<FileStoreType>((set, get) => ({
         });
 
         set(() => ({ data: [...data] }));
+    },
+    downloadTranscription: async (id: string, fileName: string) => {
+        try {
+            await downloadTranscription(id, fileName);
+        } catch (error: any) {
+            throw new Error(
+                error?.detail || "Unable to download transcription"
+            );
+        }
     },
 }));
 

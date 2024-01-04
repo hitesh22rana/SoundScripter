@@ -1,9 +1,5 @@
 "use client";
 
-/*
-    TODO:- Show toast on success and errors but all the notifications can be shown in the notifications list
-*/
-
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -13,11 +9,13 @@ import {
     PopoverTrigger,
 } from "@/src/components/ui/popover";
 import { Button } from "@/src/components/ui/button";
+import { Bell, BadgeAlert, BadgeCheck, BadgeX } from "lucide-react";
 
 import useSSE from "@/src/hooks/useSSE";
 import useFileStore from "@/src/store/file";
 import useTranscriptionStore from "@/src/store/transcription";
 import { NotificationType, Status, Task } from "@/src/types/core";
+import { cn } from "@/src/lib/utils";
 
 type Notification = {
     id: string;
@@ -129,30 +127,23 @@ const Notifications = () => {
                 extractNotifications("files", ["CONVERSION", "OPTIMIZATION"])
             }
         >
-            <PopoverTrigger className="relative w-8 h-8 rounded-full p-0 border-2 bg-gray-200">
-                <Image
-                    src="/icons/notifications.png"
-                    width="20"
-                    height="20"
-                    alt="notifications"
-                    draggable={false}
-                    quality={100}
-                    className="mx-auto"
-                />
+            <PopoverTrigger className="relative w-8 h-8 rounded-full border shadow-sm bg-gray-50">
+                <Bell className="h-5 w-5 mx-auto" />
                 {allNotifications.length > 0 ? (
-                    <div className="absolute w-2 h-2 top-0 right-0 bg-red-500 rounded-full" />
+                    <div className="absolute w-2 h-2 top-[2px] right-[2px] bg-red-500 rounded-full" />
                 ) : null}
             </PopoverTrigger>
 
-            <PopoverContent className="flex flex-col border mr-2 p-1 bg-gray-100">
+            <PopoverContent className="flex flex-col border mr-2 bg-gray-50 max-h-80 h-full overflow-y-scroll p-1">
                 <div className="flex flex-row items-center justify-start border-b-2">
                     <Button
                         variant="link"
-                        className={`text-black text-base font-medium hover:no-underline hover:opacity-75 rounded-none py-0 -mb-[2px] ${
+                        className={cn(
+                            "text-black text-base font-medium hover:no-underline hover:opacity-75 rounded-none py-0 -mb-[2px]",
                             notifications.selected === "files"
                                 ? "border-b-2 border-black"
                                 : "border-b-0 mb-0"
-                        }`}
+                        )}
                         onClick={() =>
                             extractNotifications("files", [
                                 "CONVERSION",
@@ -181,44 +172,43 @@ const Notifications = () => {
 
                 <div className="flex flex-col">
                     {notifications?.data?.length > 0 ? (
-                        notifications.data.map((notification: Notification) => {
-                            let fontColor;
-                            let image;
-                            switch (notification.type) {
-                                case "SUCCESS": {
-                                    fontColor = "text-green-400";
-                                    image = "/icons/success.png";
-                                    break;
+                        notifications.data.map(
+                            (notification: Notification, index: number) => {
+                                let icon;
+                                switch (notification.type) {
+                                    case "SUCCESS": {
+                                        icon = (
+                                            <BadgeCheck className="min-h-[24px] min-w-[24px]" />
+                                        );
+                                        break;
+                                    }
+                                    case "INFO": {
+                                        icon = (
+                                            <BadgeAlert className="min-h-[24px] min-w-[24px]" />
+                                        );
+                                        break;
+                                    }
+                                    case "ERROR": {
+                                        icon = (
+                                            <BadgeX className="min-h-[24px] min-w-[24px]" />
+                                        );
+                                        break;
+                                    }
                                 }
-                                case "INFO": {
-                                    fontColor = "text-yellow-400";
-                                    image = "/icons/info.png";
-                                    break;
-                                }
-                                case "ERROR": {
-                                    fontColor = "text-red-400";
-                                    image = "/icons/error.png";
-                                    break;
-                                }
-                            }
 
-                            return (
-                                <div
-                                    key={notification.id}
-                                    className={`flex flex-row items-center justify-start p-2 gap-4 rounded rounded-b-none border-b h-14`}
-                                >
-                                    <Image
-                                        src={image}
-                                        width="25"
-                                        height="25"
-                                        alt={notification.type}
-                                    />
-                                    <span className={`text-sm ${fontColor}`}>
-                                        {notification.message}
-                                    </span>
-                                </div>
-                            );
-                        })
+                                return (
+                                    <div
+                                        key={index}
+                                        className="flex flex-row items-center justify-start p-2 rounded rounded-b-none border-b"
+                                    >
+                                        {icon}
+                                        <span className="text-sm font-medium text-gray-600 line-clamp-1 ml-2">
+                                            {notification.message}
+                                        </span>
+                                    </div>
+                                );
+                            }
+                        )
                     ) : (
                         <div className="flex flex-col items-center justify-between gap-2 my-4">
                             <Image

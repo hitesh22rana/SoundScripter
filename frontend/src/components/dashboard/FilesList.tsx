@@ -1,14 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
-import { toast } from "sonner";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import {
+    ArrowUpDown,
+    FileAudio2,
+    FileText,
+    FileVideo2,
+    MoreHorizontal,
+    Trash2,
+    UploadCloud,
+} from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
-import FileUploadModal from "@/src/components/dashboard/FileUploadModal";
-import TranscribeFileModal from "@/src/components/dashboard/TranscribeFileModal";
+import FileUploadModal from "@/src/components/dashboard/modals/FileUploadModal";
+import TranscribeFileModal from "@/src/components/dashboard/modals/TranscribeFileModal";
+import DeleteFileModal from "@/src/components/dashboard/modals/DeleteFileModal";
 import Loader from "@/src/components/ui/loader";
 import {
     DropdownMenu,
@@ -27,9 +34,8 @@ import { dateFormatOptions, cn } from "@/src/lib/utils";
 const FilesList = () => {
     const { mountModal } = useModalStore();
 
-    const { fetchFiles, data, error, deleteFile } = useFileStore((state) => ({
+    const { fetchFiles, data, error } = useFileStore((state) => ({
         fetchFiles: state.fetchFiles,
-        deleteFile: state.deleteFile,
         data: state.data,
         error: state.error,
     }));
@@ -50,18 +56,6 @@ const FilesList = () => {
         return <Loader />;
     }
 
-    async function handleFileDelete(id: string) {
-        try {
-            await deleteFile(id, false);
-
-            toast.success("Success", {
-                description: "File deleted successfully",
-            });
-        } catch (error) {
-            toast.error("Error", { description: "Failed to delete file" });
-        }
-    }
-
     const columns: ColumnDef<ListFileApiResponse>[] = [
         {
             accessorKey: "name",
@@ -79,12 +73,17 @@ const FilesList = () => {
                     </Button>
                 );
             },
+            cell: ({ row }) => {
+                return (
+                    <span className="line-clamp-1">{row.getValue("name")}</span>
+                );
+            },
         },
         {
             accessorKey: "type",
             header: () => {
                 return (
-                    <span className="font-medium md:text-base text-sm text-black">
+                    <span className="font-medium md:text-base text-sm text-black line-clamp-1">
                         Media type
                     </span>
                 );
@@ -96,22 +95,17 @@ const FilesList = () => {
                 switch (value) {
                     case "AUDIO":
                         text = "Audio";
-                        icon = "audio.png";
+                        icon = <FileAudio2 className="h-5 w-5" />;
                         break;
                     case "VIDEO":
-                        icon = "video.png";
                         text = "Video";
+                        icon = <FileVideo2 className="h-5 w-5" />;
                         break;
                 }
 
                 return (
-                    <div className="flex flex-row gap-2">
-                        <Image
-                            src={`/icons/${icon}`}
-                            width="20"
-                            height="20"
-                            alt={icon}
-                        />
+                    <div className="flex flex-row gap-2 line-clamp-1">
+                        {icon}
                         <span>{text}</span>
                     </div>
                 );
@@ -121,7 +115,7 @@ const FilesList = () => {
             accessorKey: "status",
             header: () => {
                 return (
-                    <span className="font-medium md:text-base text-sm text-black">
+                    <span className="font-medium md:text-base text-cente text-sm text-black">
                         Status
                     </span>
                 );
@@ -183,11 +177,18 @@ const FilesList = () => {
                     </Button>
                 );
             },
-            cell: ({ row }) =>
-                new Date(row.getValue("created_at")).toLocaleString(
-                    "en-US",
-                    dateFormatOptions as any
-                ) as unknown as string,
+            cell: ({ row }) => {
+                return (
+                    <span className="line-clamp-1">
+                        {
+                            new Date(row.getValue("created_at")).toLocaleString(
+                                "en-US",
+                                dateFormatOptions as any
+                            ) as unknown as string
+                        }
+                    </span>
+                );
+            },
         },
         {
             accessorKey: "completed_at",
@@ -205,18 +206,28 @@ const FilesList = () => {
                     </Button>
                 );
             },
-            cell: ({ row }) =>
-                row.getValue("completed_at")
-                    ? (new Date(row.getValue("completed_at")).toLocaleString(
-                          "en-US",
-                          dateFormatOptions as any
-                      ) as unknown as string)
-                    : null,
+            cell: ({ row }) => {
+                return (
+                    <span className="line-clamp-1">
+                        {row.getValue("completed_at")
+                            ? (new Date(
+                                  row.getValue("completed_at")
+                              ).toLocaleString(
+                                  "en-US",
+                                  dateFormatOptions as any
+                              ) as unknown as string)
+                            : null}
+                    </span>
+                );
+            },
         },
         {
             id: "actions",
             cell: ({ row }) => {
                 const file: ListFileApiResponse = row.original;
+                const isCompleted: boolean = file.completed_at !== null;
+                const isCompletedSuccessFully: boolean =
+                    isCompleted && file.status === "DONE";
 
                 return (
                     <DropdownMenu>
@@ -231,33 +242,33 @@ const FilesList = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                                className="cursor-pointer gap-2"
+                                className={cn(
+                                    "cursor-pointer gap-2",
+                                    !isCompletedSuccessFully &&
+                                        "cursor-not-allowed opacity-50"
+                                )}
                                 onClick={() =>
                                     mountModal(
                                         <TranscribeFileModal {...file} />
                                     )
                                 }
                             >
-                                <Image
-                                    src="/icons/transcription.svg"
-                                    width="15"
-                                    height="15"
-                                    alt="transcribe"
-                                />
+                                <FileText className="h-4 w-4" />
                                 Transcribe
                             </DropdownMenuItem>
 
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                                className="cursor-pointer gap-2"
-                                onClick={() => handleFileDelete(file.id)}
+                                className={cn(
+                                    "cursor-pointer gap-2",
+                                    !isCompleted &&
+                                        "cursor-not-allowed opacity-50"
+                                )}
+                                onClick={() =>
+                                    mountModal(<DeleteFileModal {...file} />)
+                                }
                             >
-                                <Image
-                                    src="/icons/delete.png"
-                                    width="15"
-                                    height="15"
-                                    alt="delete"
-                                />
+                                <Trash2 className="h-4 w-4" />
                                 Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -268,19 +279,13 @@ const FilesList = () => {
     ];
 
     return (
-        <div className="flex flex-col w-full px-4 pt-10 gap-5">
+        <div className="flex flex-col w-full px-4 pt-10">
             <Button
                 variant="default"
-                className="flex flex-row items-center border-2 gap-2 w-auto md:ml-auto md:mr-0 mx-auto md:text-sm text-xs md:p-4 p-3"
+                className="flex flex-row items-center gap-2 w-auto md:ml-auto md:mr-0 mx-auto md:text-sm text-xs md:p-4 p-3 mb-5"
                 onClick={() => mountModal(<FileUploadModal />)}
             >
-                <Image
-                    src="/icons/upload.svg"
-                    alt="Upload"
-                    width={16}
-                    height={16}
-                    className="text-white w-4 h-4"
-                />
+                <UploadCloud className="h-4 w-4" />
                 Upload
             </Button>
             <DataTable columns={columns} data={data} />

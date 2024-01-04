@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Dropzone, { Accept } from "react-dropzone";
 import { toast } from "sonner";
+import { UploadCloud } from "lucide-react";
 import BackgroundProgress from "@/src/components/dashboard/BackgroundProgress";
 import { ModalUI } from "@/src/components/ui/modal";
 import { Button } from "@/src/components/ui/button";
@@ -84,13 +84,7 @@ const FileUploadModal = () => {
                             {...getRootProps()}
                         >
                             <input {...getInputProps()} />
-                            <Image
-                                src="/icons/upload-dnd.svg"
-                                alt="upload-dnd"
-                                width={50}
-                                height={50}
-                                className="w-auto h-auto md:scale-150 scale-125"
-                            />
+                            <UploadCloud className="md:w-12 md:h-12 w-10 h-10 text-gray-600" />
                             <div className="flex flex-col items-center gap-0">
                                 <span className="text-gray-950 font- md:text-base text-sm">
                                     Drag and Drop to upload files

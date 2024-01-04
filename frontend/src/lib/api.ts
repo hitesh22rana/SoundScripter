@@ -1,29 +1,7 @@
-import {
-    FileUploadApiPayload,
-    TranscribeFileApiPayload,
-} from "@/src/types/api";
+import { TranscribeFileApiPayload } from "@/src/types/api";
 import { Sort } from "@/src/types/core";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
-
-export async function fileUpload({ file, name }: FileUploadApiPayload) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("name", name);
-
-    const res = await fetch(API_URL + "/files", {
-        method: "POST",
-        body: formData,
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-        throw new Error(data.detail || "Something went wrong");
-    }
-
-    return data.data;
-}
 
 export async function fetchFileList(
     limit: number = 100,
@@ -100,5 +78,31 @@ export async function transcribeFile(payload: TranscribeFileApiPayload) {
         throw new Error(data.detail || "Something went wrong");
     }
 
-    return data.data;
+    return data;
+}
+
+export async function downloadTranscription(id: string, fileName: string) {
+    const res = await fetch(API_URL + "/transcriptions/" + id + "/download", {
+        method: "GET",
+    });
+
+    if (!res.ok) {
+        throw new Error("File download failed");
+    }
+
+    const blob = await res.blob();
+
+    const downloadLink = document.createElement("a");
+
+    const objectUrl = URL.createObjectURL(blob);
+
+    downloadLink.href = objectUrl;
+
+    downloadLink.download = fileName;
+
+    downloadLink.click();
+
+    URL.revokeObjectURL(objectUrl);
+
+    return res;
 }

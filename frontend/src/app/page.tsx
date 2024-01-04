@@ -19,7 +19,7 @@ export default function Page() {
 
     return (
         <section className="flex flex-col items-start justify-start px-2 w-full max-w-7xl mx-auto py-10">
-            <div className="flex flex-row items-center justify-center bg-gray-50 shadow mx-auto rounded-md">
+            <div className="flex flex-row items-center justify-center bg-gray-50 shadow mx-auto rounded-lg">
                 <Button
                     variant={listType === "files" ? "default" : "ghost"}
                     className="h-8 w-36 font-medium rounded-none rounded-l-md"

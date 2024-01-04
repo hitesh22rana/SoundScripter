@@ -47,9 +47,7 @@ const BackgroundProgress = ({ id, url, method, fileName, payload }: Props) => {
 
     return (
         <div className="flex flex-row items-center justify-between w-full bg-b">
-            <span className="max-w-[90%] w-full text-ellipsis overflow-hidden whitespace-nowrap">
-                {fileName}
-            </span>
+            <span className="max-w-[90%] w-full line-clamp-1">{fileName}</span>
             <CircularProgress
                 height="35"
                 width="35"
