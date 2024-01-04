@@ -10,7 +10,7 @@ html {
     scroll-behavior: smooth;
 }
 *::-webkit-scrollbar {
-    width: 15px;
+    width: 4px;
 }
 *::-webkit-scrollbar-track {
     border-radius: 10px;
@@ -26,7 +26,7 @@ html {
     background-color: #555;
 }
 body {
-    background-color: #F8F9FB;
+    background-color: #f8f9fa;
     background-image: url('/images/noise.png');
     background-size: 15%;
     overflow-x: hidden;
