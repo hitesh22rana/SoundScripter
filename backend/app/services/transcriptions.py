@@ -131,7 +131,7 @@ class TranscriptionService:
         # TODO:- Add support for multiple languages
         # TODO:- Add support for multiple models
 
-        return f"whisper -t {cls._get_thread_count(priority=priority)} -l {cls._get_spoken_language(langauge=langauge)} -m {cls._get_model_path()} -f {cls._get_file_path()} -osrt -ovtt -of {cls._get_output_folder_path()}"
+        return f"whisper -t {cls._get_thread_count(priority=priority)} -l {cls._get_spoken_language(langauge=langauge)} -m {cls._get_model_path()} -f {cls._get_file_path()} -osrt -ovtt -ocsv -oj -of {cls._get_output_folder_path()}"
 
     @classmethod
     async def _generate_zip(
