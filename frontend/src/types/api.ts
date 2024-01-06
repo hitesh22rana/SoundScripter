@@ -5,7 +5,7 @@ export type FileUploadApiPayload = {
     name: string;
 };
 
-export type ListFileApiResponse = {
+export type FileApiResponse = {
     id: string;
     name: string;
     type: Media;
@@ -14,7 +14,7 @@ export type ListFileApiResponse = {
     completed_at: Date;
 };
 
-export type ListTranscriptionApiResponse = {
+export type TranscriptionApiResponse = {
     id: string;
     name: string;
     type: Media;

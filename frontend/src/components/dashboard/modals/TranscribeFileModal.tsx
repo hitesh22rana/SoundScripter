@@ -13,11 +13,11 @@ import {
 } from "@/src/components/ui/select";
 
 import useModalStore from "@/src/store/modal";
-import { ListFileApiResponse, TranscribeFileApiPayload } from "@/src/types/api";
+import { FileApiResponse, TranscribeFileApiPayload } from "@/src/types/api";
 import { Language, Priorty } from "@/src/types/core";
 import { transcribeFile } from "@/src/lib/api";
 
-const TranscriptionFileModal = (file: ListFileApiResponse) => {
+const TranscriptionFileModal = (file: FileApiResponse) => {
     const { unMountModal } = useModalStore();
     const [transibeFileApiPayload, setTranscribeFileApiPayload] =
         useState<TranscribeFileApiPayload>({} as TranscribeFileApiPayload);

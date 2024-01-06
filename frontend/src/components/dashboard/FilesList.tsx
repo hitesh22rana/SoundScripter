@@ -25,10 +25,10 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 
-import useFileStore from "@/src/store/file";
 import useModalStore from "@/src/store/modal";
+import useFileStore from "@/src/store/file";
 import { Media, Status } from "@/src/types/core";
-import { ListFileApiResponse } from "@/src/types/api";
+import { FileApiResponse } from "@/src/types/api";
 import { dateFormatOptions, cn } from "@/src/lib/utils";
 
 const FilesList = () => {
@@ -56,7 +56,7 @@ const FilesList = () => {
         return <Loader />;
     }
 
-    const columns: ColumnDef<ListFileApiResponse>[] = [
+    const columns: ColumnDef<FileApiResponse>[] = [
         {
             accessorKey: "name",
             header: ({ column }) => {
@@ -224,7 +224,7 @@ const FilesList = () => {
         {
             id: "actions",
             cell: ({ row }) => {
-                const file: ListFileApiResponse = row.original;
+                const file: FileApiResponse = row.original;
                 const isCompleted: boolean = file.completed_at !== null;
                 const isCompletedSuccessFully: boolean =
                     isCompleted && file.status === "DONE";
@@ -242,16 +242,13 @@ const FilesList = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                                className={cn(
-                                    "cursor-pointer gap-2",
-                                    !isCompletedSuccessFully &&
-                                        "cursor-not-allowed opacity-50"
-                                )}
+                                className="cursor-pointer gap-2"
                                 onClick={() =>
                                     mountModal(
                                         <TranscribeFileModal {...file} />
                                     )
                                 }
+                                disabled={!isCompletedSuccessFully}
                             >
                                 <FileText className="h-4 w-4" />
                                 Transcribe
@@ -259,11 +256,8 @@ const FilesList = () => {
 
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                                className={cn(
-                                    "cursor-pointer gap-2",
-                                    !isCompleted &&
-                                        "cursor-not-allowed opacity-50"
-                                )}
+                                className="cursor-pointer gap-2"
+                                disabled={!isCompleted}
                                 onClick={() =>
                                     mountModal(<DeleteFileModal {...file} />)
                                 }

@@ -3,7 +3,7 @@ import Notifications from "@/src/components/dashboard/Notifications";
 
 export default function Topbar() {
     return (
-        <header className="flex w-full h-auto min-h-fit flex-row items-center justify-between shadow bg-gray-50 px-5 py-2">
+        <header className="flex w-full h-auto min-h-fit flex-row items-center justify-between shadow bg-gray-50 px-5 py-4">
             <Image
                 src="/images/logo-icon.png"
                 width="30"

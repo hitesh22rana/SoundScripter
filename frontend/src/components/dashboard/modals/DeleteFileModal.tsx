@@ -6,9 +6,9 @@ import { ModalUI } from "@/src/components/ui/modal";
 
 import useModalStore from "@/src/store/modal";
 import useFileStore from "@/src/store/file";
-import { ListFileApiResponse } from "@/src/types/api";
+import { FileApiResponse } from "@/src/types/api";
 
-const DeleteFileModal = (file: ListFileApiResponse) => {
+const DeleteFileModal = (file: FileApiResponse) => {
     const { unMountModal } = useModalStore();
     const { deleteFile } = useFileStore((state) => ({
         deleteFile: state.deleteFile,
@@ -35,8 +35,7 @@ const DeleteFileModal = (file: ListFileApiResponse) => {
             <ModalUI.Header className="flex flex-col items-center justify-center gap-2">
                 <ModalUI.Heading>Delete File</ModalUI.Heading>
                 <ModalUI.SubHeading>
-                    Are you sure you want to delete this file? This action
-                    cannot be undone.
+                    Are you sure you want to delete this file?
                 </ModalUI.SubHeading>
             </ModalUI.Header>
 
