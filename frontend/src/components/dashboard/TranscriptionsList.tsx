@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { DataTable } from "@/src/components/ui/data-table";
+import TranscriptionTerminateModal from "@/src/components/dashboard/modals/TranscriptionTerminateModal";
 import Loader from "@/src/components/ui/loader";
 import {
     DropdownMenu,
@@ -22,23 +23,22 @@ import {
     DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
 
+import useModalStore from "@/src/store/modal";
 import useTranscriptionStore from "@/src/store/transcription";
-import { ListTranscriptionApiResponse } from "@/src/types/api";
+import { TranscriptionApiResponse } from "@/src/types/api";
 import { Media, Status } from "@/src/types/core";
 import { cn, dateFormatOptions } from "@/src/lib/utils";
 
 const TranscriptionsList = () => {
-    const {
-        fetchTranscriptions,
-        data,
-        error,
-        downloadTranscription: download,
-    } = useTranscriptionStore((state) => ({
-        fetchTranscriptions: state.fetchTranscriptions,
-        data: state.data,
-        error: state.error,
-        downloadTranscription: state.downloadTranscription,
-    }));
+    const { mountModal } = useModalStore();
+
+    const { fetchTranscriptions, data, error, downloadTranscription } =
+        useTranscriptionStore((state) => ({
+            fetchTranscriptions: state.fetchTranscriptions,
+            data: state.data,
+            error: state.error,
+            downloadTranscription: state.downloadTranscription,
+        }));
 
     useEffect(() => {
         fetchTranscriptions();
@@ -56,21 +56,22 @@ const TranscriptionsList = () => {
         return <Loader />;
     }
 
-    async function downloadTranscription(id: string, fileName: string) {
+    async function download(id: string, fileName: string) {
         try {
-            await download(id, fileName);
+            await downloadTranscription(id, fileName);
 
             toast.success("Success", {
                 description: "File download successfully",
             });
         } catch (error: any) {
             toast.error("Error", {
-                description: error?.message || "Failed to download file",
+                description:
+                    error?.message || "Failed to download transcription",
             });
         }
     }
 
-    const columns: ColumnDef<ListTranscriptionApiResponse>[] = [
+    const columns: ColumnDef<TranscriptionApiResponse>[] = [
         {
             accessorKey: "name",
             header: ({ column }) => {
@@ -238,8 +239,7 @@ const TranscriptionsList = () => {
         {
             id: "actions",
             cell: ({ row }) => {
-                const transcription: ListTranscriptionApiResponse =
-                    row.original;
+                const transcription: TranscriptionApiResponse = row.original;
                 const isCompleted = transcription.completed_at !== null;
                 const isCompletedSuccessFully =
                     isCompleted && transcription.status === "DONE";
@@ -257,13 +257,10 @@ const TranscriptionsList = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                                className={cn(
-                                    "cursor-pointer gap-2",
-                                    !isCompletedSuccessFully &&
-                                        "cursor-not-allowed opacity-50"
-                                )}
+                                className="cursor-pointer gap-2"
+                                disabled={!isCompletedSuccessFully}
                                 onClick={() =>
-                                    downloadTranscription(
+                                    download(
                                         transcription.id,
                                         transcription.name
                                     )
@@ -275,11 +272,15 @@ const TranscriptionsList = () => {
 
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                                className={cn(
-                                    "cursor-pointer gap-2",
-                                    isCompleted &&
-                                        "cursor-not-allowed opacity-50"
-                                )}
+                                className="cursor-pointer gap-2"
+                                disabled={isCompleted}
+                                onClick={() => {
+                                    mountModal(
+                                        <TranscriptionTerminateModal
+                                            {...transcription}
+                                        />
+                                    );
+                                }}
                             >
                                 <BadgeX className="h-4 w-4" />
                                 Terminate

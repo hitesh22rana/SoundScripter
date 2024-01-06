@@ -106,3 +106,17 @@ export async function downloadTranscription(id: string, fileName: string) {
 
     return res;
 }
+
+export async function terminateTranscription(id: string) {
+    const res = await fetch(API_URL + "/transcriptions/" + id + "/terminate", {
+        method: "DELETE",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        throw new Error(data.detail || "Something went wrong");
+    }
+
+    return data;
+}
