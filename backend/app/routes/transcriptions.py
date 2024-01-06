@@ -42,6 +42,8 @@ async def download(file_id: str, session: Session = Depends(db_client.get_db_ses
     return await TranscriptionService(session=session).download(file_id=file_id)
 
 
-@router.get("/{file_id}/terminate", response_description="Terminate transcription task")
+@router.delete(
+    "/{file_id}/terminate", response_description="Terminate transcription task"
+)
 async def terminate(file_id: str, session: Session = Depends(db_client.get_db_session)):
     return await TranscriptionService(session=session).terminate(file_id=file_id)

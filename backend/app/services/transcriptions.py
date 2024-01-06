@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.background_tasks.transcription import (
     generate_transcription,
-    stop_transcription,
+    terminate_transcription,
 )
 from app.config import settings
 from app.models import FilesModel, TranscriptionsModel
@@ -432,7 +432,7 @@ class TranscriptionService:
                     }
                 )
 
-            task = stop_transcription.delay(container_id=transcription.task_id)
+            task = terminate_transcription.delay(container_id=transcription.task_id)
 
             return OK(
                 content={

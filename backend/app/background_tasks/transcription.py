@@ -88,6 +88,10 @@ def generate_transcription(data: dict) -> None:
         transcription: TranscriptionsModel = (
             session.query(TranscriptionsModel).filter_by(file_id=data["id"]).first()
         )
+
+        if not transcription:
+            return
+
         transcription.status = Status.ERROR
         completed_at = datetime.now(timezone.utc)
         transcription.completed_at = completed_at
@@ -111,13 +115,14 @@ def generate_transcription(data: dict) -> None:
         )
 
 
+# TODO:- Explicit error handling and robust notification
 @background_tasks.task(
     acks_late=True,
     max_retries=1,
     default_retry_delay=60,
     queue="transcription_task_queue",
 )
-def stop_transcription(container_id: str):
+def terminate_transcription(container_id: str):
     try:
         session = next(db_client.get_db_session())
 
@@ -134,7 +139,7 @@ def stop_transcription(container_id: str):
                     "id": container_id,
                     "status": Status.DONE,
                     "type": NotificationType.SUCCESS,
-                    "task": Task.TRANSCRIPTION,
+                    "task": Task.TERMINATE,
                     "message": "successfully stopped running transcription job",
                     "completed_at": None,
                 }
@@ -145,6 +150,10 @@ def stop_transcription(container_id: str):
         transcription: TranscriptionsModel = (
             session.query(TranscriptionsModel).filter_by(task_id=container_id).first()
         )
+
+        if not transcription:
+            return
+
         transcription.status = Status.ERROR
         completed_at = datetime.now(timezone.utc)
         transcription.completed_at = completed_at
@@ -160,7 +169,7 @@ def stop_transcription(container_id: str):
                     "id": container_id,
                     "status": Status.ERROR,
                     "type": NotificationType.ERROR,
-                    "task": Task.TRANSCRIPTION,
+                    "task": Task.TERMINATE,
                     "message": "failed to stop running transcription job",
                     "completed_at": completed_at.isoformat(),
                 }

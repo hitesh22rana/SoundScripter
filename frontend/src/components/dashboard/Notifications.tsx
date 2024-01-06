@@ -36,8 +36,15 @@ const Notifications = () => {
         url: "http://127.0.0.1:8000/api/v1/sse/notifications",
     });
 
-    const { updateFilesDataProgress, fetchFiles } = useFileStore();
-    const { updateTranscribeDataProgress } = useTranscriptionStore();
+    const { updateFilesDataProgress, fetchFiles } = useFileStore((state) => ({
+        updateFilesDataProgress: state.updateFilesDataProgress,
+        fetchFiles: state.fetchFiles,
+    }));
+    const { updateTranscribeDataProgress, removeTranscription } =
+        useTranscriptionStore((state) => ({
+            updateTranscribeDataProgress: state.updateTranscribeDataProgress,
+            removeTranscription: state.removeTranscription,
+        }));
 
     const [allNotifications, setAllNotifications] = useState<Notification[]>(
         [] as Notification[]
@@ -90,12 +97,16 @@ const Notifications = () => {
                     data.completed_at
                 );
                 break;
+            case "TERMINATE":
+                removeTranscription(data.id, "task_id");
+                break;
         }
     }, [
         data,
+        fetchFiles,
         updateFilesDataProgress,
         updateTranscribeDataProgress,
-        fetchFiles,
+        removeTranscription,
     ]);
 
     const extractNotifications = useCallback(
