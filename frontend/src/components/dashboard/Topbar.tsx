@@ -11,7 +11,7 @@ export default function Topbar() {
                 alt="logo"
                 draggable={false}
                 quality={100}
-                className="w-auto h-auto bg-contain object-contain"
+                className="bg-contain object-contain"
             />
 
             <Notifications />

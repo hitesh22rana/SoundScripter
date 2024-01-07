@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import {
@@ -32,16 +32,23 @@ import { cn, dateFormatOptions } from "@/src/lib/utils";
 const TranscriptionsList = () => {
     const { mountModal } = useModalStore();
 
-    const { fetchTranscriptions, data, error, downloadTranscription } =
+    const { fetchTranscriptions, data, downloadTranscription } =
         useTranscriptionStore((state) => ({
             fetchTranscriptions: state.fetchTranscriptions,
             data: state.data,
-            error: state.error,
             downloadTranscription: state.downloadTranscription,
         }));
 
+    const [error, setError] = useState<string | null>(null);
+
     useEffect(() => {
-        fetchTranscriptions();
+        (async function () {
+            try {
+                await fetchTranscriptions();
+            } catch (error: any) {
+                setError(error?.message || "Failed to fetch files data");
+            }
+        })();
     }, [fetchTranscriptions]);
 
     if (error) {

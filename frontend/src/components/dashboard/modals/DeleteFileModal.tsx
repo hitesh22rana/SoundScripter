@@ -46,7 +46,7 @@ const DeleteFileModal = (file: FileApiResponse) => {
                     </span>
                     <span className="line-clamp-1">{file.name}</span>
                 </div>
-                <div className="flex flex-row w-full gap-2 justify-evenly">
+                <div className="flex flex-row w-full gap-2 items-center justify-evenly mt-4">
                     <Button
                         variant="outline"
                         className="w-full p-5 font-medium text-base"

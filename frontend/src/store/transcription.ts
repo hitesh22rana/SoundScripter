@@ -9,7 +9,6 @@ import { TranscriptionApiResponse } from "@/src/types/api";
 import { Status } from "@/src/types/core";
 
 interface FileStoreType {
-    error: string | null;
     data: TranscriptionApiResponse[] | null;
 
     fetchTranscriptions: () => void;
@@ -24,18 +23,14 @@ interface FileStoreType {
 }
 
 const useTranscriptionStore = create<FileStoreType>((set, get) => ({
-    error: null,
     data: null,
 
     fetchTranscriptions: async () => {
         try {
             const { data } = await fetchTranscriptionList();
-            set({ data: data, error: null });
+            set({ data: data });
         } catch (error: any) {
-            set({
-                data: null,
-                error: error.message || "Failed to fetch transcriptions",
-            });
+            throw new Error(error?.detail || "Failed to fetch transcriptions");
         }
     },
     updateTranscribeDataProgress: (

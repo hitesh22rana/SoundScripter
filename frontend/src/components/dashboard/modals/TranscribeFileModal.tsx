@@ -64,7 +64,7 @@ const TranscriptionFileModal = (file: FileApiResponse) => {
                     </span>
                     <span className="line-clamp-1">{file.name}</span>
                 </div>
-                <div className="flex flex-row items-center justify-between">
+                <div className="flex flex-row w-full items-center justify-evenly gap-2">
                     <Select
                         onValueChange={(value) =>
                             setTranscribeFileApiPayload({
@@ -73,7 +73,7 @@ const TranscriptionFileModal = (file: FileApiResponse) => {
                             })
                         }
                     >
-                        <SelectTrigger className="w-[180px] focus-within:ring-0 focus-within:outline-none focus-visible:ring-0">
+                        <SelectTrigger className="w-full focus-within:ring-0 focus-within:outline-none focus-visible:ring-0">
                             <SelectValue placeholder="Language" />
                         </SelectTrigger>
                         <SelectContent className="z-[99999999]">
@@ -88,7 +88,7 @@ const TranscriptionFileModal = (file: FileApiResponse) => {
                             })
                         }
                     >
-                        <SelectTrigger className="w-[180px] focus-within:ring-0 focus-within:outline-none focus-visible:ring-0">
+                        <SelectTrigger className="w-full focus-within:ring-0 focus-within:outline-none focus-visible:ring-0">
                             <SelectValue placeholder="Priority" />
                         </SelectTrigger>
                         <SelectContent className="z-[99999999]">
@@ -97,17 +97,26 @@ const TranscriptionFileModal = (file: FileApiResponse) => {
                         </SelectContent>
                     </Select>
                 </div>
-                <Button
-                    variant="default"
-                    className="md:py-6 py-5 w-full md:text-lg mt-2 font-medium disabled:opacity-90 disabled:pointer-events-auto disabled:cursor-not-allowed text-base"
-                    onClick={handleTranscribeFile}
-                    disabled={
-                        !transibeFileApiPayload.language ||
-                        !transibeFileApiPayload.priority
-                    }
-                >
-                    Transcribe
-                </Button>
+                <div className="flex flex-row w-full gap-2 items-center justify-evenly mt-4">
+                    <Button
+                        variant="outline"
+                        className="w-full p-5 font-medium text-base"
+                        onClick={unMountModal}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="default"
+                        className="w-full p-5 font-medium text-base disabled:opacity-90 disabled:pointer-events-auto disabled:cursor-not-allowed"
+                        onClick={handleTranscribeFile}
+                        disabled={
+                            !transibeFileApiPayload.language ||
+                            !transibeFileApiPayload.priority
+                        }
+                    >
+                        Transcribe
+                    </Button>
+                </div>
             </ModalUI.Body>
         </ModalUI>
     );

@@ -50,7 +50,7 @@ const TranscriptionTerminateModal = (
                     </span>
                     <span className="line-clamp-1">{transcription.name}</span>
                 </div>
-                <div className="flex flex-row w-full gap-2 items-end justify-evenly">
+                <div className="flex flex-row w-full gap-2 items-center justify-evenly mt-4">
                     <Button
                         variant="outline"
                         className="w-full p-5 font-medium text-base"

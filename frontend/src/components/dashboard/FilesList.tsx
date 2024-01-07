@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import {
     ArrowUpDown,
@@ -34,14 +34,21 @@ import { dateFormatOptions, cn } from "@/src/lib/utils";
 const FilesList = () => {
     const { mountModal } = useModalStore();
 
-    const { fetchFiles, data, error } = useFileStore((state) => ({
+    const { fetchFiles, data } = useFileStore((state) => ({
         fetchFiles: state.fetchFiles,
         data: state.data,
-        error: state.error,
     }));
 
+    const [error, setError] = useState<string | null>(null);
+
     useEffect(() => {
-        fetchFiles();
+        (async function () {
+            try {
+                await fetchFiles();
+            } catch (error: any) {
+                setError(error?.message || "Failed to fetch files data");
+            }
+        })();
     }, [fetchFiles]);
 
     if (error) {

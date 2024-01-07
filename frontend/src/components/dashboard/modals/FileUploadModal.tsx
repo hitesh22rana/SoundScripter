@@ -112,16 +112,26 @@ const FileUploadModal = () => {
                     placeholder="Enter file name"
                     onChange={(e) => handleFileNameChange(e.target.value)}
                 />
-                <Button
-                    variant="default"
-                    className="md:py-6 py-5 w-full md:text-lg mt-2 font-medium disabled:opacity-90 disabled:pointer-events-auto disabled:cursor-not-allowed text-base"
-                    onClick={handleFileUpload}
-                    disabled={
-                        !fileUploadApiPayload.file || !fileUploadApiPayload.name
-                    }
-                >
-                    Upload
-                </Button>
+                <div className="flex flex-row w-full gap-2 items-center justify-evenly mt-4">
+                    <Button
+                        variant="outline"
+                        className="w-full p-5 font-medium text-base"
+                        onClick={unMountModal}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="default"
+                        className="w-full p-5 font-medium text-base disabled:opacity-90 disabled:pointer-events-auto disabled:cursor-not-allowed"
+                        onClick={handleFileUpload}
+                        disabled={
+                            !fileUploadApiPayload.file ||
+                            !fileUploadApiPayload.name
+                        }
+                    >
+                        Upload
+                    </Button>
+                </div>
             </ModalUI.Body>
         </ModalUI>
     );
