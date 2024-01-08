@@ -34,31 +34,18 @@ To run SoundScripter locally or in a server environment, follow these steps:
     git clone https://github.com/hitesh22rana/SoundScripter.git
     ```
 
-2. Navigate to the backend directory
+2. Navigate to the SoundScripter directory
 
     ```bash
-    cd backend
+    cd SoundScripter
     ```
 
-3. Configuration
-
-    - You can configure various settings, such as RabbitMQ connection details and task priorities, in the `docker-compose.yml` files.
-    - Environment variables are stored in `.env`. Refer `.env.example` for a template of the required variables. Make sure to create a `.env` file with your specific configuration before running the application.
-
-4. Requirements Check
-
-    Before running the application, it's important to ensure that system meets the essential requirements in order to run the application. You can use the `check-requirements.sh` script to verify this:
-
-    ```bash
-    ./check-requirements.sh
-    ```
-
-5. Build and run the application
+3. Build and run the application
 
     i. First build the transcription service
 
     ```bash
-    docker build -t transcription-service -f Dockerfile.transcription-service .
+    docker build -t transcription-service -f backend/Dockerfile.transcription-service .
     ```
 
     ii. Now, run the docker-compose file to bind all the services
@@ -67,7 +54,7 @@ To run SoundScripter locally or in a server environment, follow these steps:
     docker-compose -f docker-compose.yml up
     ```
 
-6. Now you backend is up and running and you can access the API docs at `http://localhost:8000/docs`.
+4. Now you app is up and running and you can access the app via `http://localhost:3000`.
 
 ## Contributions
 
