@@ -1,5 +1,5 @@
 version: "3"
-name: "sound-scripter"
+name: "soundscripter-backend"
 
 services:
     # Postgres database
@@ -8,7 +8,7 @@ services:
         container_name: db
         restart: always
         networks:
-            - soundscripter
+            - soundscripter-backend
         ports:
             - "5432:5432"
         environment:
@@ -24,7 +24,7 @@ services:
         container_name: message-broker
         restart: always
         networks:
-            - soundscripter
+            - soundscripter-backend
         ports:
             - "5672:5672"
 
@@ -34,7 +34,7 @@ services:
         container_name: redis
         restart: always
         networks:
-            - soundscripter
+            - soundscripter-backend
         ports:
             - "6379:6379"
 
@@ -46,14 +46,18 @@ services:
         container_name: task-queue
         restart: always
         networks:
-            - soundscripter
-        env_file:
-            - ./.env
+            - soundscripter-backend
         environment:
+            - WORKER_CONCURRENCY=4
+            - CELERY_BACKEND=rpc://
             - CELERY_BROKER=pyamqp://message-broker
             - LOCAL_STORAGE_BASE_PATH=${PWD}/data
             - REDIS_HOST=pub-sub
+            - REDIS_PORT=6379
             - POSTGRES_HOST=db
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_PORT=5432
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./data:/task-queue/data
@@ -70,14 +74,18 @@ services:
         container_name: backend
         restart: always
         networks:
-            - soundscripter
-        env_file:
-            - ./.env
+            - soundscripter-backend
         environment:
+            - WORKER_CONCURRENCY=4
+            - CELERY_BACKEND=rpc://
             - CELERY_BROKER=pyamqp://message-broker
             - LOCAL_STORAGE_BASE_PATH=${PWD}/data
             - REDIS_HOST=pub-sub
+            - REDIS_PORT=6379
             - POSTGRES_HOST=db
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_PORT=5432
         ports:
             - "8000:8000"
         volumes:
@@ -90,5 +98,5 @@ services:
             - task-queue
 
 networks:
-    soundscripter:
-        name: soundscripter
+    soundscripter-backend:
+        name: soundscripter-backend
