@@ -1,5 +1,5 @@
 version: "3"
-name: "sound-scripter"
+name: "soundscripter"
 
 services:
     # Postgres database
