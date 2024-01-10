@@ -51,6 +51,8 @@ const FileUploadModal = () => {
                 payload={formData}
             />
         );
+
+        unMountModal();
     }
 
     return (

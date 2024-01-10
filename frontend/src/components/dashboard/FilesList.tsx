@@ -73,7 +73,7 @@ const FilesList = () => {
                         onClick={() =>
                             column.toggleSorting(column.getIsSorted() === "asc")
                         }
-                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                        className="flex flex-row items-center justify-start px-0 min-w-[120px] md:w-[320px] max-w-xs w-auto font-medium text-base text-black hover:text-gray-600"
                     >
                         File name
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -82,7 +82,9 @@ const FilesList = () => {
             },
             cell: ({ row }) => {
                 return (
-                    <span className="line-clamp-1">{row.getValue("name")}</span>
+                    <span className="line-clamp-1 max-w-xs">
+                        {row.getValue("name")}
+                    </span>
                 );
             },
         },
@@ -90,7 +92,7 @@ const FilesList = () => {
             accessorKey: "type",
             header: () => {
                 return (
-                    <span className="font-medium md:text-base text-sm text-black line-clamp-1">
+                    <span className="min-w-[80px] font-medium md:text-base text-sm text-black line-clamp-1">
                         Media type
                     </span>
                 );
@@ -102,11 +104,11 @@ const FilesList = () => {
                 switch (value) {
                     case "AUDIO":
                         text = "Audio";
-                        icon = <FileAudio2 className="h-5 w-5" />;
+                        icon = <FileAudio2 className="md:h-5 md:w-5 h-4 w-4" />;
                         break;
                     case "VIDEO":
                         text = "Video";
-                        icon = <FileVideo2 className="h-5 w-5" />;
+                        icon = <FileVideo2 className="md:h-5 md:w-5 h-4 w-4" />;
                         break;
                 }
 
@@ -122,7 +124,7 @@ const FilesList = () => {
             accessorKey: "status",
             header: () => {
                 return (
-                    <span className="font-medium md:text-base text-cente text-sm text-black">
+                    <span className="line-clamp-1 text-center font-medium md:text-base text-sm text-black">
                         Status
                     </span>
                 );
@@ -156,15 +158,17 @@ const FilesList = () => {
                 }
 
                 return (
-                    <span
-                        className={cn(
-                            "py-1 px-4 text-center md:text-sm text-xs font-medium rounded-md",
-                            backgroundColor,
-                            fontColor
-                        )}
-                    >
-                        {text}
-                    </span>
+                    <div className="flex justify-start items-center w-[100px] mx-auto">
+                        <span
+                            className={cn(
+                                "py-1 px-2 text-center md:text-sm text-xs font-medium rounded-md w-full",
+                                backgroundColor,
+                                fontColor
+                            )}
+                        >
+                            {text}
+                        </span>
+                    </div>
                 );
             },
         },
@@ -177,7 +181,7 @@ const FilesList = () => {
                         onClick={() =>
                             column.toggleSorting(column.getIsSorted() === "asc")
                         }
-                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                        className="flex flex-row items-center justify-start px-0 min-w-[120px] font-medium text-base text-black hover:text-gray-600"
                     >
                         Uploaded at
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -206,7 +210,7 @@ const FilesList = () => {
                         onClick={() =>
                             column.toggleSorting(column.getIsSorted() === "asc")
                         }
-                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                        className="flex flex-row items-center justify-start px-0 min-w-[140px] font-medium text-base text-black hover:text-gray-600"
                     >
                         Completed at
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -241,10 +245,10 @@ const FilesList = () => {
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="outline"
-                                className="h-6 w-6 p-0 focus-within:ring-0 focus-within:outline-none focus-visible:ring-0"
+                                className="md:h-6 md:w-6 h-5 w-5 p-0 focus-within:ring-0 focus-within:outline-none focus-visible:ring-0"
                             >
                                 <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
+                                <MoreHorizontal className="md:h-4 md:w-4 h-3 w-3" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -257,7 +261,7 @@ const FilesList = () => {
                                 }
                                 disabled={!isCompletedSuccessFully}
                             >
-                                <FileText className="h-4 w-4" />
+                                <FileText className="md:h-4 md:w-4 h-3 w-3" />
                                 Transcribe
                             </DropdownMenuItem>
 
@@ -280,7 +284,7 @@ const FilesList = () => {
     ];
 
     return (
-        <div className="flex flex-col w-full px-4 pt-10">
+        <div className="flex flex-col w-full md:px-4 px-2 pt-10">
             <Button
                 variant="default"
                 className="flex flex-row items-center gap-2 w-auto md:ml-auto md:mr-0 mx-auto md:text-sm text-xs md:p-4 p-3 mb-5"

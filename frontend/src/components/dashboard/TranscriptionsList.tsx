@@ -88,7 +88,7 @@ const TranscriptionsList = () => {
                         onClick={() =>
                             column.toggleSorting(column.getIsSorted() === "asc")
                         }
-                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                        className="flex flex-row items-center justify-start px-0 min-w-[120px] md:w-[320px] max-w-xs w-auto font-medium text-base text-black hover:text-gray-600"
                     >
                         File name
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -97,7 +97,9 @@ const TranscriptionsList = () => {
             },
             cell: ({ row }) => {
                 return (
-                    <span className="line-clamp-1">{row.getValue("name")}</span>
+                    <span className="line-clamp-1 max-w-xs">
+                        {row.getValue("name")}
+                    </span>
                 );
             },
         },
@@ -105,8 +107,8 @@ const TranscriptionsList = () => {
             accessorKey: "type",
             header: () => {
                 return (
-                    <span className="font-medium md:text-base text-sm text-black">
-                        Media Type
+                    <span className="min-w-[80px] font-medium md:text-base text-sm text-black line-clamp-1">
+                        Media type
                     </span>
                 );
             },
@@ -117,11 +119,11 @@ const TranscriptionsList = () => {
                 switch (value) {
                     case "AUDIO":
                         text = "Audio";
-                        icon = <FileAudio2 className="h-5 w-5" />;
+                        icon = <FileAudio2 className="md:h-5 md:w-5 h-4 w-4" />;
                         break;
                     case "VIDEO":
                         text = "Video";
-                        icon = <FileVideo2 className="h-5 w-5" />;
+                        icon = <FileVideo2 className="md:h-5 md:w-5 h-4 w-4" />;
                         break;
                 }
 
@@ -137,7 +139,7 @@ const TranscriptionsList = () => {
             accessorKey: "status",
             header: () => {
                 return (
-                    <span className="font-medium md:text-base text-sm text-black">
+                    <span className="line-clamp-1 text-center font-medium md:text-base text-sm text-black">
                         Status
                     </span>
                 );
@@ -171,15 +173,17 @@ const TranscriptionsList = () => {
                 }
 
                 return (
-                    <span
-                        className={cn(
-                            "py-1 px-4 text-center md:text-sm text-xs font-medium rounded-md",
-                            backgroundColor,
-                            fontColor
-                        )}
-                    >
-                        {text}
-                    </span>
+                    <div className="flex justify-start items-center w-[100px] mx-auto">
+                        <span
+                            className={cn(
+                                "py-1 px-2 text-center md:text-sm text-xs font-medium rounded-md w-full",
+                                backgroundColor,
+                                fontColor
+                            )}
+                        >
+                            {text}
+                        </span>
+                    </div>
                 );
             },
         },
@@ -192,7 +196,7 @@ const TranscriptionsList = () => {
                         onClick={() =>
                             column.toggleSorting(column.getIsSorted() === "asc")
                         }
-                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                        className="flex flex-row items-center justify-start px-0 min-w-[120px] font-medium text-base text-black hover:text-gray-600"
                     >
                         Started at
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -221,7 +225,7 @@ const TranscriptionsList = () => {
                         onClick={() =>
                             column.toggleSorting(column.getIsSorted() === "asc")
                         }
-                        className="px-0 font-medium text-base text-black hover:text-gray-600"
+                        className="flex flex-row items-center justify-start px-0 min-w-[140px] font-medium text-base text-black hover:text-gray-600"
                     >
                         Completed at
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -256,7 +260,7 @@ const TranscriptionsList = () => {
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="outline"
-                                className="h-6 w-6 p-0 focus-within:ring-0 focus-within:outline-none focus-visible:ring-0"
+                                className="md:h-6 md:w-6 h-5 w-5 p-0 focus-within:ring-0 focus-within:outline-none focus-visible:ring-0"
                             >
                                 <span className="sr-only">Open menu</span>
                                 <MoreHorizontal className="h-4 w-4" />
@@ -300,7 +304,7 @@ const TranscriptionsList = () => {
     ];
 
     return (
-        <div className="w-full mx-auto px-4 pt-10">
+        <div className="flex flex-col w-full md:px-4 px-2 pt-10">
             <DataTable columns={columns} data={data} />
         </div>
     );
