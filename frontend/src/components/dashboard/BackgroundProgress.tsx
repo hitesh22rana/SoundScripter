@@ -30,6 +30,8 @@ const BackgroundProgress = ({ id, url, method, fileName, payload }: Props) => {
         })
     );
 
+    const isCompleted: boolean = progress === 100;
+
     if (error) {
         toast.error("Error", {
             description: error,
@@ -37,8 +39,6 @@ const BackgroundProgress = ({ id, url, method, fileName, payload }: Props) => {
         removeFromProgressTracker(id);
         return null;
     }
-
-    const isCompleted: boolean = progress === 100;
 
     if (isCompleted) {
         removeFromProgressTracker(id);

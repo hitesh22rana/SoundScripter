@@ -25,7 +25,8 @@ const useUploadWithProgress = ({ url, method, payload }: Props) => {
             const statusCode = req.status;
 
             if (isError(statusCode)) {
-                setError(req.response?.detail ?? "Something went wrong");
+                const res = JSON.parse(req.response);
+                setError(res?.detail ?? "Something went wrong");
             }
         });
 
