@@ -56,7 +56,7 @@ export function DataTable<TData, TValue>({
                                     return (
                                         <TableHead
                                             key={header.id}
-                                            className="min-w-[120px] md:min-w-max"
+                                            className="pr-4"
                                         >
                                             {header.isPlaceholder
                                                 ? null
