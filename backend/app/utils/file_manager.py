@@ -54,6 +54,7 @@ class FileManager:
         "audio/midi",
         "audio/mpeg",
         "audio/mp4",
+        "audio/wav",
         "audio/ogg",
         "audio/x-flac",
         "audio/x-wav",
