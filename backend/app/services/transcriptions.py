@@ -32,7 +32,7 @@ class TranscriptionService:
 
     image: str = "transcription-service"
     container_base_path: str = "home/data"
-    model: str = "ggml-small.en-q5_1.bin"
+    model: str = "ggml-small.en.bin"
     arcname: str = "transcription"
 
     def __init__(

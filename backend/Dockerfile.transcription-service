@@ -14,7 +14,7 @@ RUN mkdir /whisper && \
 WORKDIR /whisper
 
 # Download the quantized small.en model
-RUN bash ./models/download-ggml-model.sh small.en-q5_1
+RUN bash ./models/download-ggml-model.sh small.en
 
 # Build the main file
 RUN make main
@@ -34,7 +34,7 @@ WORKDIR /root
 RUN mkdir /root/models
 
 # copy the required files from the build image
-COPY --from=build "/whisper/models/ggml-small.en-q5_1.bin" "/root/models/ggml-small.en-q5_1.bin"
+COPY --from=build "/whisper/models/ggml-small.en.bin" "/root/models/ggml-small.en.bin"
 COPY --from=build /whisper/main /usr/local/bin/whisper
 
 # Set the entrypoint
