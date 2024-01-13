@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createTrackedSelector } from "react-tracked";
 
 import { deleteFile, fetchFileList } from "@/src/lib/api";
 import { FileApiResponse } from "@/src/types/api";
@@ -16,7 +17,7 @@ interface FileStoreType {
     ) => void;
 }
 
-const useFileStore = create<FileStoreType>((set, get) => ({
+const useFileStoreZustand = create<FileStoreType>((set, get) => ({
     data: null,
 
     fetchFiles: async () => {
@@ -31,7 +32,7 @@ const useFileStore = create<FileStoreType>((set, get) => ({
         try {
             await deleteFile(id);
 
-            const data = get().data;
+            const data = structuredClone(get().data);
             if (!data) return;
 
             set(() => ({ data: data.filter((file) => file.id !== id) }));
@@ -48,7 +49,7 @@ const useFileStore = create<FileStoreType>((set, get) => ({
         status: Status,
         completed_at: string | null
     ) => {
-        const data = get().data;
+        const data = structuredClone(get().data);
         if (!data) return;
 
         data.map((file) => {
@@ -64,4 +65,5 @@ const useFileStore = create<FileStoreType>((set, get) => ({
     },
 }));
 
+const useFileStore = createTrackedSelector(useFileStoreZustand);
 export default useFileStore;

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createTrackedSelector } from "react-tracked";
 
 import {
     fetchTranscriptionList,
@@ -22,7 +23,7 @@ interface FileStoreType {
     removeTranscription: (id: string, field: "id" | "task_id") => void;
 }
 
-const useTranscriptionStore = create<FileStoreType>((set, get) => ({
+const useTranscriptionStoreZustand = create<FileStoreType>((set, get) => ({
     data: null,
 
     fetchTranscriptions: async () => {
@@ -38,7 +39,7 @@ const useTranscriptionStore = create<FileStoreType>((set, get) => ({
         status: Status,
         completed_at: string | null
     ) => {
-        const data = get().data;
+        const data = structuredClone(get().data);
         if (!data) return;
 
         data.map((file) => {
@@ -65,7 +66,7 @@ const useTranscriptionStore = create<FileStoreType>((set, get) => ({
         try {
             await terminateTranscription(id);
 
-            const data = get().data;
+            const data = structuredClone(get().data);
             if (!data) return;
 
             get().removeTranscription(id, "id");
@@ -76,7 +77,7 @@ const useTranscriptionStore = create<FileStoreType>((set, get) => ({
         }
     },
     removeTranscription: (id: string, field: "id" | "task_id") => {
-        const data = get().data;
+        const data = structuredClone(get().data);
         if (!data) return;
 
         set(() => ({
@@ -85,4 +86,7 @@ const useTranscriptionStore = create<FileStoreType>((set, get) => ({
     },
 }));
 
+const useTranscriptionStore = createTrackedSelector(
+    useTranscriptionStoreZustand
+);
 export default useTranscriptionStore;

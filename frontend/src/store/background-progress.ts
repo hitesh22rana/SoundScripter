@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createTrackedSelector } from "react-tracked";
 
 interface BackgroundProgressStoreType {
     activeProgress: JSX.Element[];
@@ -7,7 +8,7 @@ interface BackgroundProgressStoreType {
     removeFromProgressTracker: (id: number) => void;
 }
 
-const useBackgroundProgressStore = create<BackgroundProgressStoreType>(
+const useBackgroundProgressStoreZustand = create<BackgroundProgressStoreType>(
     (set, get) => ({
         activeProgress: [],
         addToProgressTracker: (backgroundProgress) => {
@@ -19,9 +20,7 @@ const useBackgroundProgressStore = create<BackgroundProgressStoreType>(
         },
         removeFromProgressTracker: (id: number) => {
             const currentProgressTracker = get().activeProgress;
-            if (!currentProgressTracker) {
-                return;
-            }
+            if (!currentProgressTracker) return;
 
             const filteredProgressTracker = currentProgressTracker.filter(
                 (backgroundProgress) => {
@@ -40,4 +39,7 @@ const useBackgroundProgressStore = create<BackgroundProgressStoreType>(
     })
 );
 
+const useBackgroundProgressStore = createTrackedSelector(
+    useBackgroundProgressStoreZustand
+);
 export default useBackgroundProgressStore;
