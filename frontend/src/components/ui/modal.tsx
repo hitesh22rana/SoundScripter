@@ -84,9 +84,7 @@ ModalUI.SubHeading = ModalUISubHeading;
 ModalUI.Body = ModalUIBody;
 
 const Modal = () => {
-    const { modal } = useModalStore((state) => ({
-        modal: state.modal,
-    }));
+    const { modal } = useModalStore();
 
     return modal;
 };
