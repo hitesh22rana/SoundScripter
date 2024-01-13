@@ -33,11 +33,7 @@ const TranscriptionsList = () => {
     const { mountModal } = useModalStore();
 
     const { fetchTranscriptions, data, downloadTranscription } =
-        useTranscriptionStore((state) => ({
-            fetchTranscriptions: state.fetchTranscriptions,
-            data: state.data,
-            downloadTranscription: state.downloadTranscription,
-        }));
+        useTranscriptionStore();
 
     const [error, setError] = useState<string | null>(null);
 

@@ -36,15 +36,9 @@ const Notifications = () => {
         url: "http://127.0.0.1:8000/api/v1/sse/notifications",
     });
 
-    const { updateFilesDataProgress, fetchFiles } = useFileStore((state) => ({
-        updateFilesDataProgress: state.updateFilesDataProgress,
-        fetchFiles: state.fetchFiles,
-    }));
+    const { updateFilesDataProgress, fetchFiles } = useFileStore();
     const { updateTranscribeDataProgress, removeTranscription } =
-        useTranscriptionStore((state) => ({
-            updateTranscribeDataProgress: state.updateTranscribeDataProgress,
-            removeTranscription: state.removeTranscription,
-        }));
+        useTranscriptionStore();
 
     const [allNotifications, setAllNotifications] = useState<Notification[]>(
         [] as Notification[]

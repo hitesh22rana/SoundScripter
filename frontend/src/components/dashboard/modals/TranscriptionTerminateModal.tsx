@@ -12,9 +12,7 @@ const TranscriptionTerminateModal = (
     transcription: TranscriptionApiResponse
 ) => {
     const { unMountModal } = useModalStore();
-    const { terminateTranscription } = useTranscriptionStore((state) => ({
-        terminateTranscription: state.terminateTranscription,
-    }));
+    const { terminateTranscription } = useTranscriptionStore();
 
     async function handleTranscriptionTerminate(id: string) {
         try {

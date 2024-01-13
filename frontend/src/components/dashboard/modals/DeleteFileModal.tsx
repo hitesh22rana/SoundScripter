@@ -10,9 +10,7 @@ import { FileApiResponse } from "@/src/types/api";
 
 const DeleteFileModal = (file: FileApiResponse) => {
     const { unMountModal } = useModalStore();
-    const { deleteFile } = useFileStore((state) => ({
-        deleteFile: state.deleteFile,
-    }));
+    const { deleteFile } = useFileStore();
 
     async function handleFileDelete(id: string) {
         try {

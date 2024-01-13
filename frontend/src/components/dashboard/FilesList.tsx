@@ -34,10 +34,7 @@ import { dateFormatOptions, cn } from "@/src/lib/utils";
 const FilesList = () => {
     const { mountModal } = useModalStore();
 
-    const { fetchFiles, data } = useFileStore((state) => ({
-        fetchFiles: state.fetchFiles,
-        data: state.data,
-    }));
+    const { fetchFiles, data } = useFileStore();
 
     const [error, setError] = useState<string | null>(null);
 

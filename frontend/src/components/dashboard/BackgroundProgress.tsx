@@ -24,11 +24,7 @@ const BackgroundProgress = ({ id, url, method, fileName, payload }: Props) => {
         payload: payload,
     });
 
-    const { removeFromProgressTracker } = useBackgroundProgressStore(
-        (state) => ({
-            removeFromProgressTracker: state.removeFromProgressTracker,
-        })
-    );
+    const { removeFromProgressTracker } = useBackgroundProgressStore();
 
     const isCompleted: boolean = progress === 100;
 
@@ -37,12 +33,12 @@ const BackgroundProgress = ({ id, url, method, fileName, payload }: Props) => {
             description: error,
         });
         removeFromProgressTracker(id);
-        return null;
+        return;
     }
 
     if (isCompleted) {
         removeFromProgressTracker(id);
-        return null;
+        return;
     }
 
     return (
