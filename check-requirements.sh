@@ -44,4 +44,5 @@ for port in 5672 6379 8000 3000; do
 done
 
 echo "Success: All requirements are met"
+echo "Now you can run: ./build.sh"
 exit 0
