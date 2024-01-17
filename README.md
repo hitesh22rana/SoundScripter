@@ -40,21 +40,19 @@ To run SoundScripter locally or in a server environment, follow these steps:
     cd SoundScripter
     ```
 
-3. Build and run the application
-
-    i. First build the transcription service
+3. Check the requirements
 
     ```bash
-    docker build -t transcription-service -f backend/Dockerfile.transcription-service .
+    ./check-requirements.sh
     ```
 
-    ii. Now, run the docker-compose file to bind all the services
+4. Build and run the application
 
     ```bash
-    docker-compose -f docker-compose.yml up
+    ./build.sh
     ```
 
-4. Now you app is up and running and you can access the app via `http://localhost:3000`.
+5. Now you app is up and running and you can access the app via `http://localhost:3000`.
 
 ## Contributions
 
