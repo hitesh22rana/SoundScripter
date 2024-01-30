@@ -9,7 +9,6 @@ from uuid import uuid4
 
 
 class FileManager:
-    chunk_size_bytes: int = 1024
     directory: str = "data"
     filename: str = "file"
     transcripted_files: str = "transcriptions"
@@ -316,3 +315,6 @@ class FileManager:
             raise FileNotFoundError
 
         return shutil.rmtree(folder_path)
+
+
+file_manager = FileManager()

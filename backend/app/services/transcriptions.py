@@ -22,7 +22,7 @@ from app.schemas import (
     TranscriptionBackgroundJobPayloadSchema,
     TranscriptionSchema,
 )
-from app.utils.file_manager import FileManager
+from app.utils.file_manager import file_manager
 from app.utils.responses import OK
 from app.utils.shared import Language, Priority, Sort, Status
 
@@ -135,7 +135,7 @@ class TranscriptionService:
 
     @classmethod
     async def _generate_zip(
-        self, arcname: str, files: list[Path]
+        cls, arcname: str, files: list[Path]
     ) -> BytesIO | Exception:
         """
         Generate zip file
@@ -242,7 +242,7 @@ class TranscriptionService:
                 )
 
             # Additional validation for the file, could be removed
-            if file.path != FileManager().get_file_path_from_id(file_id=file_id):
+            if file.path != file_manager.get_file_path_from_id(file_id=file_id):
                 raise FileNotFoundError()
 
             if file.transcription is not None:
@@ -379,7 +379,7 @@ class TranscriptionService:
                     }
                 )
 
-            files: list[Path] = FileManager().get_transcription_files(file_id=file_id)
+            files: list[Path] = file_manager.get_transcription_files(file_id=file_id)
             # Generate the ZIP archive asynchronously
             zip_stream: BytesIO = await self._generate_zip(
                 arcname=self.arcname, files=files
