@@ -17,6 +17,11 @@ services:
             - POSTGRES_DB=db
         volumes:
             - ./backend/data/db:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
     # RabbitMQ message broker
     message-broker:
@@ -48,7 +53,7 @@ services:
         networks:
             - soundscripter
         environment:
-            - WORKER_CONCURRENCY=4
+            - WORKER_CONCURRENCY=6
             - CELERY_BACKEND=rpc://
             - CELERY_BROKER=pyamqp://message-broker
             - LOCAL_STORAGE_BASE_PATH=${PWD}/backend/data
