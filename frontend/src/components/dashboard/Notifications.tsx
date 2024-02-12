@@ -92,7 +92,7 @@ const Notifications = () => {
                 );
                 break;
             case "TERMINATE":
-                removeTranscription(data.id, "task_id");
+                removeTranscription(data.id, "task_ids");
                 break;
         }
     }, [

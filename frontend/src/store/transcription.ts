@@ -20,7 +20,7 @@ interface FileStoreType {
     ) => void;
     downloadTranscription: (id: string, fileName: string) => void;
     terminateTranscription: (id: string) => void;
-    removeTranscription: (id: string, field: "id" | "task_id") => void;
+    removeTranscription: (id: string, field: "id" | "task_ids") => void;
 }
 
 const useTranscriptionStoreZustand = create<FileStoreType>((set, get) => ({
@@ -76,7 +76,7 @@ const useTranscriptionStoreZustand = create<FileStoreType>((set, get) => ({
             );
         }
     },
-    removeTranscription: (id: string, field: "id" | "task_id") => {
+    removeTranscription: (id: string, field: "id" | "task_ids") => {
         const data = structuredClone(get().data);
         if (!data) return;
 

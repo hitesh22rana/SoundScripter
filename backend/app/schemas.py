@@ -36,6 +36,7 @@ class ConversionBackgroundJobPayloadSchema(BaseModel):
     output_path: str
     output_format: str
     delete_original_file: bool
+    parts_count: int
 
     class Config:
         allow_population_by_field_name: True
@@ -47,7 +48,7 @@ class TranscriptionBackgroundJobPayloadSchema(BaseModel):
     container_config: dict
     detach: bool
     remove: bool
-    command: str
+    commands: list[str]
 
     class Config:
         allow_population_by_field_name: True
@@ -79,7 +80,7 @@ class FileResponse:
 class TranscriptionResponse:
     def __init__(self, data: TranscriptionsModel) -> None:
         self.id: str = str(data.id)
-        self.task_id: Optional[str] = data.task_id
+        self.task_ids: Optional[list[str]] = data.task_ids
         self.language: str = data.language
         self.priority: Priority = data.priority
         self.status: Status = data.status
@@ -91,7 +92,7 @@ class TranscriptionResponse:
     def response(self) -> dict:
         return {
             "id": self.id,
-            "task_id": self.task_id,
+            "task_ids": self.task_ids,
             "language": self.language,
             "priority": self.priority,
             "status": self.status,
@@ -112,7 +113,7 @@ class DataResponse:
             "id": self.file["id"],
             "name": self.file["name"],
             "type": self.file["type"],
-            "task_id": self.transcription["task_id"],
+            "task_ids": self.transcription["task_ids"],
             "language": self.transcription["language"],
             "priority": self.transcription["priority"],
             "status": self.transcription["status"],

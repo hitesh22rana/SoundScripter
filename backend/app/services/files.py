@@ -8,7 +8,7 @@ import aiofiles
 from fastapi import File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
-from app.background_tasks.conversion import (
+from app.background_tasks.optimization import (
     change_audio_sample_rate,
     convert_video_to_audio,
 )
@@ -94,6 +94,7 @@ class FileService:
                     output_path=file_path.replace(file_extension[1:], "wav"),
                     output_format="wav",
                     delete_original_file=True,
+                    parts_count=2,
                 )
             ).model_dump()
 

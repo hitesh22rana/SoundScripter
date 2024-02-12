@@ -37,7 +37,7 @@ class CeleryClient:
                     backend=cls.backend,
                     broker=cls.broker,
                     include=[
-                        "app.background_tasks.conversion",
+                        "app.background_tasks.optimization",
                         "app.background_tasks.transcription",
                     ],
                 )
@@ -51,6 +51,9 @@ class CeleryClient:
                 # Tasks tracking
                 cls.client.conf.task_track_started = True
 
+                # Connection retry on startup
+                cls.client.conf.broker_connection_retry_on_startup = True
+
                 # Queues and Exchanges
                 cls.client.conf.task_queues = [
                     Queue(
@@ -59,9 +62,9 @@ class CeleryClient:
                         routing_key="default",
                     ),
                     Queue(
-                        "conversion_task_queue",
-                        exchange=Exchange("conversion_task_queue", type="direct"),
-                        routing_key="conversion_task_queue",
+                        "optimization_task_queue",
+                        exchange=Exchange("optimization_task_queue", type="direct"),
+                        routing_key="optimization_task_queue",
                     ),
                     Queue(
                         "transcription_task_queue",

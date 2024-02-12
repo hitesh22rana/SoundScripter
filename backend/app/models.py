@@ -2,8 +2,9 @@
 # Path: backend\app\models.py
 
 import uuid
+from typing import List
 
-from sqlalchemy import TIMESTAMP, ForeignKey, String, text
+from sqlalchemy import ARRAY, TIMESTAMP, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import ENUM as EnumPG
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -68,8 +69,8 @@ class TranscriptionsModel(Base):
         TIMESTAMP(timezone=True), default=None, nullable=True
     )
 
-    # Task id of the celery task
-    task_id: Mapped[str] = mapped_column(String, nullable=True)
+    # Task ids of the celery tasks
+    task_ids: Mapped[List[str]] = mapped_column(ARRAY(String), nullable=True)
 
     # Foreign key to the file model and Index it for faster queries
     file_id: Mapped[str] = mapped_column(

@@ -2,11 +2,13 @@
 # Path: backend\app\services\transcriptions.py
 
 import io
+import re
 import zipfile
 from io import BytesIO
 from pathlib import Path
 
 import psutil
+from celery import group
 from fastapi import HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
@@ -22,9 +24,11 @@ from app.schemas import (
     TranscriptionBackgroundJobPayloadSchema,
     TranscriptionSchema,
 )
+from app.utils.audio_manager import AudioManager
 from app.utils.file_manager import file_manager
 from app.utils.responses import OK
 from app.utils.shared import Language, Priority, Sort, Status
+from app.utils.subtitle_manager import SubtitleManager
 
 
 class TranscriptionService:
@@ -48,7 +52,10 @@ class TranscriptionService:
         self.session: Session = session
 
     @classmethod
-    def _get_container_config(cls, file_id: str) -> dict:
+    def _get_container_config(
+        cls,
+        file_id: str,
+    ) -> dict:
         """
         Generate docker container config
         :return -> dict
@@ -69,22 +76,28 @@ class TranscriptionService:
         return container_config
 
     @classmethod
-    def _get_file_path(cls) -> str:
+    def _get_file_path(
+        cls,
+        file_name,
+    ) -> str:
         """
         Generate relative file path for the audio file
         :return -> str
         """
 
-        return f"/{cls.container_base_path}/file.wav"
+        return f"/{cls.container_base_path}/{file_name}.wav"
 
     @classmethod
-    def _get_output_folder_path(cls) -> str:
+    def _get_output_folder_path(
+        cls,
+        file_name: str,
+    ) -> str:
         """
         Generate relative output folder path for the audio file
         :return -> str
         """
 
-        return f"/{cls.container_base_path}/transcriptions"
+        return f"/{cls.container_base_path}/{file_name}"
 
     @classmethod
     def _get_model_path(cls) -> str:
@@ -96,7 +109,10 @@ class TranscriptionService:
         return f"/root/models/{cls.model}"
 
     @classmethod
-    def _get_thread_count(cls, priority: Priority) -> int:
+    def _get_thread_count(
+        cls,
+        priority: Priority,
+    ) -> int:
         """
         Generate thread count based on priority
         :param -> priority: Priority
@@ -105,13 +121,16 @@ class TranscriptionService:
 
         threads_count: int = psutil.cpu_count(logical=True)
 
-        if priority == Priority.HIGH:
-            return threads_count // 2
+        if priority == Priority.LOW:
+            return threads_count // 4
 
-        return threads_count // 4
+        return threads_count // 2
 
     @classmethod
-    def _get_spoken_language(cls, langauge: Language) -> str:
+    def _get_spoken_language(
+        cls,
+        langauge: Language,
+    ) -> str:
         """
         Generate spoken language
         :param -> langauge: Language
@@ -121,7 +140,12 @@ class TranscriptionService:
         return langauge.value
 
     @classmethod
-    def _get_command(cls, langauge: Language, priority: Priority) -> str:
+    def _get_command(
+        cls,
+        langauge: Language,
+        priority: Priority,
+        file_name: str,
+    ) -> str:
         """
         Generate docker command
         :param -> langauge: Language, priority: Priority
@@ -131,11 +155,13 @@ class TranscriptionService:
         # TODO:- Add support for multiple languages
         # TODO:- Add support for multiple models
 
-        return f"whisper -t {cls._get_thread_count(priority=priority)} -l {cls._get_spoken_language(langauge=langauge)} -m {cls._get_model_path()} -f {cls._get_file_path()} -osrt -ovtt -ocsv -oj -of {cls._get_output_folder_path()}"
+        return f"whisper -t {cls._get_thread_count(priority=priority)} -l {cls._get_spoken_language(langauge=langauge)} -m {cls._get_model_path()} -f {cls._get_file_path(file_name=file_name)} -osrt -of {cls._get_output_folder_path(file_name=file_name)}"
 
     @classmethod
     async def _generate_zip(
-        cls, arcname: str, files: list[Path]
+        cls,
+        arcname: str,
+        files: list[Path],
     ) -> BytesIO | Exception:
         """
         Generate zip file
@@ -156,7 +182,10 @@ class TranscriptionService:
             raise e
 
     async def list(
-        self, limit: int, offset: int, sort: Sort
+        self,
+        limit: int,
+        offset: int,
+        sort: Sort,
     ) -> list[DataResponse.response] | HTTPException:
         """
         List transcriptions
@@ -202,7 +231,8 @@ class TranscriptionService:
             raise HTTPException(status_code=status_code, detail=detail) from e
 
     async def transcribe(
-        self, transcription_details: TranscriptionSchema
+        self,
+        transcription_details: TranscriptionSchema,
     ) -> OK | HTTPException:
         """
         Add the transcription request in the task queue for further processing
@@ -242,7 +272,7 @@ class TranscriptionService:
                 )
 
             # Additional validation for the file, could be removed
-            if file.path != file_manager.get_file_path_from_id(file_id=file_id):
+            if not file_manager.validate_file_path(file.path):
                 raise FileNotFoundError()
 
             if file.transcription is not None:
@@ -273,52 +303,110 @@ class TranscriptionService:
                 .all()
             )
 
-            high_priority_tasks_count: int = len(
-                [
-                    task
-                    for task in currently_executing_tasks
-                    if task.priority == Priority.HIGH
-                ]
+            high_priority_tasks_count: int = 0
+            medium_priority_tasks_count: int = 0
+            low_priority_tasks_count: int = 0
+
+            for task in currently_executing_tasks:
+                if task.priority == Priority.HIGH:
+                    high_priority_tasks_count += 1
+
+                elif task.priority == Priority.MEDIUM:
+                    medium_priority_tasks_count += 1
+
+                elif task.priority == Priority.LOW:
+                    low_priority_tasks_count += 1
+
+            if high_priority_tasks_count == 1:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: 1 high priority tasks in process",
+                    }
+                )
+
+            elif medium_priority_tasks_count == 2:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: 2 medium priority tasks in process",
+                    }
+                )
+
+            elif medium_priority_tasks_count == 1 and low_priority_tasks_count == 2:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": "Error: 1 medium priority task and 2 low priority tasks in process",
+                    }
+                )
+
+            elif low_priority_tasks_count == 4:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": f"Error: 4 low priority tasks in process, {priority} priority tasks can't be executed at this time",
+                    }
+                )
+
+            total_tasks_count: int = (
+                high_priority_tasks_count
+                + medium_priority_tasks_count
+                + low_priority_tasks_count
             )
 
-            low_priority_tasks_count: int = len(
-                [
-                    task
-                    for task in currently_executing_tasks
-                    if task.priority == Priority.LOW
-                ]
+            if priority == Priority.HIGH and total_tasks_count != 0:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": f"Error: {total_tasks_count} tasks in process, high priority tasks can't be executed at this time",
+                    }
+                )
+
+            elif priority == Priority.MEDIUM and low_priority_tasks_count > 2:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": f"Error: {low_priority_tasks_count} low priority tasks in process, medium priority tasks can't be executed at this time",
+                    }
+                )
+
+            elif priority == Priority.LOW and low_priority_tasks_count > 3:
+                raise Exception(
+                    {
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                        "detail": f"Error: {low_priority_tasks_count} low priority tasks in process, low priority tasks can't be executed at this time",
+                    }
+                )
+
+            file_names: list[str] = file_manager.get_transcription_input_files(
+                file_id=file_id
             )
 
-            if high_priority_tasks_count >= 2:
-                raise Exception(
-                    {
-                        "status_code": status.HTTP_400_BAD_REQUEST,
-                        "detail": "Error: Only 2 high priority tasks can be executed concurrently",
-                    }
-                )
+            if priority == Priority.HIGH:
+                file_names = [
+                    file_name for file_name in file_names if re.search("\d", file_name)
+                ]
+            else:
+                file_names = [
+                    file_name
+                    for file_name in file_names
+                    if not re.search("\d", file_name)
+                ]
 
-            elif high_priority_tasks_count == 1 and low_priority_tasks_count >= 2:
-                raise Exception(
-                    {
-                        "status_code": status.HTTP_400_BAD_REQUEST,
-                        "detail": "Error: Only 2 low priority tasks can be executed at a time along with 1 high priority task",
-                    }
-                )
-
-            elif low_priority_tasks_count > 2 and priority == Priority.HIGH:
-                raise Exception(
-                    {
-                        "status_code": status.HTTP_400_BAD_REQUEST,
-                        "detail": "Error: High priority tasks can't be executed at this time",
-                    }
-                )
-
-            data: dict = TranscriptionBackgroundJobPayloadSchema(
+            data = TranscriptionBackgroundJobPayloadSchema(
                 id=file_id,
                 container_config=self._get_container_config(file_id=file_id),
                 detach=False,
                 remove=True,
-                command=self._get_command(langauge=language, priority=priority),
+                commands=[
+                    self._get_command(
+                        langauge=language,
+                        priority=priority,
+                        file_name=file_name,
+                    )
+                    for file_name in file_names
+                ],
             ).model_dump()
 
             transcription_model: TranscriptionsModel = TranscriptionsModel(
@@ -354,7 +442,10 @@ class TranscriptionService:
 
             raise HTTPException(status_code=status_code, detail=detail) from e
 
-    async def download(self, file_id: str) -> StreamingResponse | HTTPException:
+    async def download(
+        self,
+        file_id: str,
+    ) -> StreamingResponse | HTTPException:
         """
         Download file
         :param -> file_id: str
@@ -379,10 +470,26 @@ class TranscriptionService:
                     }
                 )
 
-            files: list[Path] = file_manager.get_transcription_files(file_id=file_id)
+            files: list[Path] = file_manager.get_transcripted_files(file_id=file_id)
+            offset: float = AudioManager(
+                path=file_manager.get_file_path(file_id=file_id, file_extension=".wav"),
+                format="wav",
+            ).get_audio_split_offset(parts_count=2)
+            output_directory: str = (
+                file_manager.get_folder_path(file_id=file_id) + "/transcriptions"
+            )
+            file_manager.make_directory(output_directory)
+
+            output_files: list[Path] = SubtitleManager(
+                input_files=files
+            ).generate_files(
+                output_folder=output_directory,
+                offset=offset,
+            )
+
             # Generate the ZIP archive asynchronously
             zip_stream: BytesIO = await self._generate_zip(
-                arcname=self.arcname, files=files
+                arcname=self.arcname, files=output_files
             )
 
             # Serve the ZIP archive as a downloadable file
@@ -401,6 +508,7 @@ class TranscriptionService:
             ) from e
 
         except Exception as e:
+            print(e)
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             detail = "Error: Download service is not available"
 
@@ -432,11 +540,17 @@ class TranscriptionService:
                     }
                 )
 
-            task = terminate_transcription.delay(container_id=transcription.task_id)
+            tasks = []
+            for task_id in transcription.task_ids:
+                # Create a task signature
+                task = terminate_transcription.s(file_id=file_id, container_id=task_id)
+                tasks.append(task)
+
+            results = group(*tasks).apply_async()
 
             return OK(
                 content={
-                    "task_id": task.id,
+                    "task_id": results.id,
                     "detail": "Success: Transcription task is cancelled",
                 }
             )

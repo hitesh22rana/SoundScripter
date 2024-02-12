@@ -2,9 +2,9 @@
 # Path: backend\app\background_tasks\transcription.py
 
 import json
+import threading
 from datetime import datetime, timezone
-
-from celery import current_task
+from uuid import uuid4
 
 from app.background_tasks import background_tasks
 from app.models import TranscriptionsModel
@@ -27,12 +27,7 @@ def generate_transcription(data: dict) -> None:
         transcription: TranscriptionsModel = (
             session.query(TranscriptionsModel).filter_by(file_id=data["id"]).first()
         )
-        transcription.task_id = current_task.request.id
         transcription.status = Status.PROCESSING
-
-        session.commit()
-        session.refresh(transcription)
-        session.close()
 
         NotificationsService().publish(
             channel=Channels.NOTIFICATIONS,
@@ -48,13 +43,28 @@ def generate_transcription(data: dict) -> None:
             ),
         )
 
-        docker_client.run_container(
-            container_config=data["container_config"],
-            name=current_task.request.id,
-            detach=data["detach"],
-            remove=data["remove"],
-            command=data["command"],
-        )
+        tasks = []
+        for command in data["commands"]:
+            container_id: str = str(uuid4())
+            task = threading.Thread(
+                target=docker_client.run_container,
+                args=(
+                    data["container_config"],
+                    command,
+                    data["detach"],
+                    data["remove"],
+                    container_id,
+                ),
+            )
+            tasks.append(task)
+            transcription.task_ids = list(transcription.task_ids or []) + [container_id]
+
+        session.commit()
+        session.refresh(transcription)
+        session.close()
+
+        [task.start() for task in tasks]
+        [task.join() for task in tasks]
 
         session = next(db_client.get_db_session())
         transcription: TranscriptionsModel = (
@@ -115,20 +125,19 @@ def generate_transcription(data: dict) -> None:
         )
 
 
-# TODO:- Explicit error handling and robust notification
 @background_tasks.task(
     acks_late=True,
     max_retries=1,
     default_retry_delay=60,
     queue="transcription_task_queue",
 )
-def terminate_transcription(container_id: str):
+def terminate_transcription(file_id: str, container_id: str):
     try:
         session = next(db_client.get_db_session())
 
         docker_client.stop_container(container_id=container_id)
 
-        session.query(TranscriptionsModel).filter_by(task_id=container_id).delete()
+        session.query(TranscriptionsModel).filter_by(file_id=file_id).delete()
         session.commit()
         session.close()
 
@@ -136,7 +145,7 @@ def terminate_transcription(container_id: str):
             channel=Channels.NOTIFICATIONS,
             message=json.dumps(
                 {
-                    "id": container_id,
+                    "id": file_id,
                     "status": Status.DONE,
                     "type": NotificationType.SUCCESS,
                     "task": Task.TERMINATE,
@@ -148,7 +157,7 @@ def terminate_transcription(container_id: str):
 
     except Exception as _:
         transcription: TranscriptionsModel = (
-            session.query(TranscriptionsModel).filter_by(task_id=container_id).first()
+            session.query(TranscriptionsModel).filter_by(file_id=file_id).first()
         )
 
         if not transcription:
@@ -166,7 +175,7 @@ def terminate_transcription(container_id: str):
             channel=Channels.NOTIFICATIONS,
             message=json.dumps(
                 {
-                    "id": container_id,
+                    "id": file_id,
                     "status": Status.ERROR,
                     "type": NotificationType.ERROR,
                     "task": Task.TERMINATE,

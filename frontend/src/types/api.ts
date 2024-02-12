@@ -18,7 +18,7 @@ export type TranscriptionApiResponse = {
     id: string;
     name: string;
     type: Media;
-    task_id: string;
+    task_ids: string[];
     language: string;
     priority: Priorty;
     status: Status;

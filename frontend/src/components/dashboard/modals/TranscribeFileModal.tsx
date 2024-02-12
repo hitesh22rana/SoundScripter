@@ -93,6 +93,7 @@ const TranscriptionFileModal = (file: FileApiResponse) => {
                         </SelectTrigger>
                         <SelectContent className="z-[99999999]">
                             <SelectItem value="LOW">Low</SelectItem>
+                            <SelectItem value="MEDIUM">Medium</SelectItem>
                             <SelectItem value="HIGH">High</SelectItem>
                         </SelectContent>
                     </Select>

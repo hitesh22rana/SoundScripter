@@ -48,6 +48,7 @@ class Language(str, Enum):
 @unique
 class Priority(str, Enum):
     LOW = "LOW"
+    MEDIUM = "MEDIUM"
     HIGH = "HIGH"
 
 

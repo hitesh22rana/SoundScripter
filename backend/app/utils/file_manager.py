@@ -202,29 +202,6 @@ class FileManager:
         return file_name[indx:] if indx != -1 else ""
 
     @classmethod
-    def get_file_path_from_id(cls, file_id: str) -> str | FileNotFoundError:
-        """
-        Get file path from id
-        :param -> file_id: str
-        :return -> str | FileNotFoundError
-        """
-
-        folder: str = cls.directory + "/" + file_id
-
-        try:
-            for file in os.listdir(folder):
-                file_extension: str = cls.get_file_extension(file_name=file)
-                if file_extension != "" and cls.is_valid_file_extension(
-                    file_extension=file_extension[1:]
-                ):
-                    return folder + "/" + file
-
-            raise FileNotFoundError
-
-        except FileNotFoundError as e:
-            raise e
-
-    @classmethod
     def generate_file_path(cls, file_name: str, file_extension: str) -> str:
         """
         Generate file path
@@ -236,7 +213,34 @@ class FileManager:
         return cls.directory + "/" + file_name + "/" + cls.filename + file_extension
 
     @classmethod
-    def get_transcription_files(cls, file_id: str) -> list[Path] | FileNotFoundError:
+    def get_transcription_input_files(
+        cls, file_id: str
+    ) -> list[str] | FileNotFoundError:
+        """
+        Get transcription input files path
+        :param -> file_id: str
+        :return -> list[Path] | FileNotFoundError
+        """
+
+        folder: Path = Path(cls.directory + "/" + file_id)
+
+        if not cls.validate_file_path(file_path=folder):
+            raise FileNotFoundError
+
+        files: list[str] = []
+        for file in folder.glob("**/*"):
+            if file.is_file() and cls.is_audio_file_extension(
+                file_extension=file.suffix[1:]
+            ):
+                files.append(file.stem)
+
+        if len(files) == 0:
+            raise FileNotFoundError
+
+        return files
+
+    @classmethod
+    def get_transcripted_files(cls, file_id: str) -> list[Path] | FileNotFoundError:
         """
         Get transcription files path
         :param -> file_id: str
@@ -249,7 +253,32 @@ class FileManager:
             raise FileNotFoundError
 
         files: list[Path] = []
-        for file in folder.glob("**/*"):
+        for file in folder.iterdir():
+            if file.is_file() and cls.is_transcription_file_extension(
+                file_extension=file.suffix[1:]
+            ):
+                files.append(Path(file))
+
+        if len(files) == 0:
+            raise FileNotFoundError
+
+        return files
+
+    @classmethod
+    def get_generated_transcriptions(
+        cls, folder: str
+    ) -> list[Path] | FileNotFoundError:
+        """
+        Get generated transcriptions
+        :param -> folder: Path
+        :return -> list[Path] | FileNotFoundError
+        """
+
+        if not cls.validate_file_path(file_path=folder):
+            raise FileNotFoundError
+
+        files: list[Path] = []
+        for file in Path(folder).iterdir():
             if file.is_file() and cls.is_transcription_file_extension(
                 file_extension=file.suffix[1:]
             ):

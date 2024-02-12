@@ -4,7 +4,7 @@
 from fastapi import status
 from moviepy.editor import AudioFileClip, VideoFileClip
 
-from app.utils.file_manager import FileManager
+from app.utils.file_manager import file_manager
 
 
 class VideoManager:
@@ -18,9 +18,7 @@ class VideoManager:
         self.path = path
         self.format = format
 
-        self.file_manager: FileManager = FileManager()
-
-        if not self.file_manager.validate_file_path(self.path):
+        if not file_manager.validate_file_path(self.path):
             raise Exception(
                 {
                     "status_code": status.HTTP_400_BAD_REQUEST,
@@ -28,7 +26,7 @@ class VideoManager:
                 }
             )
 
-        if not self.file_manager.is_video_file_extension(self.format):
+        if not file_manager.is_video_file_extension(self.format):
             raise Exception(
                 {
                     "status_code": status.HTTP_400_BAD_REQUEST,
@@ -47,7 +45,7 @@ class VideoManager:
         :return -> None | Exception
         """
 
-        if not self.file_manager.is_audio_file_extension(output_format):
+        if not file_manager.is_audio_file_extension(output_format):
             raise Exception(
                 {
                     "status_code": status.HTTP_400_BAD_REQUEST,
@@ -71,7 +69,7 @@ class VideoManager:
 
             if delete_original_file:
                 try:
-                    self.file_manager.delete_file(self.path)
+                    file_manager.delete_file(self.path)
                 except Exception as e:
                     raise Exception(
                         {
