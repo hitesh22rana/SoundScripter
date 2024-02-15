@@ -4,8 +4,6 @@ from pathlib import Path
 
 import pysubs2
 
-from app.utils.file_manager import file_manager
-
 
 class SubtitleManager:
     number_pattern_regex = re.compile(r"^\s*\d+\s*$", re.MULTILINE)
@@ -62,7 +60,7 @@ class SubtitleManager:
 
                 f.write(f"{start},{end},{text}")
 
-    def generate_files(self, output_folder: str, offset: float) -> list[Path]:
+    def generate_files(self, output_folder: str, offset: float) -> None:
         srt_output_file: str = output_folder + "/file.srt"
         vtt_output_file: str = output_folder + "/file.vtt"
         json_output_file: str = output_folder + "/file.json"
@@ -79,5 +77,3 @@ class SubtitleManager:
         self._convert_json_to_csv(
             input_file=json_output_file, output_file=csv_output_file
         )
-
-        return file_manager.get_generated_transcriptions(output_folder)

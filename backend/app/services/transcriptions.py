@@ -24,11 +24,9 @@ from app.schemas import (
     TranscriptionBackgroundJobPayloadSchema,
     TranscriptionSchema,
 )
-from app.utils.audio_manager import AudioManager
 from app.utils.file_manager import file_manager
 from app.utils.responses import OK
 from app.utils.shared import Language, Priority, Sort, Status
-from app.utils.subtitle_manager import SubtitleManager
 
 
 class TranscriptionService:
@@ -470,21 +468,12 @@ class TranscriptionService:
                     }
                 )
 
-            files: list[Path] = file_manager.get_transcripted_files(file_id=file_id)
-            offset: float = AudioManager(
-                path=file_manager.get_file_path(file_id=file_id, file_extension=".wav"),
-                format="wav",
-            ).get_audio_split_offset(parts_count=2)
             output_directory: str = (
                 file_manager.get_folder_path(file_id=file_id) + "/transcriptions"
             )
-            file_manager.make_directory(output_directory)
 
-            output_files: list[Path] = SubtitleManager(
-                input_files=files
-            ).generate_files(
-                output_folder=output_directory,
-                offset=offset,
+            output_files: list[Path] = file_manager.get_generated_transcriptions(
+                output_directory
             )
 
             # Generate the ZIP archive asynchronously
@@ -540,17 +529,13 @@ class TranscriptionService:
                     }
                 )
 
-            tasks = []
-            for task_id in transcription.task_ids:
-                # Create a task signature
-                task = terminate_transcription.s(file_id=file_id, container_id=task_id)
-                tasks.append(task)
-
-            results = group(*tasks).apply_async()
+            task = terminate_transcription.delay(
+                file_id=file_id, container_ids=transcription.task_ids
+            )
 
             return OK(
                 content={
-                    "task_id": results.id,
+                    "task_id": task.id,
                     "detail": "Success: Transcription task is cancelled",
                 }
             )
