@@ -40,19 +40,25 @@ To run SoundScripter locally or in a server environment, follow these steps:
     cd SoundScripter
     ```
 
-3. Check the requirements
+3. Make sure to change the file permission, if not done already
 
     ```bash
-    ./check-requirements.sh
+    chmod +x build.sh check-requirements.sh
     ```
 
-4. Build and run the application
+4. Check the requirements
 
     ```bash
-    ./build.sh
+    sh check-requirements.sh
     ```
 
-5. Now you app is up and running and you can access the app via `http://localhost:3000`.
+5. Build and run the application
+
+    ```bash
+    sh build.sh
+    ```
+
+6. After the successful build your app will be up and running and you can access it via `http://localhost:3000`.
 
 ## Contributions
 
