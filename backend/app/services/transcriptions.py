@@ -120,9 +120,12 @@ class TranscriptionService:
         threads_count: int = psutil.cpu_count(logical=True)
 
         if priority == Priority.LOW:
-            return threads_count // 4
+            return max(threads_count // 4, 1)
 
-        return threads_count // 2
+        elif priority == Priority.MEDIUM:
+            return max(threads_count // 2, 1)
+
+        return max(threads_count // 2 - 1, 1)
 
     @classmethod
     def _get_spoken_language(
