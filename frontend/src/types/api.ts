@@ -3,6 +3,8 @@ import { Language, Media, Priorty, Status } from "@/src/types/core";
 export type FileUploadApiPayload = {
     file: File;
     name: string;
+    type: Media;
+    size: number;
 };
 
 export type FileApiResponse = {

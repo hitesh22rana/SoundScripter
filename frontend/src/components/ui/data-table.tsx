@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import Image from "next/image";
 import {
     ColumnDef,
     SortingState,
@@ -20,7 +21,6 @@ import {
     TableRow,
 } from "@/src/components/ui/table";
 import { Button } from "@/src/components/ui/button";
-import Image from "next/image";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -105,6 +105,7 @@ export function DataTable<TData, TValue>({
                                         height="200"
                                         alt="No results found"
                                         className="mx-auto scale-125"
+                                        draggable={false}
                                     />
                                     <span className="font-medium text-lg text-gray-500">
                                         No Results Found

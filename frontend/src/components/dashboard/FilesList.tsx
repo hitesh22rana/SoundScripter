@@ -281,10 +281,10 @@ const FilesList = () => {
     ];
 
     return (
-        <div className="flex flex-col w-full md:px-4 px-2 pt-10">
+        <div className="flex flex-col w-full md:px-4 px-2 pt-5">
             <Button
                 variant="default"
-                className="flex flex-row items-center gap-2 w-auto md:ml-auto md:mr-0 mx-auto md:text-sm text-xs md:p-4 p-3 mb-5"
+                className="flex flex-row items-center gap-2 w-auto md:ml-auto md:mr-0 mx-auto md:text-sm text-xs md:py-4 md:px-4 py-3 px-8 mb-5"
                 onClick={() => mountModal(<FileUploadModal />)}
             >
                 <UploadCloud className="h-4 w-4" />

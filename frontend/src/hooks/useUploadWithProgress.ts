@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { isError } from "@/src/lib/utils";
 
@@ -11,9 +11,24 @@ type Props = {
 const useUploadWithProgress = ({ url, method, payload }: Props) => {
     const [progress, setProgress] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
+    const reqRef = useRef<XMLHttpRequest | null>(null);
+    const cancelUpload = useRef<() => void>();
+
+    useEffect(() => {
+        cancelUpload.current = () => {
+            if (reqRef.current) {
+                reqRef.current.abort();
+                reqRef.current = null;
+            }
+            setProgress(0);
+            setError("Upload cancelled");
+        };
+    }, []);
 
     useEffect(() => {
         const req = new XMLHttpRequest();
+        reqRef.current = req;
+
         req.open(method, url);
 
         req.upload.addEventListener("progress", function (e) {
@@ -30,15 +45,18 @@ const useUploadWithProgress = ({ url, method, payload }: Props) => {
             }
         });
 
+        req.addEventListener("abort", function () {
+            setError("Upload cancelled");
+        });
+
         req.send(payload);
 
         return () => {
-            setProgress(0);
-            setError(null);
+            reqRef.current = null;
         };
     }, [url, method, payload]);
 
-    return { progress, error };
+    return { progress, error, cancelUpload: cancelUpload.current };
 };
 
 export default useUploadWithProgress;

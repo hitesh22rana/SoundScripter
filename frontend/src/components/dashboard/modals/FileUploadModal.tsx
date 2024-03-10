@@ -12,12 +12,11 @@ import Input from "@/src/components/ui/input";
 import useModalStore from "@/src/store/modal";
 import useBackgroundProgressStore from "@/src/store/background-progress";
 import { FileUploadApiPayload } from "@/src/types/api";
+import { extractMediaType } from "@/src/lib/utils";
 
 const fileTypes: Accept = {
-    "audio/wav": [],
-    "audio/mpeg": [],
-    "video/mp4": [],
-    "video/x-matroska": [],
+    "video/*": [],
+    "audio/*": [],
 };
 
 const FileUploadModal = () => {
@@ -48,6 +47,8 @@ const FileUploadModal = () => {
                 url={process.env.NEXT_PUBLIC_BACKEND_API_URL + "/files"}
                 method="POST"
                 fileName={fileUploadApiPayload.name}
+                fileType={fileUploadApiPayload.type}
+                fileSize={fileUploadApiPayload.size}
                 payload={formData}
             />
         );
@@ -69,12 +70,23 @@ const FileUploadModal = () => {
                     onDrop={(acceptedFiles) => {
                         const selectedFile =
                             acceptedFiles[acceptedFiles.length - 1];
+                        const name =
+                            selectedFile?.name
+                                .split(".")[0]
+                                .toLocaleLowerCase() ?? "";
+                        const type = extractMediaType(selectedFile.type);
+                        if (!type) {
+                            toast.error("Error", {
+                                description: "Unsupported file type",
+                            });
+                            return;
+                        }
+
                         setFileUploadApiPayload({
                             file: selectedFile,
-                            name:
-                                selectedFile?.name
-                                    .split(".")[0]
-                                    .toLocaleLowerCase() ?? "",
+                            name: name,
+                            type: type,
+                            size: selectedFile.size,
                         });
                     }}
                     accept={fileTypes}

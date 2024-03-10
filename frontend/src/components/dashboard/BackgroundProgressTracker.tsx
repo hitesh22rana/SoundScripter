@@ -1,31 +1,75 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
+import Image from "next/image";
+import { Minimize2, Maximize2 } from "lucide-react";
 
+import { cn } from "@/src/lib/utils";
 import useBackgroundProgressStore from "@/src/store/background-progress";
 
 const BackgroundProgressTracker = () => {
     const { activeProgress } = useBackgroundProgressStore();
-
-    if (activeProgress.length == 0) {
-        return null;
-    }
-
-    const tasksInProgress: string =
-        activeProgress.length === 1
-            ? "1 task"
-            : `${activeProgress.length} tasks`;
+    const [fold, setUnFold] = useState<boolean>(true);
 
     return (
-        <div className="fixed left-1/2 right-1/2 -translate-x-1/2 bottom-0 max-w-lg w-full h-40 rounded-t-2xl bg-gray-100 border shadow flex flex-col gap-4 px-5 py-4">
-            <h3 className="font-medium text-lg">
-                {tasksInProgress} in progress
-            </h3>
+        <div
+            className={cn(
+                "fixed left-1/2 right-1/2 -translate-x-1/2 bottom-0 max-w-xl w-full h-56 rounded-t-2xl bg-gray-50 border-2 shadow-lg flex flex-col z-50 transition-[height] delay-100 ease-in-out pb-4",
+                fold && "h-16"
+            )}
+        >
+            <div className="flex items-center justify-center w-full my-2 p-2">
+                <h3
+                    className={cn(
+                        "cursor-pointer text-2xl font-semibold",
+                        activeProgress.length > 0 && "animate-pulse"
+                    )}
+                    onClick={() => setUnFold((prev) => !prev)}
+                >
+                    Upload Progress
+                </h3>
 
-            <div className="flex flex-col items-start gap-2">
-                {activeProgress.map((backgroundProgress, index) => {
+                <div className="absolute right-4">
+                    <Maximize2
+                        className={cn(
+                            !fold && "hidden",
+                            "cursor-pointer w-6 h-6 text-gray-500 items-end"
+                        )}
+                        onClick={() => setUnFold(false)}
+                    />
+                    <Minimize2
+                        className={cn(
+                            fold && "hidden",
+                            "cursor-pointer w-6 h-6 text-gray-500 items-end"
+                        )}
+                        onClick={() => setUnFold(true)}
+                    />
+                </div>
+            </div>
+
+            <div
+                className={cn(
+                    "flex flex-col items-start gap-2 px-4 overflow-auto",
+                    fold && "hidden"
+                )}
+            >
+                <Image
+                    src="/images/no-results-found.gif"
+                    width="150"
+                    height="150"
+                    alt="No results found"
+                    className={cn(
+                        "mx-auto scale-125",
+                        activeProgress.length > 0 && "hidden"
+                    )}
+                    draggable={false}
+                />
+
+                {activeProgress.map((backgroundProgress) => {
                     return (
-                        <Fragment key={index}>{backgroundProgress}</Fragment>
+                        <Fragment key={backgroundProgress.props?.id}>
+                            {backgroundProgress}
+                        </Fragment>
                     );
                 })}
             </div>
