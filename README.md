@@ -43,22 +43,46 @@ To run SoundScripter locally or in a server environment, follow these steps:
 3. Make sure to change the file permission, if not done already
 
     ```bash
-    chmod +x build.sh check-requirements.sh
+    chmod +x scripts/build.sh scripts/check-requirements.sh
     ```
 
 4. Check the requirements
 
     ```bash
-    sh check-requirements.sh
+    sh scripts/check-requirements.sh
+    ```
+
+    or
+
+    ```bash
+    make check-requirements
     ```
 
 5. Build and run the application
 
     ```bash
-    sh build.sh
+    sh scripts/build.sh
+    ```
+
+    or
+
+    ```bash
+    make run
     ```
 
 6. After the successful build your app will be up and running and you can access it via `http://localhost:3000`.
+
+7. Clean and remove the running application
+
+    ```bash
+    docker-compose -f docker-compose.yml down --remove-orphans
+    ```
+
+    or
+
+    ```bash
+    make clean
+    ```
 
 ## Contributions
 
