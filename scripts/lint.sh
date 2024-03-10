@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Navigate to the /backend directory
+cd backend/
+
 # Activate the virtual environment
 source venv/Scripts/activate
 

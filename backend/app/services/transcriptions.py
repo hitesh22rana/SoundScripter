@@ -8,7 +8,6 @@ from io import BytesIO
 from pathlib import Path
 
 import psutil
-from celery import group
 from fastapi import HTTPException, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
