@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Image from "next/image";
 import { Minimize2, Maximize2 } from "lucide-react";
 
@@ -9,12 +9,20 @@ import useBackgroundProgressStore from "@/src/store/background-progress";
 
 const BackgroundProgressTracker = () => {
     const { activeProgress } = useBackgroundProgressStore();
-    const [fold, setUnFold] = useState<boolean>(true);
+    const [fold, setFold] = useState<boolean>(true);
+
+    useEffect(() => {
+        if (activeProgress.length > 0) {
+            setFold(false);
+        } else {
+            setFold(true);
+        }
+    }, [activeProgress]);
 
     return (
         <div
             className={cn(
-                "fixed left-1/2 right-1/2 -translate-x-1/2 bottom-0 max-w-xl w-full h-56 rounded-t-2xl bg-gray-50 border-2 shadow-lg flex flex-col z-50 transition-[height] delay-100 ease-in-out pb-4",
+                "fixed left-1/2 right-1/2 -translate-x-1/2 bottom-0 max-w-xl w-full h-56 rounded-t-2xl bg-gray-50 border-2 shadow-lg flex flex-col z-50 transition-all delay-100 ease-in-out pb-4",
                 fold && "h-16"
             )}
         >
@@ -24,7 +32,7 @@ const BackgroundProgressTracker = () => {
                         "cursor-pointer text-2xl font-semibold",
                         activeProgress.length > 0 && "animate-pulse"
                     )}
-                    onClick={() => setUnFold((prev) => !prev)}
+                    onClick={() => setFold((prev) => !prev)}
                 >
                     Upload Progress
                 </h3>
@@ -33,16 +41,16 @@ const BackgroundProgressTracker = () => {
                     <Maximize2
                         className={cn(
                             !fold && "hidden",
-                            "cursor-pointer w-6 h-6 text-gray-500 items-end"
+                            "cursor-pointer w-7 h-7 text-gray-500 bg-gray-100 rounded-md border"
                         )}
-                        onClick={() => setUnFold(false)}
+                        onClick={() => setFold(false)}
                     />
                     <Minimize2
                         className={cn(
                             fold && "hidden",
-                            "cursor-pointer w-6 h-6 text-gray-500 items-end"
+                            "cursor-pointer w-7 h-7 text-gray-500 bg-gray-100 rounded-md border"
                         )}
-                        onClick={() => setUnFold(true)}
+                        onClick={() => setFold(true)}
                     />
                 </div>
             </div>

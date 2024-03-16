@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { Check, FileAudio2, FileVideo2, X } from "lucide-react";
 
@@ -35,6 +36,21 @@ const BackgroundProgress = ({
     const { removeFromProgressTracker } = useBackgroundProgressStore();
     const isCompleted: boolean = progress == 100;
 
+    useEffect(() => {
+        let timeOut: NodeJS.Timeout | null;
+        if (isCompleted) {
+            timeOut = setTimeout(() => {
+                removeFromProgressTracker(id);
+            }, 500);
+        }
+
+        return () => {
+            if (timeOut) {
+                clearTimeout(timeOut);
+            }
+        };
+    }, [id, isCompleted, removeFromProgressTracker]);
+
     if (error) {
         toast.error("Error", {
             description: error,
@@ -43,13 +59,13 @@ const BackgroundProgress = ({
         return;
     }
 
-    if (isCompleted) {
-        removeFromProgressTracker(id);
-        return;
-    }
-
     return (
-        <div className="flex flex-row items-center justify-between w-full bg-gray-50 p-2 border shadow rounded-md gap-4">
+        <div
+            className={cn(
+                isCompleted && "opacity-0",
+                "relative flex flex-row items-center justify-between w-full bg-gray-50 p-2 border shadow rounded-md gap-4 transition-opacity delay-100 duration-200"
+            )}
+        >
             <div className="flex flex-row items-center justify-start gap-2 w-full">
                 {fileType === "AUDIO" ? (
                     <FileAudio2 className="md:h-8 md:w-8 h-4 w-4" />
