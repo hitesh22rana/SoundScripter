@@ -15,7 +15,7 @@ if [[ "$OSTYPE" == "mswin" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" || "
     
     docker run -d -p 5432:5432 --name db-dev -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db -v $HOST_PATH:/var/lib/postgresql/data postgres:alpine
 else
-    docker run -d -p 5432:5432 --name db-dev -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db -v $PWD/backend/data:/var/lib/postgresql/data postgres:alpine
+    docker run -d -p 5432:5432 --name db-dev -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db -v $PWD/backend/data/db:/var/lib/postgresql/data postgres:alpine
 fi
 
 # Run the rabbitmq container for the message broker

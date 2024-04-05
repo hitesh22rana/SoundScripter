@@ -3,7 +3,7 @@
 dependencies:
 	@sh scripts/dependencies.sh
 
-run-services-dev:
+run-services-dev: check-requirements
 	@sh scripts/services-dev.sh
 
 run-task-queue-dev: dependencies
