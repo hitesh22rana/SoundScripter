@@ -6,7 +6,7 @@ cd backend/
 # Check if virtualenv is installed
 if ! command -v virtualenv &> /dev/null; then
     echo "Virtualenv is not installed. Installing now..."
-    pip3 install virtualenv
+    python3 -m pip install virtualenv
 fi
 
 # Create a virtual environment if not present

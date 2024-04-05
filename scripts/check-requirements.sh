@@ -1,8 +1,8 @@
-# !/bin/bash
+#!/bin/bash
 
 # Checks if a minimum of 4 CPU threads are available
 min_cpu_threads=4
-available_cpu_threads=$(nproc)
+available_cpu_threads=$(getconf _NPROCESSORS_CONF)
 
 if [ "$available_cpu_threads" -lt "$min_cpu_threads" ]; then
     echo "Error: Insufficient CPU threads. This application requires a minimum of $min_cpu_threads CPU threads, but your system has only $available_cpu_threads CPU threads."

@@ -4,7 +4,11 @@
 cd backend/
 
 # Activate the virtual environment
-source venv/Scripts/activate
+if [[ "$OSTYPE" == "mswin" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" || "$OSTYPE" == "win64" || "$OSTYPE" == "msys" ]]; then
+    source venv/Scripts/activate
+else
+    source venv/bin/activate
+fi
 
 # Check if ruff is already installed
 if ! pip3 show ruff &>/dev/null; then
