@@ -1,4 +1,4 @@
-.PHONY: dependencies run-task-queue-dev run-api-dev run-frontend-dev format lint lint-fix check-requirements run clean
+.PHONY: dependencies run-services-dev run-task-queue-dev run-api-dev run-frontend-dev format lint lint-fix check-requirements run clean
 
 dependencies:
 	@sh scripts/dependencies.sh

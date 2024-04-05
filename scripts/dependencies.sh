@@ -6,7 +6,13 @@ cd backend/
 # Check if virtualenv is installed
 if ! command -v virtualenv &> /dev/null; then
     echo "Virtualenv is not installed. Installing now..."
-    python3 -m pip install virtualenv
+    if [[ "$OSTYPE" == "mswin" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" || "$OSTYPE" == "win64" || "$OSTYPE" == "msys" ]]; then
+        # Install virtualenv using python on Windows
+        python -m pip install virtualenv
+    else
+        # Install virtualenv using python3 on Unix-like systems
+        python3 -m pip install virtualenv
+    fi
 fi
 
 # Create a virtual environment if not present

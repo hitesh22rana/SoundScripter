@@ -2,8 +2,7 @@
 # Path: backend\app\services\sse\notifications.py
 
 import asyncio
-
-from sse_starlette.sse import EventSourceResponse
+from typing import AsyncGenerator
 
 from app.utils.redis_client import redis_client
 from app.utils.shared import Channels
@@ -26,10 +25,10 @@ class NotificationsService:
         except Exception as e:
             print(e)
 
-    async def send(self) -> EventSourceResponse:
+    async def send(self) -> AsyncGenerator[str, str]:
         """
         Send message to a subscribed channel.
-        :return -> EventSourceResponse
+        :return -> AsyncGenerator[str, str]:
         """
 
         notifications_channel = await redis_client.subscribe_async(
@@ -46,3 +45,6 @@ class NotificationsService:
 
         except asyncio.exceptions.CancelledError as e:
             raise e
+
+        except Exception as e:
+            print(f"Error: {e}")
