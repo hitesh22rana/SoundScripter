@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { toast } from "sonner";
+import { useEffect, useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { toast } from 'sonner';
 import {
     ArrowUpDown,
     Download,
@@ -10,24 +10,24 @@ import {
     MoreHorizontal,
     FileAudio2,
     FileVideo2,
-} from "lucide-react";
-import { Button } from "@/src/components/ui/button";
-import { DataTable } from "@/src/components/ui/data-table";
-import TranscriptionTerminateModal from "@/src/components/dashboard/modals/TranscriptionTerminateModal";
-import Loader from "@/src/components/ui/loader";
+} from 'lucide-react';
+import { Button } from '@/src/components/ui/button';
+import { DataTable } from '@/src/components/ui/data-table';
+import TranscriptionTerminateModal from '@/src/components/dashboard/modals/TranscriptionTerminateModal';
+import Loader from '@/src/components/ui/loader';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
+} from '@/src/components/ui/dropdown-menu';
 
-import useModalStore from "@/src/store/modal";
-import useTranscriptionStore from "@/src/store/transcription";
-import { TranscriptionApiResponse } from "@/src/types/api";
-import { Media, Status } from "@/src/types/core";
-import { cn, dateFormatOptions } from "@/src/lib/utils";
+import useModalStore from '@/src/store/modal';
+import useTranscriptionStore from '@/src/store/transcription';
+import { TranscriptionApiResponse } from '@/src/types/api';
+import { Media, Status } from '@/src/types/core';
+import { cn, dateFormatOptions } from '@/src/lib/utils';
 
 const TranscriptionsList = () => {
     const { mountModal } = useModalStore();
@@ -42,7 +42,7 @@ const TranscriptionsList = () => {
             try {
                 await fetchTranscriptions();
             } catch (error: any) {
-                setError(error?.message || "Failed to fetch files data");
+                setError(error?.message || 'Failed to fetch files data');
             }
         })();
     }, [fetchTranscriptions]);
@@ -63,26 +63,26 @@ const TranscriptionsList = () => {
         try {
             await downloadTranscription(id, fileName);
 
-            toast.success("Success", {
-                description: "File download successfully",
+            toast.success('Success', {
+                description: 'File download successfully',
             });
         } catch (error: any) {
-            toast.error("Error", {
+            toast.error('Error', {
                 description:
-                    error?.message || "Failed to download transcription",
+                    error?.message || 'Failed to download transcription',
             });
         }
     }
 
     const columns: ColumnDef<TranscriptionApiResponse>[] = [
         {
-            accessorKey: "name",
+            accessorKey: 'name',
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === "asc")
+                            column.toggleSorting(column.getIsSorted() === 'asc')
                         }
                         className="flex flex-row items-center justify-start px-0 min-w-[120px] md:w-[320px] max-w-xs w-auto font-medium text-base text-black hover:text-gray-600"
                     >
@@ -94,13 +94,13 @@ const TranscriptionsList = () => {
             cell: ({ row }) => {
                 return (
                     <span className="line-clamp-1 max-w-xs">
-                        {row.getValue("name")}
+                        {row.getValue('name')}
                     </span>
                 );
             },
         },
         {
-            accessorKey: "type",
+            accessorKey: 'type',
             header: () => {
                 return (
                     <span className="min-w-[80px] font-medium md:text-base text-sm text-black line-clamp-1">
@@ -109,16 +109,16 @@ const TranscriptionsList = () => {
                 );
             },
             cell: ({ row }) => {
-                const value: Media = row.getValue("type") as Media;
+                const value: Media = row.getValue('type') as Media;
                 let icon;
                 let text;
                 switch (value) {
-                    case "AUDIO":
-                        text = "Audio";
+                    case 'AUDIO':
+                        text = 'Audio';
                         icon = <FileAudio2 className="md:h-5 md:w-5 h-4 w-4" />;
                         break;
-                    case "VIDEO":
-                        text = "Video";
+                    case 'VIDEO':
+                        text = 'Video';
                         icon = <FileVideo2 className="md:h-5 md:w-5 h-4 w-4" />;
                         break;
                 }
@@ -132,7 +132,7 @@ const TranscriptionsList = () => {
             },
         },
         {
-            accessorKey: "status",
+            accessorKey: 'status',
             header: () => {
                 return (
                     <span className="line-clamp-1 text-center font-medium md:text-base text-sm text-black">
@@ -141,30 +141,30 @@ const TranscriptionsList = () => {
                 );
             },
             cell: ({ row }) => {
-                const value: Status = row.getValue("status") as Status;
+                const value: Status = row.getValue('status') as Status;
                 let backgroundColor;
                 let fontColor;
                 let text;
                 switch (value) {
-                    case "DONE":
-                        backgroundColor = "bg-green-100";
-                        fontColor = "text-green-600";
-                        text = "Done";
+                    case 'DONE':
+                        backgroundColor = 'bg-green-100';
+                        fontColor = 'text-green-600';
+                        text = 'Done';
                         break;
-                    case "ERROR":
-                        backgroundColor = "bg-red-100";
-                        fontColor = "text-red-600";
-                        text = "Error";
+                    case 'ERROR':
+                        backgroundColor = 'bg-red-100';
+                        fontColor = 'text-red-600';
+                        text = 'Error';
                         break;
-                    case "PROCESSING":
-                        backgroundColor = "bg-blue-100";
-                        fontColor = "text-blue-600";
-                        text = "Processing";
+                    case 'PROCESSING':
+                        backgroundColor = 'bg-blue-100';
+                        fontColor = 'text-blue-600';
+                        text = 'Processing';
                         break;
-                    case "QUEUE":
-                        backgroundColor = "bg-yellow-100";
-                        fontColor = "text-yellow-600";
-                        text = "Queued";
+                    case 'QUEUE':
+                        backgroundColor = 'bg-yellow-100';
+                        fontColor = 'text-yellow-600';
+                        text = 'Queued';
                         break;
                 }
 
@@ -172,9 +172,9 @@ const TranscriptionsList = () => {
                     <div className="flex justify-start items-center w-[100px] mx-auto">
                         <span
                             className={cn(
-                                "py-1 px-2 text-center md:text-sm text-xs font-medium rounded-md w-full",
+                                'py-1 px-2 text-center md:text-sm text-xs font-medium rounded-md w-full',
                                 backgroundColor,
-                                fontColor
+                                fontColor,
                             )}
                         >
                             {text}
@@ -184,13 +184,13 @@ const TranscriptionsList = () => {
             },
         },
         {
-            accessorKey: "created_at",
+            accessorKey: 'created_at',
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === "asc")
+                            column.toggleSorting(column.getIsSorted() === 'asc')
                         }
                         className="flex flex-row items-center justify-start px-0 min-w-[120px] font-medium text-base text-black hover:text-gray-600"
                     >
@@ -203,9 +203,9 @@ const TranscriptionsList = () => {
                 return (
                     <span className="line-clamp-1">
                         {
-                            new Date(row.getValue("created_at")).toLocaleString(
-                                "en-US",
-                                dateFormatOptions as any
+                            new Date(row.getValue('created_at')).toLocaleString(
+                                'en-US',
+                                dateFormatOptions as any,
                             ) as unknown as string
                         }
                     </span>
@@ -213,13 +213,13 @@ const TranscriptionsList = () => {
             },
         },
         {
-            accessorKey: "completed_at",
+            accessorKey: 'completed_at',
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === "asc")
+                            column.toggleSorting(column.getIsSorted() === 'asc')
                         }
                         className="flex flex-row items-center justify-start px-0 min-w-[140px] font-medium text-base text-black hover:text-gray-600"
                     >
@@ -231,12 +231,12 @@ const TranscriptionsList = () => {
             cell: ({ row }) => {
                 return (
                     <span className="line-clamp-1">
-                        {row.getValue("completed_at")
+                        {row.getValue('completed_at')
                             ? (new Date(
-                                  row.getValue("completed_at")
+                                  row.getValue('completed_at'),
                               ).toLocaleString(
-                                  "en-US",
-                                  dateFormatOptions as any
+                                  'en-US',
+                                  dateFormatOptions as any,
                               ) as unknown as string)
                             : null}
                     </span>
@@ -244,12 +244,12 @@ const TranscriptionsList = () => {
             },
         },
         {
-            id: "actions",
+            id: 'actions',
             cell: ({ row }) => {
                 const transcription: TranscriptionApiResponse = row.original;
                 const isCompleted = transcription.completed_at !== null;
                 const isCompletedSuccessFully =
-                    isCompleted && transcription.status === "DONE";
+                    isCompleted && transcription.status === 'DONE';
 
                 return (
                     <DropdownMenu>
@@ -269,7 +269,7 @@ const TranscriptionsList = () => {
                                 onClick={() =>
                                     download(
                                         transcription.id,
-                                        transcription.name
+                                        transcription.name,
                                     )
                                 }
                             >
@@ -285,7 +285,7 @@ const TranscriptionsList = () => {
                                     mountModal(
                                         <TranscriptionTerminateModal
                                             {...transcription}
-                                        />
+                                        />,
                                     );
                                 }}
                             >

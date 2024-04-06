@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { toast } from "sonner";
-import { ModalUI } from "@/src/components/ui/modal";
-import { Button } from "@/src/components/ui/button";
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { ModalUI } from '@/src/components/ui/modal';
+import { Button } from '@/src/components/ui/button';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/src/components/ui/select";
+} from '@/src/components/ui/select';
 
-import useModalStore from "@/src/store/modal";
-import { FileApiResponse, TranscribeFileApiPayload } from "@/src/types/api";
-import { Language, Priorty } from "@/src/types/core";
-import { transcribeFile } from "@/src/lib/api";
+import useModalStore from '@/src/store/modal';
+import { FileApiResponse, TranscribeFileApiPayload } from '@/src/types/api';
+import { Language, Priorty } from '@/src/types/core';
+import { transcribeFile } from '@/src/lib/api';
 
 const TranscriptionFileModal = (file: FileApiResponse) => {
     const { unMountModal } = useModalStore();
@@ -36,12 +36,12 @@ const TranscriptionFileModal = (file: FileApiResponse) => {
                 priority: transibeFileApiPayload.priority,
             });
 
-            toast.success("Success", {
-                description: "File added for transcription",
+            toast.success('Success', {
+                description: 'File added for transcription',
             });
         } catch (error: any) {
-            toast.error("Error", {
-                description: error?.message || "Something went wrong",
+            toast.error('Error', {
+                description: error?.message || 'Something went wrong',
             });
         } finally {
             unMountModal();

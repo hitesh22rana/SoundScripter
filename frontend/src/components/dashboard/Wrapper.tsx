@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Topbar from "@/src/components/dashboard/Topbar";
+import Image from 'next/image';
+import Topbar from '@/src/components/dashboard/Topbar';
 
 type props = {
     children: string | JSX.Element | Array<JSX.Element> | React.ReactNode;

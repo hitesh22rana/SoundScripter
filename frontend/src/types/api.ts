@@ -1,4 +1,4 @@
-import { Language, Media, Priorty, Status } from "@/src/types/core";
+import { Language, Media, Priorty, Status } from '@/src/types/core';
 
 export type FileUploadApiPayload = {
     file: File;

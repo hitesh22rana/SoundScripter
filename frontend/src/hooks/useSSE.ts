@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 type Props = {
     url: string;
@@ -23,7 +23,7 @@ const useSSE = <T>({ url }: Props) => {
 
         eventSource.onerror = () => {
             setData(null);
-            setError("Error connecting to server");
+            setError('Error connecting to server');
         };
 
         return () => {

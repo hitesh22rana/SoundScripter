@@ -1,13 +1,13 @@
-import { create } from "zustand";
-import { createTrackedSelector } from "react-tracked";
+import { create } from 'zustand';
+import { createTrackedSelector } from 'react-tracked';
 
 import {
     fetchTranscriptionList,
     downloadTranscription,
     terminateTranscription,
-} from "@/src/lib/api";
-import { TranscriptionApiResponse } from "@/src/types/api";
-import { Status } from "@/src/types/core";
+} from '@/src/lib/api';
+import { TranscriptionApiResponse } from '@/src/types/api';
+import { Status } from '@/src/types/core';
 
 interface FileStoreType {
     data: TranscriptionApiResponse[] | null;
@@ -16,11 +16,11 @@ interface FileStoreType {
     updateTranscribeDataProgress: (
         id: string,
         status: Status,
-        completed_at: string | null
+        completed_at: string | null,
     ) => void;
     downloadTranscription: (id: string, fileName: string) => void;
     terminateTranscription: (id: string) => void;
-    removeTranscription: (id: string, field: "id" | "task_ids") => void;
+    removeTranscription: (id: string, field: 'id' | 'task_ids') => void;
 }
 
 const useTranscriptionStoreZustand = create<FileStoreType>((set, get) => ({
@@ -31,13 +31,13 @@ const useTranscriptionStoreZustand = create<FileStoreType>((set, get) => ({
             const { data } = await fetchTranscriptionList();
             set({ data: data });
         } catch (error: any) {
-            throw new Error(error?.detail || "Failed to fetch transcriptions");
+            throw new Error(error?.detail || 'Failed to fetch transcriptions');
         }
     },
     updateTranscribeDataProgress: (
         id: string,
         status: Status,
-        completed_at: string | null
+        completed_at: string | null,
     ) => {
         const data = structuredClone(get().data);
         if (!data) return;
@@ -58,7 +58,7 @@ const useTranscriptionStoreZustand = create<FileStoreType>((set, get) => ({
             await downloadTranscription(id, fileName);
         } catch (error: any) {
             throw new Error(
-                error?.detail || "Failed to download transcription"
+                error?.detail || 'Failed to download transcription',
             );
         }
     },
@@ -69,14 +69,14 @@ const useTranscriptionStoreZustand = create<FileStoreType>((set, get) => ({
             const data = structuredClone(get().data);
             if (!data) return;
 
-            get().removeTranscription(id, "id");
+            get().removeTranscription(id, 'id');
         } catch (error: any) {
             throw new Error(
-                error?.detail || "Failed to terminate transcription"
+                error?.detail || 'Failed to terminate transcription',
             );
         }
     },
-    removeTranscription: (id: string, field: "id" | "task_ids") => {
+    removeTranscription: (id: string, field: 'id' | 'task_ids') => {
         const data = structuredClone(get().data);
         if (!data) return;
 
@@ -87,6 +87,6 @@ const useTranscriptionStoreZustand = create<FileStoreType>((set, get) => ({
 }));
 
 const useTranscriptionStore = createTrackedSelector(
-    useTranscriptionStoreZustand
+    useTranscriptionStoreZustand,
 );
 export default useTranscriptionStore;

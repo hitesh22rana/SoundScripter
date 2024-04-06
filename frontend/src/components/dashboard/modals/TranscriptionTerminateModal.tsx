@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { toast } from "sonner";
-import { Button } from "@/src/components/ui/button";
-import { ModalUI } from "@/src/components/ui/modal";
+import { toast } from 'sonner';
+import { Button } from '@/src/components/ui/button';
+import { ModalUI } from '@/src/components/ui/modal';
 
-import useModalStore from "@/src/store/modal";
-import { TranscriptionApiResponse } from "@/src/types/api";
-import useTranscriptionStore from "@/srcstore/transcription";
+import useModalStore from '@/src/store/modal';
+import { TranscriptionApiResponse } from '@/src/types/api';
+import useTranscriptionStore from '@/srcstore/transcription';
 
 const TranscriptionTerminateModal = (
-    transcription: TranscriptionApiResponse
+    transcription: TranscriptionApiResponse,
 ) => {
     const { unMountModal } = useModalStore();
     const { terminateTranscription } = useTranscriptionStore();
@@ -18,13 +18,13 @@ const TranscriptionTerminateModal = (
         try {
             await terminateTranscription(id);
 
-            toast.success("Success", {
-                description: "File terminated successfully",
+            toast.success('Success', {
+                description: 'File terminated successfully',
             });
         } catch (error: any) {
-            toast.error("Error", {
+            toast.error('Error', {
                 description:
-                    error?.message || "Failed to terminate transcription",
+                    error?.message || 'Failed to terminate transcription',
             });
         } finally {
             unMountModal();

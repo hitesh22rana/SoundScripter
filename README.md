@@ -4,9 +4,9 @@ Simplify and Automate your transcription workflow with SoundScripter
 
 ## Features
 
--   **Media Transcription:** Convert media files (audio/video) to text with high accuracy.
--   **Scalable:** Utilizes a distributed architecture to handle multiple requests in parallel.
--   **Real-time Notifications:** Uses Redis Pub-Sub and Server-Sent Events (SSE) for real-time notifications
+- **Media Transcription:** Convert media files (audio/video) to text with high accuracy.
+- **Scalable:** Utilizes a distributed architecture to handle multiple requests in parallel.
+- **Real-time Notifications:** Uses Redis Pub-Sub and Server-Sent Events (SSE) for real-time notifications
 
 ## Architecture
 
@@ -30,59 +30,59 @@ To run SoundScripter locally or in a server environment, follow these steps:
 
 1. Clone this repository to your local machine
 
-    ```bash
-    git clone https://github.com/hitesh22rana/SoundScripter.git
-    ```
+   ```bash
+   git clone https://github.com/hitesh22rana/SoundScripter.git
+   ```
 
 2. Navigate to the SoundScripter directory
 
-    ```bash
-    cd SoundScripter
-    ```
+   ```bash
+   cd SoundScripter
+   ```
 
 3. Make sure to change the file permission, if not done already
 
-    ```bash
-    chmod +x scripts/build.sh scripts/check-requirements.sh
-    ```
+   ```bash
+   chmod +x scripts/build.sh scripts/check-requirements.sh
+   ```
 
 4. Check the requirements
 
-    ```bash
-    sh scripts/check-requirements.sh
-    ```
+   ```bash
+   sh scripts/check-requirements.sh
+   ```
 
-    or
+   or
 
-    ```bash
-    make check-requirements
-    ```
+   ```bash
+   make check-requirements
+   ```
 
 5. Build and run the application
 
-    ```bash
-    sh scripts/build.sh
-    ```
+   ```bash
+   sh scripts/build.sh
+   ```
 
-    or
+   or
 
-    ```bash
-    make run
-    ```
+   ```bash
+   make run
+   ```
 
 6. After the successful build your app will be up and running and you can access it via `http://localhost:3000`.
 
 7. Clean and remove the running application
 
-    ```bash
-    docker-compose -f docker-compose.yml down --remove-orphans
-    ```
+   ```bash
+   docker-compose -f docker-compose.yml down --remove-orphans
+   ```
 
-    or
+   or
 
-    ```bash
-    make clean
-    ```
+   ```bash
+   make clean
+   ```
 
 ## Contributions
 

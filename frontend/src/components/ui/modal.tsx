@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { X } from "lucide-react";
+import { useEffect } from 'react';
+import { X } from 'lucide-react';
 
-import useModalStore from "@/src/store/modal";
-import { cn } from "@/src/lib/utils";
+import useModalStore from '@/src/store/modal';
+import { cn } from '@/src/lib/utils';
 
 interface BaseModalUIProps {
     className?: string;
@@ -17,10 +17,10 @@ interface ModalUIProps extends BaseModalUIProps {
 
 const ModalUI = ({ onClose, className, children }: ModalUIProps) => {
     useEffect(() => {
-        document.body.style.overflow = "hidden";
+        document.body.style.overflow = 'hidden';
 
         return () => {
-            document.body.style.overflow = "auto";
+            document.body.style.overflow = 'auto';
         };
     }, []);
 
@@ -28,8 +28,8 @@ const ModalUI = ({ onClose, className, children }: ModalUIProps) => {
         <div className="fixed inset-0 z-[9999] flex h-full min-h-screen w-screen items-center justify-center overflow-auto bg-[url('/images/noise.png')] bg-black/30 p-0 backdrop-blur-lg">
             <div
                 className={cn(
-                    "relative flex flex-col items-center bg-white max-w-md md:w-full w-[95%] rounded gap-5 shadow-md md:px-6 px-5 md:py-5 py-4",
-                    className
+                    'relative flex flex-col items-center bg-white max-w-md md:w-full w-[95%] rounded gap-5 shadow-md md:px-6 px-5 md:py-5 py-4',
+                    className,
                 )}
             >
                 {onClose ? (
@@ -45,15 +45,15 @@ const ModalUI = ({ onClose, className, children }: ModalUIProps) => {
 };
 
 const ModalUIHeader = ({ className, children }: BaseModalUIProps) => {
-    return <div className={cn("w-full h-full", className)}>{children}</div>;
+    return <div className={cn('w-full h-full', className)}>{children}</div>;
 };
 
 const ModalUIHeading = ({ className, children }: BaseModalUIProps) => {
     return (
         <h3
             className={cn(
-                "md:text-3xl text-2xl font-bold text-gray-950",
-                className
+                'md:text-3xl text-2xl font-bold text-gray-950',
+                className,
             )}
         >
             {children}
@@ -65,8 +65,8 @@ const ModalUISubHeading = ({ className, children }: BaseModalUIProps) => {
     return (
         <h4
             className={cn(
-                "text-gray-600 md:text-lg text-sm text-center",
-                className
+                'text-gray-600 md:text-lg text-sm text-center',
+                className,
             )}
         >
             {children}
@@ -75,7 +75,7 @@ const ModalUISubHeading = ({ className, children }: BaseModalUIProps) => {
 };
 
 const ModalUIBody = ({ className, children }: BaseModalUIProps) => {
-    return <div className={cn("w-full h-full", className)}>{children}</div>;
+    return <div className={cn('w-full h-full', className)}>{children}</div>;
 };
 
 ModalUI.Header = ModalUIHeader;

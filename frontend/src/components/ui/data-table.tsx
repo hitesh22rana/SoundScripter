@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Fragment, useState } from "react";
-import Image from "next/image";
+import { Fragment, useState } from 'react';
+import Image from 'next/image';
 import {
     ColumnDef,
     SortingState,
@@ -10,7 +10,7 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
 import {
     Table,
@@ -19,8 +19,8 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/src/components/ui/table";
-import { Button } from "@/src/components/ui/button";
+} from '@/src/components/ui/table';
+import { Button } from '@/src/components/ui/button';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -63,7 +63,7 @@ export function DataTable<TData, TValue>({
                                                 : flexRender(
                                                       header.column.columnDef
                                                           .header,
-                                                      header.getContext()
+                                                      header.getContext(),
                                                   )}
                                         </TableHead>
                                     );
@@ -77,7 +77,7 @@ export function DataTable<TData, TValue>({
                                 <TableRow
                                     key={row.id}
                                     data-state={
-                                        row.getIsSelected() && "selected"
+                                        row.getIsSelected() && 'selected'
                                     }
                                 >
                                     {row.getVisibleCells().map((cell) => (
@@ -87,7 +87,7 @@ export function DataTable<TData, TValue>({
                                         >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext()
+                                                cell.getContext(),
                                             )}
                                         </TableCell>
                                     ))}

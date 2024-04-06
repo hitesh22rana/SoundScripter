@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
-import { toast } from "sonner";
+import { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
+import { toast } from 'sonner';
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "@/src/components/ui/popover";
-import { Button } from "@/src/components/ui/button";
-import { Bell, BadgeAlert, BadgeCheck, BadgeX } from "lucide-react";
+} from '@/src/components/ui/popover';
+import { Button } from '@/src/components/ui/button';
+import { Bell, BadgeAlert, BadgeCheck, BadgeX } from 'lucide-react';
 
-import useSSE from "@/src/hooks/useSSE";
-import useFileStore from "@/src/store/file";
-import useTranscriptionStore from "@/src/store/transcription";
-import { NotificationType, Status, Task } from "@/src/types/core";
-import { cn } from "@/src/lib/utils";
+import useSSE from '@/src/hooks/useSSE';
+import useFileStore from '@/src/store/file';
+import useTranscriptionStore from '@/src/store/transcription';
+import { NotificationType, Status, Task } from '@/src/types/core';
+import { cn } from '@/src/lib/utils';
 
 type Notification = {
     id: string;
@@ -33,7 +33,7 @@ type Notificationsdata = {
 
 const Notifications = () => {
     const { isConnected, data, error } = useSSE<Notification>({
-        url: "http://127.0.0.1:8000/api/v1/sse/notifications",
+        url: 'http://127.0.0.1:8000/api/v1/sse/notifications',
     });
 
     const { updateFilesDataProgress, fetchFiles } = useFileStore();
@@ -41,11 +41,11 @@ const Notifications = () => {
         useTranscriptionStore();
 
     const [allNotifications, setAllNotifications] = useState<Notification[]>(
-        [] as Notification[]
+        [] as Notification[],
     );
 
     const [notifications, setNotifications] = useState<Notificationsdata>(
-        {} as Notificationsdata
+        {} as Notificationsdata,
     );
 
     useEffect(() => {
@@ -54,45 +54,45 @@ const Notifications = () => {
         setAllNotifications((prev) => [...prev, data]);
 
         switch (data.type) {
-            case "SUCCESS":
-                toast.success("Success", {
+            case 'SUCCESS':
+                toast.success('Success', {
                     description: data.message,
                 });
                 break;
-            case "ERROR":
-                toast.error("Error", {
+            case 'ERROR':
+                toast.error('Error', {
                     description: data.message,
                 });
                 break;
-            case "INFO":
+            case 'INFO':
                 fetchFiles();
                 break;
         }
 
         switch (data.task) {
-            case "CONVERSION":
+            case 'CONVERSION':
                 updateFilesDataProgress(
                     data.id,
                     data.status,
-                    data.completed_at
+                    data.completed_at,
                 );
                 break;
-            case "OPTIMIZATION":
+            case 'OPTIMIZATION':
                 updateFilesDataProgress(
                     data.id,
                     data.status,
-                    data.completed_at
+                    data.completed_at,
                 );
                 break;
-            case "TRANSCRIPTION":
+            case 'TRANSCRIPTION':
                 updateTranscribeDataProgress(
                     data.id,
                     data.status,
-                    data.completed_at
+                    data.completed_at,
                 );
                 break;
-            case "TERMINATE":
-                removeTranscription(data.id, "task_ids");
+            case 'TERMINATE':
+                removeTranscription(data.id, 'task_ids');
                 break;
         }
     }, [
@@ -108,11 +108,11 @@ const Notifications = () => {
             setNotifications({
                 selected: selected,
                 data: allNotifications.filter((notification) =>
-                    tasks.includes(notification.task)
+                    tasks.includes(notification.task),
                 ),
             });
         },
-        [allNotifications]
+        [allNotifications],
     );
 
     if (!isConnected && !error) {
@@ -120,8 +120,8 @@ const Notifications = () => {
     }
 
     if (error) {
-        toast.error("Error", {
-            description: "Notification service unavailable",
+        toast.error('Error', {
+            description: 'Notification service unavailable',
         });
         return null;
     }
@@ -129,7 +129,7 @@ const Notifications = () => {
     return (
         <Popover
             onOpenChange={() =>
-                extractNotifications("files", ["CONVERSION", "OPTIMIZATION"])
+                extractNotifications('files', ['CONVERSION', 'OPTIMIZATION'])
             }
         >
             <PopoverTrigger className="relative w-8 h-8 rounded-full border shadow-sm bg-gray-50">
@@ -144,15 +144,15 @@ const Notifications = () => {
                     <Button
                         variant="link"
                         className={cn(
-                            "text-black text-base font-medium hover:no-underline hover:opacity-75 rounded-none py-0 -mb-[2px]",
-                            notifications.selected === "files"
-                                ? "border-b-2 border-black"
-                                : "border-b-0 mb-0"
+                            'text-black text-base font-medium hover:no-underline hover:opacity-75 rounded-none py-0 -mb-[2px]',
+                            notifications.selected === 'files'
+                                ? 'border-b-2 border-black'
+                                : 'border-b-0 mb-0',
                         )}
                         onClick={() =>
-                            extractNotifications("files", [
-                                "CONVERSION",
-                                "OPTIMIZATION",
+                            extractNotifications('files', [
+                                'CONVERSION',
+                                'OPTIMIZATION',
                             ])
                         }
                     >
@@ -161,13 +161,13 @@ const Notifications = () => {
                     <Button
                         variant="link"
                         className={`text-black text-base font-medium hover:no-underline hover:opacity-75 rounded-none py-0 -mb-[2px] ${
-                            notifications.selected === "transcriptions"
-                                ? "border-b-2 border-black"
-                                : "border-b-0 mb-0"
+                            notifications.selected === 'transcriptions'
+                                ? 'border-b-2 border-black'
+                                : 'border-b-0 mb-0'
                         }`}
                         onClick={() =>
-                            extractNotifications("transcriptions", [
-                                "TRANSCRIPTION",
+                            extractNotifications('transcriptions', [
+                                'TRANSCRIPTION',
                             ])
                         }
                     >
@@ -181,19 +181,19 @@ const Notifications = () => {
                             (notification: Notification, index: number) => {
                                 let icon;
                                 switch (notification.type) {
-                                    case "SUCCESS": {
+                                    case 'SUCCESS': {
                                         icon = (
                                             <BadgeCheck className="min-h-[24px] min-w-[24px]" />
                                         );
                                         break;
                                     }
-                                    case "INFO": {
+                                    case 'INFO': {
                                         icon = (
                                             <BadgeAlert className="min-h-[24px] min-w-[24px]" />
                                         );
                                         break;
                                     }
-                                    case "ERROR": {
+                                    case 'ERROR': {
                                         icon = (
                                             <BadgeX className="min-h-[24px] min-w-[24px]" />
                                         );
@@ -212,7 +212,7 @@ const Notifications = () => {
                                         </span>
                                     </div>
                                 );
-                            }
+                            },
                         )
                     ) : (
                         <div className="flex flex-col items-center justify-between gap-2 my-4">

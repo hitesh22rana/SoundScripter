@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Dropzone, { Accept } from "react-dropzone";
-import { toast } from "sonner";
-import { UploadCloud } from "lucide-react";
-import BackgroundProgress from "@/src/components/dashboard/BackgroundProgress";
-import { ModalUI } from "@/src/components/ui/modal";
-import { Button } from "@/src/components/ui/button";
-import Input from "@/src/components/ui/input";
+import { useState } from 'react';
+import Dropzone, { Accept } from 'react-dropzone';
+import { toast } from 'sonner';
+import { UploadCloud } from 'lucide-react';
+import BackgroundProgress from '@/src/components/dashboard/BackgroundProgress';
+import { ModalUI } from '@/src/components/ui/modal';
+import { Button } from '@/src/components/ui/button';
+import Input from '@/src/components/ui/input';
 
-import useModalStore from "@/src/store/modal";
-import useBackgroundProgressStore from "@/src/store/background-progress";
-import { FileUploadApiPayload } from "@/src/types/api";
-import { extractMediaType } from "@/src/lib/utils";
+import useModalStore from '@/src/store/modal';
+import useBackgroundProgressStore from '@/src/store/background-progress';
+import { FileUploadApiPayload } from '@/src/types/api';
+import { extractMediaType } from '@/src/lib/utils';
 
 const fileTypes: Accept = {
-    "video/*": [],
-    "audio/*": [],
+    'video/*': [],
+    'audio/*': [],
 };
 
 const FileUploadModal = () => {
@@ -34,23 +34,23 @@ const FileUploadModal = () => {
         if (!fileUploadApiPayload.file || !fileUploadApiPayload.name) return;
 
         const formData = new FormData();
-        formData.append("file", fileUploadApiPayload.file);
-        formData.append("name", fileUploadApiPayload.name);
+        formData.append('file', fileUploadApiPayload.file);
+        formData.append('name', fileUploadApiPayload.name);
 
-        toast.info("Info", {
-            description: "Uploading file",
+        toast.info('Info', {
+            description: 'Uploading file',
         });
 
         addToProgressTracker(
             <BackgroundProgress
                 id={Date.now()}
-                url={process.env.NEXT_PUBLIC_BACKEND_API_URL + "/files"}
+                url={process.env.NEXT_PUBLIC_BACKEND_API_URL + '/files'}
                 method="POST"
                 fileName={fileUploadApiPayload.name}
                 fileType={fileUploadApiPayload.type}
                 fileSize={fileUploadApiPayload.size}
                 payload={formData}
-            />
+            />,
         );
 
         unMountModal();
@@ -72,12 +72,12 @@ const FileUploadModal = () => {
                             acceptedFiles[acceptedFiles.length - 1];
                         const name =
                             selectedFile?.name
-                                .split(".")[0]
-                                .toLocaleLowerCase() ?? "";
+                                .split('.')[0]
+                                .toLocaleLowerCase() ?? '';
                         const type = extractMediaType(selectedFile.type);
                         if (!type) {
-                            toast.error("Error", {
-                                description: "Unsupported file type",
+                            toast.error('Error', {
+                                description: 'Unsupported file type',
                             });
                             return;
                         }

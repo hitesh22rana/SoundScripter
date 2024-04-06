@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Notifications from "@/src/components/dashboard/Notifications";
+import Image from 'next/image';
+import Notifications from '@/src/components/dashboard/Notifications';
 
 export default function Topbar() {
     return (

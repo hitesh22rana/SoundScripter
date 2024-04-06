@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { toast } from "sonner";
-import { Check, FileAudio2, FileVideo2, X } from "lucide-react";
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+import { Check, FileAudio2, FileVideo2, X } from 'lucide-react';
 
-import { cn, getFormattedDate, humanReadableSize } from "@/src/lib/utils";
-import useUploadWithProgress from "@/src/hooks/useUploadWithProgress";
-import useBackgroundProgressStore from "@/src/store/background-progress";
-import { Media } from "@/src/types/core";
+import { cn, getFormattedDate, humanReadableSize } from '@/src/lib/utils';
+import useUploadWithProgress from '@/src/hooks/useUploadWithProgress';
+import useBackgroundProgressStore from '@/src/store/background-progress';
+import { Media } from '@/src/types/core';
 
 type Props = {
     id: number;
     url: string;
-    method: "POST" | "PUT" | "PATCH";
+    method: 'POST' | 'PUT' | 'PATCH';
     fileName: string;
     fileType: Media;
     fileSize: number;
@@ -52,7 +52,7 @@ const BackgroundProgress = ({
     }, [id, isCompleted, removeFromProgressTracker]);
 
     if (error) {
-        toast.error("Error", {
+        toast.error('Error', {
             description: error,
         });
         removeFromProgressTracker(id);
@@ -62,12 +62,12 @@ const BackgroundProgress = ({
     return (
         <div
             className={cn(
-                isCompleted && "opacity-0",
-                "relative flex flex-row items-center justify-between w-full bg-gray-50 p-2 border shadow rounded-md gap-4 transition-opacity delay-100 duration-200"
+                isCompleted && 'opacity-0',
+                'relative flex flex-row items-center justify-between w-full bg-gray-50 p-2 border shadow rounded-md gap-4 transition-opacity delay-100 duration-200',
             )}
         >
             <div className="flex flex-row items-center justify-start gap-2 w-full">
-                {fileType === "AUDIO" ? (
+                {fileType === 'AUDIO' ? (
                     <FileAudio2 className="md:h-8 md:w-8 h-4 w-4" />
                 ) : (
                     <FileVideo2 className="md:h-8 md:w-8 h-4 w-4" />
@@ -87,15 +87,15 @@ const BackgroundProgress = ({
                 <div className="flex flex-row w-full h-1.5 rounded">
                     <span
                         className={cn(
-                            "bg-green-400 rounded",
-                            !isCompleted && "rounded-r-none"
+                            'bg-green-400 rounded',
+                            !isCompleted && 'rounded-r-none',
                         )}
                         style={{ width: `${progress}%` }}
                     />
                     <span
                         className={cn(
-                            "bg-gray-200 rounded",
-                            !isCompleted && "rounded-l-none"
+                            'bg-gray-200 rounded',
+                            !isCompleted && 'rounded-l-none',
                         )}
                         style={{ width: `${100 - progress}%` }}
                     />

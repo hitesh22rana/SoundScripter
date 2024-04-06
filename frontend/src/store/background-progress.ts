@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { createTrackedSelector } from "react-tracked";
+import { create } from 'zustand';
+import { createTrackedSelector } from 'react-tracked';
 
 interface BackgroundProgressStoreType {
     activeProgress: JSX.Element[];
@@ -29,17 +29,17 @@ const useBackgroundProgressStoreZustand = create<BackgroundProgressStoreType>(
                     }
 
                     return true;
-                }
+                },
             );
 
             set(() => ({
                 activeProgress: filteredProgressTracker,
             }));
         },
-    })
+    }),
 );
 
 const useBackgroundProgressStore = createTrackedSelector(
-    useBackgroundProgressStoreZustand
+    useBackgroundProgressStoreZustand,
 );
 export default useBackgroundProgressStore;

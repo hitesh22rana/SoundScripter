@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
-import { isError } from "@/src/lib/utils";
+import { isError } from '@/src/lib/utils';
 
 type Props = {
     url: string;
-    method: "POST" | "PUT" | "PATCH";
+    method: 'POST' | 'PUT' | 'PATCH';
     payload: any;
 };
 
@@ -21,7 +21,7 @@ const useUploadWithProgress = ({ url, method, payload }: Props) => {
                 reqRef.current = null;
             }
             setProgress(0);
-            setError("Upload cancelled");
+            setError('Upload cancelled');
         };
     }, []);
 
@@ -31,22 +31,22 @@ const useUploadWithProgress = ({ url, method, payload }: Props) => {
 
         req.open(method, url);
 
-        req.upload.addEventListener("progress", function (e) {
+        req.upload.addEventListener('progress', function (e) {
             const percentageUploaded = Math.floor((e.loaded / e.total) * 100);
             setProgress(percentageUploaded);
         });
 
-        req.addEventListener("load", function () {
+        req.addEventListener('load', function () {
             const statusCode = req.status;
 
             if (isError(statusCode)) {
                 const res = JSON.parse(req.response);
-                setError(res?.detail ?? "Something went wrong");
+                setError(res?.detail ?? 'Something went wrong');
             }
         });
 
-        req.addEventListener("abort", function () {
-            setError("Upload cancelled");
+        req.addEventListener('abort', function () {
+            setError('Upload cancelled');
         });
 
         req.send(payload);

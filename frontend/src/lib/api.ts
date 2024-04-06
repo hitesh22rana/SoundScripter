@@ -1,41 +1,41 @@
-import { TranscribeFileApiPayload } from "@/src/types/api";
-import { Sort } from "@/src/types/core";
+import { TranscribeFileApiPayload } from '@/src/types/api';
+import { Sort } from '@/src/types/core';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
 export async function fetchFileList(
     limit: number = 100,
     offset: number = 0,
-    sort: Sort = "DESC"
+    sort: Sort = 'DESC',
 ) {
     const res = await fetch(
         API_URL + `/files?limit=${limit}&offset=${offset}&sort=${sort}`,
         {
-            method: "GET",
+            method: 'GET',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
-        }
+        },
     );
 
     const data = await res.json();
 
     if (!res.ok) {
-        throw new Error(data.detail || "Something went wrong");
+        throw new Error(data.detail || 'Something went wrong');
     }
 
     return data;
 }
 
 export async function deleteFile(id: string) {
-    const res = await fetch(API_URL + "/files/" + id, {
-        method: "DELETE",
+    const res = await fetch(API_URL + '/files/' + id, {
+        method: 'DELETE',
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-        throw new Error(data.detail || "Something went wrong");
+        throw new Error(data.detail || 'Something went wrong');
     }
 
     return data;
@@ -44,30 +44,30 @@ export async function deleteFile(id: string) {
 export async function fetchTranscriptionList(
     limit: number = 100,
     offset: number = 0,
-    sort: Sort = "DESC"
+    sort: Sort = 'DESC',
 ) {
     const res = await fetch(
         API_URL +
             `/transcriptions?limit=${limit}&offset=${offset}&sort=${sort}`,
         {
-            method: "GET",
-        }
+            method: 'GET',
+        },
     );
 
     const data = await res.json();
 
     if (!res.ok) {
-        throw new Error(data.detail || "Something went wrong");
+        throw new Error(data.detail || 'Something went wrong');
     }
 
     return data;
 }
 
 export async function transcribeFile(payload: TranscribeFileApiPayload) {
-    const res = await fetch(API_URL + "/transcriptions", {
-        method: "POST",
+    const res = await fetch(API_URL + '/transcriptions', {
+        method: 'POST',
         headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
     });
@@ -75,24 +75,24 @@ export async function transcribeFile(payload: TranscribeFileApiPayload) {
     const data = await res.json();
 
     if (!res.ok) {
-        throw new Error(data.detail || "Something went wrong");
+        throw new Error(data.detail || 'Something went wrong');
     }
 
     return data;
 }
 
 export async function downloadTranscription(id: string, fileName: string) {
-    const res = await fetch(API_URL + "/transcriptions/" + id + "/download", {
-        method: "GET",
+    const res = await fetch(API_URL + '/transcriptions/' + id + '/download', {
+        method: 'GET',
     });
 
     if (!res.ok) {
-        throw new Error("File download failed");
+        throw new Error('File download failed');
     }
 
     const blob = await res.blob();
 
-    const downloadLink = document.createElement("a");
+    const downloadLink = document.createElement('a');
 
     const objectUrl = URL.createObjectURL(blob);
 
@@ -108,14 +108,14 @@ export async function downloadTranscription(id: string, fileName: string) {
 }
 
 export async function terminateTranscription(id: string) {
-    const res = await fetch(API_URL + "/transcriptions/" + id + "/terminate", {
-        method: "DELETE",
+    const res = await fetch(API_URL + '/transcriptions/' + id + '/terminate', {
+        method: 'DELETE',
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-        throw new Error(data.detail || "Something went wrong");
+        throw new Error(data.detail || 'Something went wrong');
     }
 
     return data;

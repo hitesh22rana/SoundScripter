@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { toast } from "sonner";
-import { Button } from "@/src/components/ui/button";
-import { ModalUI } from "@/src/components/ui/modal";
+import { toast } from 'sonner';
+import { Button } from '@/src/components/ui/button';
+import { ModalUI } from '@/src/components/ui/modal';
 
-import useModalStore from "@/src/store/modal";
-import useFileStore from "@/src/store/file";
-import { FileApiResponse } from "@/src/types/api";
+import useModalStore from '@/src/store/modal';
+import useFileStore from '@/src/store/file';
+import { FileApiResponse } from '@/src/types/api';
 
 const DeleteFileModal = (file: FileApiResponse) => {
     const { unMountModal } = useModalStore();
@@ -16,12 +16,12 @@ const DeleteFileModal = (file: FileApiResponse) => {
         try {
             await deleteFile(id, false);
 
-            toast.success("Success", {
-                description: "File deleted successfully",
+            toast.success('Success', {
+                description: 'File deleted successfully',
             });
         } catch (error: any) {
-            toast.error("Error", {
-                description: error?.message || "Failed to delete file",
+            toast.error('Error', {
+                description: error?.message || 'Failed to delete file',
             });
         } finally {
             unMountModal();

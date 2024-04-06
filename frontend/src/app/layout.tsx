@@ -1,31 +1,31 @@
-import type { Metadata } from "next";
-import { Open_Sans } from "next/font/google";
+import type { Metadata } from 'next';
+import { Open_Sans } from 'next/font/google';
 
-import Wrapper from "@/src/components/dashboard/Wrapper";
-import { Toaster } from "@/src/components/ui/sonner";
-import { Modal } from "@/src/components/ui/modal";
-import BackgroundProgressTracker from "@/src/components/dashboard/BackgroundProgressTracker";
+import Wrapper from '@/src/components/dashboard/Wrapper';
+import { Toaster } from '@/src/components/ui/sonner';
+import { Modal } from '@/src/components/ui/modal';
+import BackgroundProgressTracker from '@/src/components/dashboard/BackgroundProgressTracker';
 
-import "@/src/globals.css";
+import '@/src/globals.css';
 
 export const Font = Open_Sans({
-    weight: ["400", "500", "600", "700", "800"],
+    weight: ['400', '500', '600', '700', '800'],
     subsets: [
-        "cyrillic",
-        "cyrillic-ext",
-        "greek",
-        "greek-ext",
-        "hebrew",
-        "latin",
-        "latin-ext",
-        "vietnamese",
+        'cyrillic',
+        'cyrillic-ext',
+        'greek',
+        'greek-ext',
+        'hebrew',
+        'latin',
+        'latin-ext',
+        'vietnamese',
     ],
 });
 
 export const metadata: Metadata = {
-    title: "SoundScripter",
+    title: 'SoundScripter',
     description:
-        "Simplify and Automate your transcription workflow with SoundScripter",
+        'Simplify and Automate your transcription workflow with SoundScripter',
 };
 
 export default function RootLayout({

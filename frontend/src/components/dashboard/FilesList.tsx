@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { ColumnDef } from "@tanstack/react-table";
+import { useEffect, useState } from 'react';
+import { ColumnDef } from '@tanstack/react-table';
 import {
     ArrowUpDown,
     FileAudio2,
@@ -10,26 +10,26 @@ import {
     MoreHorizontal,
     Trash2,
     UploadCloud,
-} from "lucide-react";
-import { Button } from "@/src/components/ui/button";
-import { DataTable } from "@/src/components/ui/data-table";
-import FileUploadModal from "@/src/components/dashboard/modals/FileUploadModal";
-import TranscribeFileModal from "@/src/components/dashboard/modals/TranscribeFileModal";
-import DeleteFileModal from "@/src/components/dashboard/modals/DeleteFileModal";
-import Loader from "@/src/components/ui/loader";
+} from 'lucide-react';
+import { Button } from '@/src/components/ui/button';
+import { DataTable } from '@/src/components/ui/data-table';
+import FileUploadModal from '@/src/components/dashboard/modals/FileUploadModal';
+import TranscribeFileModal from '@/src/components/dashboard/modals/TranscribeFileModal';
+import DeleteFileModal from '@/src/components/dashboard/modals/DeleteFileModal';
+import Loader from '@/src/components/ui/loader';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/src/components/ui/dropdown-menu";
+} from '@/src/components/ui/dropdown-menu';
 
-import useModalStore from "@/src/store/modal";
-import useFileStore from "@/src/store/file";
-import { Media, Status } from "@/src/types/core";
-import { FileApiResponse } from "@/src/types/api";
-import { dateFormatOptions, cn } from "@/src/lib/utils";
+import useModalStore from '@/src/store/modal';
+import useFileStore from '@/src/store/file';
+import { Media, Status } from '@/src/types/core';
+import { FileApiResponse } from '@/src/types/api';
+import { dateFormatOptions, cn } from '@/src/lib/utils';
 
 const FilesList = () => {
     const { mountModal } = useModalStore();
@@ -43,14 +43,14 @@ const FilesList = () => {
             try {
                 await fetchFiles();
             } catch (error: any) {
-                setError(error?.message || "Failed to fetch files data");
+                setError(error?.message || 'Failed to fetch files data');
             }
         })();
     }, [fetchFiles]);
 
     if (error) {
         return (
-            <div className="flex justify-center items-center w-full h-40">
+            <div className="flex h-40 w-full items-center justify-center">
                 <span className="text-red-500">{error}</span>
             </div>
         );
@@ -62,15 +62,15 @@ const FilesList = () => {
 
     const columns: ColumnDef<FileApiResponse>[] = [
         {
-            accessorKey: "name",
+            accessorKey: 'name',
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === "asc")
+                            column.toggleSorting(column.getIsSorted() === 'asc')
                         }
-                        className="flex flex-row items-center justify-start px-0 min-w-[120px] md:w-[320px] max-w-xs w-auto font-medium text-base text-black hover:text-gray-600"
+                        className="flex w-auto min-w-[120px] max-w-xs flex-row items-center justify-start px-0 text-base font-medium text-black hover:text-gray-600 md:w-[320px]"
                     >
                         File name
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -80,37 +80,37 @@ const FilesList = () => {
             cell: ({ row }) => {
                 return (
                     <span className="line-clamp-1 max-w-xs">
-                        {row.getValue("name")}
+                        {row.getValue('name')}
                     </span>
                 );
             },
         },
         {
-            accessorKey: "type",
+            accessorKey: 'type',
             header: () => {
                 return (
-                    <span className="min-w-[80px] font-medium md:text-base text-sm text-black line-clamp-1">
+                    <span className="line-clamp-1 min-w-[80px] text-sm font-medium text-black md:text-base">
                         Media type
                     </span>
                 );
             },
             cell: ({ row }) => {
-                const value: Media = row.getValue("type") as Media;
+                const value: Media = row.getValue('type') as Media;
                 let icon;
                 let text;
                 switch (value) {
-                    case "AUDIO":
-                        text = "Audio";
-                        icon = <FileAudio2 className="md:h-5 md:w-5 h-4 w-4" />;
+                    case 'AUDIO':
+                        text = 'Audio';
+                        icon = <FileAudio2 className="h-4 w-4 md:h-5 md:w-5" />;
                         break;
-                    case "VIDEO":
-                        text = "Video";
-                        icon = <FileVideo2 className="md:h-5 md:w-5 h-4 w-4" />;
+                    case 'VIDEO':
+                        text = 'Video';
+                        icon = <FileVideo2 className="h-4 w-4 md:h-5 md:w-5" />;
                         break;
                 }
 
                 return (
-                    <div className="flex flex-row gap-2 line-clamp-1">
+                    <div className="line-clamp-1 flex flex-row gap-2">
                         {icon}
                         <span>{text}</span>
                     </div>
@@ -118,49 +118,49 @@ const FilesList = () => {
             },
         },
         {
-            accessorKey: "status",
+            accessorKey: 'status',
             header: () => {
                 return (
-                    <span className="line-clamp-1 text-center font-medium md:text-base text-sm text-black">
+                    <span className="line-clamp-1 text-center text-sm font-medium text-black md:text-base">
                         Status
                     </span>
                 );
             },
             cell: ({ row }) => {
-                const value: Status = row.getValue("status") as Status;
+                const value: Status = row.getValue('status') as Status;
                 let backgroundColor;
                 let fontColor;
                 let text;
                 switch (value) {
-                    case "DONE":
-                        backgroundColor = "bg-green-100";
-                        fontColor = "text-green-600";
-                        text = "Done";
+                    case 'DONE':
+                        backgroundColor = 'bg-green-100';
+                        fontColor = 'text-green-600';
+                        text = 'Done';
                         break;
-                    case "ERROR":
-                        backgroundColor = "bg-red-100";
-                        fontColor = "text-red-600";
-                        text = "Error";
+                    case 'ERROR':
+                        backgroundColor = 'bg-red-100';
+                        fontColor = 'text-red-600';
+                        text = 'Error';
                         break;
-                    case "PROCESSING":
-                        backgroundColor = "bg-blue-100";
-                        fontColor = "text-blue-600";
-                        text = "Processing";
+                    case 'PROCESSING':
+                        backgroundColor = 'bg-blue-100';
+                        fontColor = 'text-blue-600';
+                        text = 'Processing';
                         break;
-                    case "QUEUE":
-                        backgroundColor = "bg-yellow-100";
-                        fontColor = "text-yellow-600";
-                        text = "Queued";
+                    case 'QUEUE':
+                        backgroundColor = 'bg-yellow-100';
+                        fontColor = 'text-yellow-600';
+                        text = 'Queued';
                         break;
                 }
 
                 return (
-                    <div className="flex justify-start items-center w-[100px] mx-auto">
+                    <div className="mx-auto flex w-[100px] items-center justify-start">
                         <span
                             className={cn(
-                                "py-1 px-2 text-center md:text-sm text-xs font-medium rounded-md w-full",
+                                'w-full rounded-md px-2 py-1 text-center text-xs font-medium md:text-sm',
                                 backgroundColor,
-                                fontColor
+                                fontColor,
                             )}
                         >
                             {text}
@@ -170,15 +170,15 @@ const FilesList = () => {
             },
         },
         {
-            accessorKey: "created_at",
+            accessorKey: 'created_at',
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === "asc")
+                            column.toggleSorting(column.getIsSorted() === 'asc')
                         }
-                        className="flex flex-row items-center justify-start px-0 min-w-[120px] font-medium text-base text-black hover:text-gray-600"
+                        className="flex min-w-[120px] flex-row items-center justify-start px-0 text-base font-medium text-black hover:text-gray-600"
                     >
                         Uploaded at
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -186,12 +186,13 @@ const FilesList = () => {
                 );
             },
             cell: ({ row }) => {
+                console.log(row.getValue('created_at'));
                 return (
                     <span className="line-clamp-1">
                         {
-                            new Date(row.getValue("created_at")).toLocaleString(
-                                "en-US",
-                                dateFormatOptions as any
+                            new Date(row.getValue('created_at')).toLocaleString(
+                                'en-US',
+                                dateFormatOptions as any,
                             ) as unknown as string
                         }
                     </span>
@@ -199,15 +200,15 @@ const FilesList = () => {
             },
         },
         {
-            accessorKey: "completed_at",
+            accessorKey: 'completed_at',
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() =>
-                            column.toggleSorting(column.getIsSorted() === "asc")
+                            column.toggleSorting(column.getIsSorted() === 'asc')
                         }
-                        className="flex flex-row items-center justify-start px-0 min-w-[140px] font-medium text-base text-black hover:text-gray-600"
+                        className="flex min-w-[140px] flex-row items-center justify-start px-0 text-base font-medium text-black hover:text-gray-600"
                     >
                         Completed at
                         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -215,14 +216,15 @@ const FilesList = () => {
                 );
             },
             cell: ({ row }) => {
+                console.log(row.getValue('completed_at'));
                 return (
                     <span className="line-clamp-1">
-                        {row.getValue("completed_at")
+                        {row.getValue('completed_at')
                             ? (new Date(
-                                  row.getValue("completed_at")
+                                  row.getValue('completed_at'),
                               ).toLocaleString(
-                                  "en-US",
-                                  dateFormatOptions as any
+                                  'en-US',
+                                  dateFormatOptions as any,
                               ) as unknown as string)
                             : null}
                     </span>
@@ -230,22 +232,53 @@ const FilesList = () => {
             },
         },
         {
-            id: "actions",
+            accessorKey: 'time_taken',
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() =>
+                            column.toggleSorting(column.getIsSorted() === 'asc')
+                        }
+                        className="flex min-w-[120px] flex-row items-center justify-start px-0 text-base font-medium text-black hover:text-gray-600"
+                    >
+                        Time taken
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
+            cell: ({ row }) => {
+                const timeTakenInSec: number = Math.max(
+                    (Date.parse(row.getValue('completed_at')) -
+                        Date.parse(row.getValue('created_at'))) /
+                        1000,
+                    0,
+                );
+
+                const timeTaken: string = timeTakenInSec
+                    ? timeTakenInSec.toFixed(2) + 's'
+                    : 'Uploading...';
+
+                return <span className="line-clamp-1">{timeTaken}</span>;
+            },
+        },
+        {
+            id: 'actions',
             cell: ({ row }) => {
                 const file: FileApiResponse = row.original;
                 const isCompleted: boolean = file.completed_at !== null;
                 const isCompletedSuccessFully: boolean =
-                    isCompleted && file.status === "DONE";
+                    isCompleted && file.status === 'DONE';
 
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="outline"
-                                className="md:h-6 md:w-6 h-5 w-5 p-0 focus-within:ring-0 focus-within:outline-none focus-visible:ring-0"
+                                className="h-5 w-5 p-0 focus-within:outline-none focus-within:ring-0 focus-visible:ring-0 md:h-6 md:w-6"
                             >
                                 <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="md:h-4 md:w-4 h-3 w-3" />
+                                <MoreHorizontal className="h-3 w-3 md:h-4 md:w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
@@ -253,12 +286,12 @@ const FilesList = () => {
                                 className="cursor-pointer gap-2"
                                 onClick={() =>
                                     mountModal(
-                                        <TranscribeFileModal {...file} />
+                                        <TranscribeFileModal {...file} />,
                                     )
                                 }
                                 disabled={!isCompletedSuccessFully}
                             >
-                                <FileText className="md:h-4 md:w-4 h-3 w-3" />
+                                <FileText className="h-3 w-3 md:h-4 md:w-4" />
                                 Transcribe
                             </DropdownMenuItem>
 
@@ -281,10 +314,10 @@ const FilesList = () => {
     ];
 
     return (
-        <div className="flex flex-col w-full md:px-4 px-2 pt-5">
+        <div className="flex w-full flex-col px-2 pt-5 md:px-4">
             <Button
                 variant="default"
-                className="flex flex-row items-center gap-2 w-auto md:ml-auto md:mr-0 mx-auto md:text-sm text-xs md:py-4 md:px-4 py-3 px-8 mb-5"
+                className="mx-auto mb-5 flex w-auto flex-row items-center gap-2 px-8 py-3 text-xs md:ml-auto md:mr-0 md:px-4 md:py-4 md:text-sm"
                 onClick={() => mountModal(<FileUploadModal />)}
             >
                 <UploadCloud className="h-4 w-4" />
