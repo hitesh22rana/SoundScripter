@@ -1,34 +1,40 @@
-.PHONY: dependencies run-services-dev run-task-queue-dev run-api-dev run-frontend-dev format lint lint-fix check-requirements run clean
+.PHONY: dependencies-backend dependencies-frontend lint-backend lint-frontend format-backend format-frontend run-task-queue-dev run-api-dev run-client-dev run-services-dev check-requirements run clean
 
-dependencies:
-	@sh scripts/dependencies.sh
+dependencies-backend:
+	@sh scripts/backend/dependencies.sh
 
-run-services-dev: check-requirements
+dependencies-frontend:
+	@sh scripts/frontend/dependencies.sh
+
+lint-backend:
+	@sh scripts/backend/lint.sh
+
+lint-frontend:
+	@sh scripts/frontend/lint.sh
+
+format-backend:
+	@sh scripts/backend/format.sh
+
+format-frontend:
+	@sh scripts/frontend/format.sh
+
+run-task-queue-dev: lint-backend format-backend dependencies-backend
+	@sh scripts/backend/task-queue-dev.sh
+
+run-api-dev: lint-backend format-backend dependencies-backend
+	@sh scripts/backend/api-dev.sh
+
+run-client-dev: lint-frontend format-frontend dependencies-frontend
+	@sh scripts/frontend/run-dev.sh
+
+run-services-dev:
 	@sh scripts/services-dev.sh
-
-run-task-queue-dev: dependencies
-	@sh scripts/task-queue-dev.sh
-
-run-api-dev: dependencies
-	@sh scripts/api-dev.sh
-
-run-frontend-dev:
-	@sh scripts/frontend-dev.sh
-
-format:
-	@sh scripts/format.sh
-
-lint:
-	@sh scripts/lint.sh
-
-lint-fix:
-	@sh scripts/lint.sh --fix
 
 check-requirements:
 	@sh scripts/check-requirements.sh
 
 run: clean check-requirements
-	@sh scripts/build.sh
+	@sh scripts/run.sh
 
 clean:
 	@docker-compose -f docker-compose.yml down --remove-orphans

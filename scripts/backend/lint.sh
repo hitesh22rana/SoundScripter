@@ -16,9 +16,5 @@ if ! pip3 show ruff &>/dev/null; then
     pip3 install ruff
 fi
 
-# Check if the --fix argument is provided
-if [[ "$1" == "--fix" ]]; then
-    ruff check . --fix
-else
-    ruff check .
-fi
+# Lint the code
+ruff check . --fix
