@@ -29,8 +29,8 @@ class DockerClient:
                 cls.client = docker.from_env()
                 logger.info("Success: Docker client connected")
 
-        except docker.errors.DockerException:
-            logger.critical("Error: Docker client could not be connected")
+        except docker.errors.DockerException as e:
+            logger.critical("Error: Docker client could not be connected ", e)
             raise Exception()
 
     @classmethod
@@ -40,8 +40,8 @@ class DockerClient:
                 cls.client.close()
                 logger.info("Success: Docker client disconnected")
 
-        except docker.errors.DockerException:
-            logger.critical("Error: Docker client could not be disconnected")
+        except docker.errors.DockerException as e:
+            logger.critical("Error: Docker client could not be disconnected ", e)
             raise Exception()
 
     @classmethod
@@ -67,7 +67,7 @@ class DockerClient:
             )
 
         except Exception as e:
-            logger.critical("Error: Docker container could not be started")
+            logger.critical("Error: Docker container could not be started ", e)
             raise Exception(
                 {
                     "status_code": status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -80,8 +80,8 @@ class DockerClient:
         try:
             cls.client.containers.get(container_id=container_id).stop()
 
-        except docker.errors.NotFound:
-            logger.critical("Error: Docker container could not be found")
+        except docker.errors.NotFound as e:
+            logger.critical("Error: Docker container could not be found ", e)
             raise Exception(
                 {
                     "status_code": status.HTTP_404_NOT_FOUND,
@@ -90,7 +90,7 @@ class DockerClient:
             )
 
         except Exception as e:
-            logger.critical("Error: Docker container could not be stopped")
+            logger.critical("Error: Docker container could not be stopped ", e)
             raise Exception(
                 {
                     "status_code": status.HTTP_503_SERVICE_UNAVAILABLE,

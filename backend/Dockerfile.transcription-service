@@ -1,16 +1,17 @@
 # Base image
-FROM ubuntu:latest AS build
+FROM ubuntu:22.04 AS build
 
-# Upadte and install g++, make and wget
-RUN apt-get update \
-    && apt-get install -y g++ make wget
+# Upadte and install the required packages
+RUN apt-get update && \
+    apt-get install -y wget build-essential  \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Download and extract the files
 RUN mkdir /whisper && \
     wget -q https://github.com/ggerganov/whisper.cpp/tarball/master -O - | \
     tar -xz -C /whisper --strip-components 1
 
-# Set the workdir to /whisper
+# Set the working to /whisper
 WORKDIR /whisper
 
 # Download the quantized small.en model
@@ -20,14 +21,14 @@ RUN bash ./models/download-ggml-model.sh small.en
 RUN make main
 
 # Production image
-FROM debian:latest AS production
+FROM ubuntu:22.04 AS production
 
-# Update and ckean
-RUN apt-get update \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Update and clean
+RUN apt-get update && \
+    apt-get install -y build-essential  \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# Set the workdirectory
+# Set the working directory
 WORKDIR /root
 
 # make the models directory
@@ -38,4 +39,4 @@ COPY --from=build "/whisper/models/ggml-small.en.bin" "/root/models/ggml-small.e
 COPY --from=build /whisper/main /usr/local/bin/whisper
 
 # Set the entrypoint
-CMD ["bash"]
+CMD ["bash", "-c"]
