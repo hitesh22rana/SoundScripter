@@ -1,27 +1,56 @@
 # Base image
 FROM ubuntu:22.04 AS build
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 # Upadte and install the required packages
 RUN apt-get update && \
-    apt-get install -y wget build-essential  \
-    && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+    apt-get install -y wget cmake build-essential ca-certificates && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Download and extract the files
-RUN mkdir /whisper && \
-    wget -q https://github.com/ggerganov/whisper.cpp/tarball/master -O - | \
+ARG WHISPER_VERSION=v1.8.2
+RUN mkdir -p /whisper && \
+    wget -q "https://github.com/ggml-org/whisper.cpp/tarball/${WHISPER_VERSION}" -O - | \
     tar -xz -C /whisper --strip-components 1
 
 # Set the working to /whisper
 WORKDIR /whisper
 
+# CMakePresets.json for Unix Makefiles
+RUN cat > /whisper/CMakePresets.json <<'EOF'
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "whisper-static",
+            "displayName": "Build whisper.cpp static",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS_DEFAULT": "OFF",
+                "BUILD_SHARED_LIBS": "OFF",
+                "WHISPER_USE_SYSTEM_GGML": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        { "name": "whisper-static", "configurePreset": "whisper-static" }
+    ]
+}
+EOF
+
 # Download the quantized small.en model
 RUN bash ./models/download-ggml-model.sh small.en
 
-# Build the main file
-RUN make main
+# Configure and build with the preset (static linking)
+RUN cmake --preset whisper-static && \
+    cmake --build --preset whisper-static
 
 # Production image
 FROM ubuntu:22.04 AS production
+
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Update and clean
 RUN apt-get update && \
@@ -36,7 +65,7 @@ RUN mkdir /root/models
 
 # copy the required files from the build image
 COPY --from=build "/whisper/models/ggml-small.en.bin" "/root/models/ggml-small.en.bin"
-COPY --from=build /whisper/main /usr/local/bin/whisper
+COPY --from=build /whisper/build/bin/whisper-cli /usr/local/bin/whisper
 
 # Set the entrypoint
 CMD ["bash", "-c"]

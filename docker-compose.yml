@@ -1,47 +1,50 @@
-version: '3'
-name: 'soundscripter'
+name: "soundscripter"
 
 services:
     # Postgres database
     db:
-        image: postgres:alpine
+        image: postgres:18.0-alpine3.22
         container_name: db
         restart: always
         networks:
             - soundscripter
         ports:
-            - '5432:5432'
+            - "5432:5432"
         environment:
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=postgres
             - POSTGRES_DB=db
         volumes:
-            - ./backend/data/db:/var/lib/postgresql/data
+            - db:/var/lib/postgresql
         healthcheck:
-            test: ['CMD-SHELL', 'pg_isready -U postgres']
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
             interval: 10s
             timeout: 5s
             retries: 5
 
     # RabbitMQ message broker
     message-broker:
-        image: rabbitmq:latest
+        image: rabbitmq:4.2.0-alpine
         container_name: message-broker
         restart: always
+        volumes:
+            - message-broker:/var/lib/rabbitmq
         networks:
             - soundscripter
         ports:
-            - '5672:5672'
+            - "5672:5672"
 
     # Redis PubSub for realtime server side events notifications
     pub-sub:
-        image: redis
+        image: redis:8.2.1-alpine
         container_name: redis
         restart: always
+        volumes:
+            - pub-sub:/data
         networks:
             - soundscripter
         ports:
-            - '6379:6379'
+            - "6379:6379"
 
     # Celery task queue for task processing
     task-queue:
@@ -90,7 +93,7 @@ services:
             - POSTGRES_PASSWORD=postgres
             - POSTGRES_PORT=5432
         ports:
-            - '8000:8000'
+            - "8000:8000"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./backend/data:/api/data
@@ -108,10 +111,16 @@ services:
         environment:
             - NEXT_PUBLIC_BACKEND_API_URL=http://127.0.0.1:8000/api/v1
         ports:
-            - '3000:3000'
+            - "3000:3000"
         depends_on:
             - api
+
+volumes:
+    db:
+    pub-sub:
+    message-broker:
 
 networks:
     soundscripter:
         name: soundscripter
+        driver: bridge
