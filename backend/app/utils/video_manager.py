@@ -2,7 +2,7 @@
 # Path: backend\app\utils\video_manager.py
 
 from fastapi import status
-from moviepy.editor import AudioFileClip, VideoFileClip
+from moviepy import AudioFileClip, VideoFileClip
 
 from app.utils.file_manager import file_manager
 
@@ -60,7 +60,6 @@ class VideoManager:
                 nbytes=2,
                 codec="pcm_s16le",
                 buffersize=8192,
-                verbose=False,
                 logger=None,
             )
 
